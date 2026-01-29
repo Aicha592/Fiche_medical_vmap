@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Connexion – VMAP</title>
-
+<title>Connexion</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
     body {
-        background-color: #afcb61;
+        background-color: #f8f9fa;
         height: 100vh;
         display: flex;
         align-items: center;
@@ -20,7 +19,7 @@
         background-color: #fff;
         padding: 2rem;
         border-radius: 0.5rem;
-        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.2);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
         width: 100%;
         max-width: 420px;
     }
@@ -40,29 +39,36 @@
 <body>
 
 <div class="form-container">
-
     <h3 class="text-center mb-4 fw-bold" style="color:#456f48;">
-        Connexion 
+        Connexion
     </h3>
 
-    {{-- Erreurs --}}
-    @if ($errors->any())
+    {{-- Message d'erreur --}}
+    @if(session('error'))
         <div class="alert alert-danger text-center">
-            {{ $errors->first() }}
+            {{ session('error') }}
         </div>
     @endif
 
-    <form method="POST" action="{{ route('login') }}">
+    @if($errors->any())
+    <div class="alert alert-danger text-center">
+        @foreach ($errors->all() as $error)
+            <div>{{ $error }}</div>
+        @endforeach
+    </div>
+@endif
+
+    <form method="POST" action="{{ route('login.post') }}">
         @csrf
 
         <div class="mb-3">
-            <label for="email" class="form-label fw-bold">Email</label>
+            <label for="matricule" class="form-label fw-bold">Matricule</label>
             <input
-                type="email"
+                type="text"
                 class="form-control"
-                id="email"
-                name="email"
-                value="{{ old('email') }}"
+                id="matricule"
+                name="matricule"
+                value="{{ old('matricule') }}"
                 required
                 autofocus
             >
@@ -84,9 +90,7 @@
                 Se connecter
             </button>
         </div>
-
     </form>
-
 </div>
 
 </body>

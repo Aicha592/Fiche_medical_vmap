@@ -24,6 +24,7 @@ class User extends Model implements AuthenticatableContract
         'email',
         'password',
         'is_doctor',
+        'telephone'
     ];
 
     protected $hidden = [

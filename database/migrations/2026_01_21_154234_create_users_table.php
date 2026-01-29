@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();  // BIGINT UNSIGNED AUTO_INCREMENT
+            $table->id();
             $table->string('nom');
             $table->string('prenom');
             $table->string('matricule')->unique();
@@ -22,15 +22,13 @@ return new class extends Migration
             $table->string('email')->unique()->nullable();
             $table->string('password')->nullable();
             $table->boolean('is_doctor')->default(false);
+            $table->string('telephone')->nullable();
             $table->timestamps();
         });
     }
 
     public function down(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->dropColumn(['email', 'password', 'is_doctor']);
-    });
-}
-
+    {
+        Schema::dropIfExists('users');
+    }
 };

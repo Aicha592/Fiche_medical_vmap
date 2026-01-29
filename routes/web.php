@@ -1,31 +1,62 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MedicalVisitController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MedicalVisitController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SmsController;
 
-
-
+/*
+|--------------------------------------------------------------------------
+| REDIRECTION PAR DÉFAUT
+|--------------------------------------------------------------------------
+*/
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
+/*
+|--------------------------------------------------------------------------
+| AUTHENTIFICATION + OTP
+|--------------------------------------------------------------------------
+*/
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+
+Route::get('/otp', [AuthController::class, 'showOtp'])->name('otp.form');
+Route::post('/otp', [AuthController::class, 'verifyOtp'])->name('otp.verify');
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| ENVOI SMS (optionnel pour tests)
+|--------------------------------------------------------------------------
+*/
+Route::post('/send-sms', [SmsController::class, 'envoyerSms'])->name('sms.send');
+
+/*
+|--------------------------------------------------------------------------
+| ZONE PROTÉGÉE (APRÈS OTP)
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth')->group(function () {
 
-    // Page principale de l'application (après login)
+    // Tableau de bord
+    Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
+
+    // Page principale / visites médicales
     Route::get('/home', [MedicalVisitController::class, 'index'])->name('home');
 
-    // Recherche d'agents 
+    // Recherche agents
     Route::get('/agents/search', [UserController::class, 'search'])->name('agents.search');
 
-    // Enregistrement visite médicale
+    // Ajouter une visite médicale
     Route::post('/medical-visits', [MedicalVisitController::class, 'store'])->name('medical-visits.store');
 
-    // Profil médecin 
+    // Profil utilisateur
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-require __DIR__.'/auth.php';
