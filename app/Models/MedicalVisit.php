@@ -40,6 +40,7 @@ class MedicalVisit extends Model
         'synthese_risque',
         'synthese_facteurs',
         'synthese_actions',
+        'pdf_path',
     ];
 
     protected $casts = [

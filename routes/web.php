@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MedicalVisitController;
+use App\Http\Controllers\MedicalVisitQhseController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SmsController;
 
@@ -54,6 +55,12 @@ Route::middleware('auth')->group(function () {
 
     // Ajouter une visite médicale
     Route::post('/medical-visits', [MedicalVisitController::class, 'store'])->name('medical-visits.store');
+    Route::get('/medical-visits/{medicalVisit}/pdf', [MedicalVisitController::class, 'pdf'])->name('medical-visits.pdf');
+
+    // QHSE (RH uniquement)
+    Route::get('/medical-visits-qhse', [MedicalVisitQhseController::class, 'index'])->name('medical-visits.qhse.index');
+    Route::get('/medical-visits/{medicalVisit}/qhse', [MedicalVisitQhseController::class, 'edit'])->name('medical-visits.qhse.edit');
+    Route::put('/medical-visits/{medicalVisit}/qhse', [MedicalVisitQhseController::class, 'update'])->name('medical-visits.qhse.update');
 
     // Profil utilisateur
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

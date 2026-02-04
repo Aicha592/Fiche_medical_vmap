@@ -1,15 +1,388 @@
 <style>
-.bg-recap-custom {
-    background-color: #afcb61 ;
+:root {
+    --green-dark: #467049;
+    --green-light: #aeca5f;
+    --ink: #000000;
+    --ink-soft: #626160;
+    --paper: #ffffff;
+    --shadow: 0 16px 40px rgba(70, 112, 73, 0.18);
+    --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --font-title: "LOEW HEAVY", "LOEW Heavy", "Times New Roman", serif;
+    --font-strong: "ALLER BOLD", "Aller Bold", "Arial Black", sans-serif;
+    --font-body: "ALLER REGULAR", "Aller Regular", "Arial", sans-serif;
+    --font-light: "ALLER LIGHT", "Aller Light", "Arial", sans-serif;
+    --font-accent: "HAND OF SEAN", "Hand of Sean", "Comic Sans MS", cursive;
+}
+
+.medical-modal {
+    background: radial-gradient(1200px 500px at 10% -20%, rgba(174, 202, 95, 0.35), transparent),
+                radial-gradient(900px 420px at 110% 0%, rgba(70, 112, 73, 0.28), transparent),
+                #f7f8f2;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.medical-header {
+    background: linear-gradient(135deg, var(--green-dark), #36583a);
+    border-bottom: 4px solid rgba(174, 202, 95, 0.8);
+    padding: 20px 28px;
+}
+
+.medical-header .modal-title {
+    font-family: var(--font-title);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    font-size: 1.05rem;
+}
+
+.medical-header .btn-close,
+.bg-recap-custom .btn-close {
+    filter: invert(1);
+    opacity: 0.9;
+}
+
+.medical-body {
+    padding: 28px;
+    color: var(--ink);
+    font-family: var(--font-body);
+}
+
+.medical-section {
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 22px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(70, 112, 73, 0.12);
+    margin-bottom: 20px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.section-index {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--green-light);
+    color: var(--ink);
+    font-family: var(--font-strong);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 2px rgba(70, 112, 73, 0.25);
+}
+
+.section-title h5,
+.section-title h6 {
+    margin: 0;
+    font-family: var(--font-title);
+    text-transform: uppercase;
+    font-size: 1rem;
+    color: var(--green-dark);
+}
+
+.medical-section h6 {
+    font-family: var(--font-strong);
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.form-label {
+    font-family: var(--font-strong);
+    letter-spacing: 0.4px;
+    color: var(--ink);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.form-control,
+.form-select {
+    border-radius: var(--radius-sm);
+    border-color: rgba(70, 112, 73, 0.25);
+    background-color: #fbfcf6;
+    font-family: var(--font-body);
+    padding: 10px 12px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--green-dark);
+    box-shadow: 0 0 0 0.2rem rgba(70, 112, 73, 0.2);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: var(--green-dark);
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-right: 6px;
+}
+
+.option-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    margin: 4px 10px 4px 0;
+    border-radius: 999px;
+    background: rgba(174, 202, 95, 0.2);
+    border: 1px solid rgba(70, 112, 73, 0.2);
+    font-family: var(--font-light);
+    cursor: pointer;
+}
+
+.option-line input {
+    margin: 0;
+}
+
+.option-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+}
+
+.btn-primary-custom {
+    background-color: var(--green-dark);
+    border-color: var(--green-dark);
+    color: #fff;
+}
+
+.btn-primary-custom:hover {
+    background-color: #355c39;
+    border-color: #355c39;
+    color: #fff;
+}
+
+.btn-secondary-custom {
+    background-color: #e9eadf;
+    border-color: rgba(70, 112, 73, 0.2);
+    color: var(--ink);
+}
+
+.btn-secondary-custom:hover {
+    background-color: #dfe1d1;
+    border-color: rgba(70, 112, 73, 0.4);
+    color: var(--ink);
 }
 
 .btn-recap-custom {
-    background-color: #afcb61 ;
-    border-color: #afcb61 ;
-    color: #fff ;
+    background-color: var(--green-light);
+    border-color: var(--green-light);
+    color: var(--ink);
+    font-family: var(--font-strong);
 }
+
 .btn-recap-custom:hover {
-    background-color: #9fbb55 ;
+    background-color: #9fbb55;
+    color: var(--ink);
+}
+
+.bg-recap-custom {
+    background-color: var(--green-dark);
+}
+
+.recap-title {
+    font-family: var(--font-title);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.note-accent {
+    font-family: var(--font-accent);
+    color: var(--green-dark);
+    font-size: 0.95rem;
+}
+
+.medical-hero {
+    background: linear-gradient(130deg, rgba(70, 112, 73, 0.12), rgba(174, 202, 95, 0.25));
+    border-radius: var(--radius-lg);
+    padding: 22px 26px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(70, 112, 73, 0.2);
+}
+
+.medical-hero h3 {
+    font-family: var(--font-title);
+    letter-spacing: 0.7px;
+    color: var(--green-dark);
+    margin-bottom: 6px;
+}
+
+.medical-hero p {
+    font-family: var(--font-light);
+    color: var(--ink-soft);
+    margin: 0;
+}
+
+.medical-search {
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 20px 24px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(70, 112, 73, 0.12);
+}
+
+.medical-search .list-group-item {
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    border: 1px solid rgba(70, 112, 73, 0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.medical-search .list-group-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(70, 112, 73, 0.12);
+}
+
+#recapBody {
+    font-family: var(--font-body);
+}
+
+#recapBody h6 {
+    font-family: var(--font-strong);
+    color: var(--green-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#recapBody .recap-section {
+    background: var(--paper);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    border: 1px solid rgba(70, 112, 73, 0.12);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 16px;
+}
+
+#recapBody .recap-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+#recapBody .recap-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--green-light);
+    color: var(--ink);
+    font-family: var(--font-strong);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#recapBody .recap-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--green-dark);
+}
+
+#recapBody .list-group-item {
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(70, 112, 73, 0.12);
+    margin-bottom: 8px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    font-family: var(--font-body);
+}
+
+#recapBody .list-group {
+    border: 0;
+    padding-left: 0;
+}
+
+.recap-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-family: var(--font-strong);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border: 1px solid transparent;
+}
+
+.recap-badge-low {
+    background: rgba(174, 202, 95, 0.3);
+    color: var(--green-dark);
+    border-color: rgba(70, 112, 73, 0.25);
+}
+
+.recap-badge-mid {
+    background: rgba(70, 112, 73, 0.12);
+    color: #2b3f2f;
+    border-color: rgba(70, 112, 73, 0.3);
+}
+
+.recap-badge-high {
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--ink);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.recap-badge-very-high {
+    background: rgba(0, 0, 0, 0.15);
+    color: var(--ink);
+    border-color: rgba(0, 0, 0, 0.35);
+}
+
+.recap-badge-yes {
+    background: rgba(70, 112, 73, 0.2);
+    color: var(--green-dark);
+    border-color: rgba(70, 112, 73, 0.45);
+}
+
+.recap-badge-no {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--ink-soft);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+@media print {
+    body {
+        background: #fff !important;
+    }
+
+    .modal-backdrop,
+    #visitModal {
+        display: none !important;
+    }
+
+    #recapModal {
+        display: block !important;
+        position: static !important;
+    }
+
+    #recapModal .modal-dialog {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    #recapModal .modal-content {
+        box-shadow: none !important;
+        border: 0 !important;
+    }
+
+    #recapModal .modal-header,
+    #recapModal .modal-footer {
+        border: 0 !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
 }
 </style>
 
@@ -34,9 +407,9 @@
 <!-- Modal Formulaire Visite Médicale -->
 <div class="modal fade" id="visitModal" tabindex="-1">
     <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
-        <div class="modal-content">
+        <div class="modal-content medical-modal">
 
-            <div class="modal-header bg-primary-custom text-white">
+            <div class="modal-header medical-header text-white">
                 <h5 class="modal-title">FICHE MÉDICALE – VISITE MÉDICALE ANNUELLE DU PERSONNEL (VMAP) 2026</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -45,11 +418,16 @@
       class="needs-validation"
       novalidate>
                 @csrf
+                <input type="hidden" name="download_pdf" id="download_pdf" value="0">
 
-                <div class="modal-body">
+                <div class="modal-body medical-body">
 <div id="stepMedical">
                     <!-- I. IDENTIFICATION -->
-                    <h5 class="fw-bold">I. IDENTIFICATION DE L’AGENT</h5>
+                    <section class="medical-section">
+                    <div class="section-title">
+                        <span class="section-index">I</span>
+                        <h5>IDENTIFICATION DE L’AGENT</h5>
+                    </div>
 
                    <div class="row">
                        <div class="col-md-6 mb-3">
@@ -97,34 +475,40 @@
                            <input type="text" id="agent_site" name="site" class="form-control" readonly>
                        </div>
                    </div>
-
-                    <hr>
+                    </section>
 
                     <!-- II. ANTÉCÉDENTS -->
-                    <h5 class="fw-bold">II. ANTÉCÉDENTS MÉDICAUX</h5>
-
-                    <div class="mb-3">
-                        <input type="checkbox" name="antecedents[]" value="Diabète" > Diabète
-                        <input type="checkbox" name="antecedents[]" value="Asthme/ANS" > Asthme/ANS
-                        <input type="checkbox" name="antecedents[]" value="Cardiopathie" > Cardiopathie
-                        <input type="checkbox" name="antecedents[]" value="Traumato Orthopédie" > Traumato Orthopédie
-                        <input type="checkbox" name="antecedents[]" value="Autres"> Autres
+                    <section class="medical-section">
+                    <div class="section-title">
+                        <span class="section-index">II</span>
+                        <h5>ANTÉCÉDENTS MÉDICAUX</h5>
                     </div>
 
-                    <div class="mb-3">
-                        <input type="checkbox" name="antecedents[]" value="Accident du travail" > Accident du travail
-                        <input type="checkbox" name="antecedents[]" value="Maladie professionnelle"> Maladie professionnelle
+                    <div class="mb-3 option-group">
+                        <label class="option-line"><input type="checkbox" name="antecedents[]" value="Diabète" > Diabète</label>
+                        <label class="option-line"><input type="checkbox" name="antecedents[]" value="Asthme/ANS" > Asthme/ANS</label>
+                        <label class="option-line"><input type="checkbox" name="antecedents[]" value="Cardiopathie" > Cardiopathie</label>
+                        <label class="option-line"><input type="checkbox" name="antecedents[]" value="Traumato Orthopédie" > Traumato Orthopédie</label>
+                        <label class="option-line"><input type="checkbox" name="antecedents[]" value="Autres"> Autres</label>
+                    </div>
+
+                    <div class="mb-3 option-group">
+                        <label class="option-line"><input type="checkbox" name="antecedents[]" value="Accident du travail" > Accident du travail</label>
+                        <label class="option-line"><input type="checkbox" name="antecedents[]" value="Maladie professionnelle"> Maladie professionnelle</label>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Préciser</label>
                         <input type="text" name="antecedents_precisions" class="form-control" >
                     </div>
-
-                    <hr>
+                    </section>
 
                     <!-- III. EXAMEN CLINIQUE -->
-                    <h5 class="fw-bold">III. EXAMEN CLINIQUE</h5>
+                    <section class="medical-section">
+                    <div class="section-title">
+                        <span class="section-index">III</span>
+                        <h5>EXAMEN CLINIQUE</h5>
+                    </div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
@@ -147,198 +531,85 @@
                         <label class="form-label">Tension artérielle</label>
                         <input type="text" name="tension" class="form-control" placeholder="Ex: 120 / 80" required>
                     </div>
-
-                    <hr>
+                    </section>
 
                     <!-- IV. DEPITAGE RPS -->
-                    <h5 class="fw-bold">IV. DÉPISTAGE RPS</h5>
+                    <section class="medical-section">
+                    <div class="section-title">
+                        <span class="section-index">IV</span>
+                        <h5>DÉPISTAGE RPS</h5>
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Stress lié au travail</label><br>
-                        <input class="form-check-input" type="radio" name="stress" value="Non" required> Non
-                        <input class="form-check-input" type="radio" name="stress" value="Parfois"> Parfois
-                        <input class="form-check-input" type="radio" name="stress" value="Oui"> Oui
+                        <div class="option-group">
+                            <label class="option-line"><input class="form-check-input" type="radio" name="stress" value="Non" required> Non</label>
+                            <label class="option-line"><input class="form-check-input" type="radio" name="stress" value="Parfois"> Parfois</label>
+                            <label class="option-line"><input class="form-check-input" type="radio" name="stress" value="Oui"> Oui</label>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Troubles du sommeil</label><br>
-                        <input class="form-check-input" type="radio" name="sommeil" value="Non" required> Non
-                        <input class="form-check-input" type="radio" name="sommeil" value="Parfois"> Parfois
-                        <input class="form-check-input" type="radio" name="sommeil" value="Oui"> Oui
+                        <div class="option-group">
+                            <label class="option-line"><input class="form-check-input" type="radio" name="sommeil" value="Non" required> Non</label>
+                            <label class="option-line"><input class="form-check-input" type="radio" name="sommeil" value="Parfois"> Parfois</label>
+                            <label class="option-line"><input class="form-check-input" type="radio" name="sommeil" value="Oui"> Oui</label>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Charge de travail supportable</label><br>
-                        <input class="form-check-input" type="radio" name="charge_travail" value="Oui" required> Oui
-                        <input class="form-check-input" type="radio" name="charge_travail" value="Variable"> Variable
-                        <input class="form-check-input" type="radio" name="charge_travail" value="Non"> Non
+                        <div class="option-group">
+                            <label class="option-line"><input class="form-check-input" type="radio" name="charge_travail" value="Oui" required> Oui</label>
+                            <label class="option-line"><input class="form-check-input" type="radio" name="charge_travail" value="Variable"> Variable</label>
+                            <label class="option-line"><input class="form-check-input" type="radio" name="charge_travail" value="Non"> Non</label>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Soutien hiérarchique</label><br>
-                        <input class="form-check-input" type="radio" name="soutien" value="Oui" required> Oui
-                        <input class="form-check-input" type="radio" name="soutien" value="Peu"> Peu
-                        <input class="form-check-input" type="radio" name="soutien" value="Pas du tout"> Pas du tout
+                        <div class="option-group">
+                            <label class="option-line"><input class="form-check-input" type="radio" name="soutien" value="Oui" required> Oui</label>
+                            <label class="option-line"><input class="form-check-input" type="radio" name="soutien" value="Peu"> Peu</label>
+                            <label class="option-line"><input class="form-check-input" type="radio" name="soutien" value="Pas du tout"> Pas du tout</label>
+                        </div>
                     </div>
-
-                    <hr>
+                    </section>
 
                     <!-- V. AVIS MEDICAL -->
-                    <h5 class="fw-bold">V. AVIS MÉDICAL</h5>
-
-                    <div class="mb-3">
-                        <input type="radio" name="avis" value="Apte sans restriction" required> Apte sans restriction<br>
-                        <input type="radio" name="avis" value="Apte avec aménagement"> Apte avec aménagement<br>
-                        <input type="radio" name="avis" value="Inapte temporaire"> Inapte temporaire<br>
-                        <input type="radio" name="avis" value="Inapte définitif"> Inapte définitif<br>
+                    <section class="medical-section">
+                    <div class="section-title">
+                        <span class="section-index">V</span>
+                        <h5>AVIS MÉDICAL</h5>
                     </div>
 
-                    <hr>
+                    <div class="mb-3">
+                        <div class="option-group">
+                            <label class="option-line"><input type="radio" name="avis" value="Apte sans restriction" required> Apte sans restriction</label>
+                            <label class="option-line"><input type="radio" name="avis" value="Apte avec aménagement"> Apte avec aménagement</label>
+                            <label class="option-line"><input type="radio" name="avis" value="Inapte temporaire"> Inapte temporaire</label>
+                            <label class="option-line"><input type="radio" name="avis" value="Inapte définitif"> Inapte définitif</label>
+                        </div>
+                    </div>
+                    </section>
 
                     <!-- VI. OBSERVATIONS -->
-                <h5 class="fw-bold">VI. OBSERVATIONS / RECOMMANDATIONS</h5>
-    <textarea name="observations" class="form-control" rows="4" required></textarea>
+                <section class="medical-section">
+                <div class="section-title">
+                    <span class="section-index">VI</span>
+                    <h5>OBSERVATIONS / RECOMMANDATIONS</h5>
+                </div>
+                <textarea name="observations" class="form-control" rows="4" required></textarea>
+                <p class="note-accent mt-2 mb-0">Note clinique, recommandations, suivi proposé…</p>
+                </section>
 
     <div class="d-flex justify-content-end mt-4">
-        <button type="button" id="btnNextToQuestionnaire" class="btn btn-success">
-            Suivant ➜
+        <button type="button" id="btnShowRecap" class="btn btn-primary-custom text-white">
+            Enregistrer
         </button>
     </div>
 </div>
-                    <!-- ===== QUESTIONNAIRE QHSE / SST ===== -->
-                    <div id="stepQuestionnaire" style="display:none;">
-                        
-
-
-                    <h5 class="fw-bold">Questionnaire QHSE / SST</h5>
-                    <h6>II. CONTRAINTES PHYSIQUES ET ERGONOMIQUES</h6>
-                    <p><b>1. Manutention et efforts physiques</b></p>
-                    <input type="checkbox" name="qhse_manutention[]" value="Port manuel de charges lourdes" > Port manuel de charges lourdes<br>
-                    <input type="checkbox" name="qhse_manutention[]" value="Soulèvement fréquent"> Soulèvement fréquent<br>
-                    <input type="checkbox" name="qhse_manutention[]" value="Poussée / traction"> Poussée / traction<br>
-                    <input type="checkbox" name="qhse_manutention[]" value="Efforts physiques intenses"> Efforts physiques intenses<br><br>
-
-                    <p><b>2. Postures et gestes</b></p>
-                    <input type="checkbox" name="qhse_postures[]" value="Postures pénibles" > Postures pénibles<br>
-                    <input type="checkbox" name="qhse_postures[]" value="Gestes répétitifs"> Gestes répétitifs<br>
-                    <input type="checkbox" name="qhse_postures[]" value="Travail prolongé debout"> Travail prolongé debout<br>
-                    <input type="checkbox" name="qhse_postures[]" value="Travail accroupi"> Travail accroupi<br>
-                    <input type="checkbox" name="qhse_postures[]" value="Vibrations"> Vibrations<br>
-
-                    <hr>
-
-                    <h6>III. EXPOSITIONS AUX NUISANCES PROFESSIONNELLES</h6>
-                    <p><b>1. Nuisances physiques</b></p>
-                    <input type="checkbox" name="qhse_nuisances_physiques[]" value="Bruit élevé" > Bruit élevé<br>
-                    <input type="checkbox" name="qhse_nuisances_physiques[]" value="Chaleur / soleil intense"> Chaleur / soleil intense<br>
-                    <input type="checkbox" name="qhse_nuisances_physiques[]" value="Pluie / humidité"> Pluie / humidité<br>
-                    <input type="checkbox" name="qhse_nuisances_physiques[]" value="Froid / Vent"> Froid / Vent<br>
-                    <input type="checkbox" name="qhse_nuisances_physiques[]" value="Éclairage insuffisant"> Éclairage insuffisant<br><br>
-
-                    <p><b>2. Nuisances chimiques et biologiques</b></p>
-                    <input type="checkbox" name="qhse_nuisances_chimiques[]" value="Poussières" > Poussières<br>
-                    <input type="checkbox" name="qhse_nuisances_chimiques[]" value="Odeurs fortes"> Odeurs fortes<br>
-                    <input type="checkbox" name="qhse_nuisances_chimiques[]" value="Lixiviats"> Lixiviats<br>
-                    <input type="checkbox" name="qhse_nuisances_chimiques[]" value="Produits chimiques"> Produits chimiques<br>
-                    <input type="checkbox" name="qhse_nuisances_chimiques[]" value="Déchets médicaux"> Déchets médicaux<br>
-                    <input type="checkbox" name="qhse_nuisances_chimiques[]" value="Agents biologiques"> Agents biologiques<br>
-
-                    <hr>
-
-                    <h6>IV. RISQUES MÉCANIQUES ET ACCIDENTELS</h6>
-                    <input type="checkbox" name="qhse_risques[]" value="Circulation routière" > Circulation routière<br>
-                    <input type="checkbox" name="qhse_risques[]" value="Risque de chute"> Risque de chute<br>
-                    <input type="checkbox" name="qhse_risques[]" value="Coupures / piqûres"> Coupures / piqûres<br>
-                    <input type="checkbox" name="qhse_risques[]" value="Coincement / écrasement"> Coincement / écrasement<br>
-                    <input type="checkbox" name="qhse_risques[]" value="Incendie / explosion"> Incendie / explosion<br>
-                    <input type="checkbox" name="qhse_risques[]" value="Utilisation d’engins ou machines"> Utilisation d’engins ou machines<br>
-
-                    <hr>
-
-                    <h6>V. ORGANISATION DU TRAVAIL</h6>
-                    <input type="checkbox" name="qhse_organisation[]" value="Travail de nuit" > Travail de nuit<br>
-                    <input type="checkbox" name="qhse_organisation[]" value="Horaires décalés"> Horaires décalés<br>
-                    <input type="checkbox" name="qhse_organisation[]" value="Travail en rotation"> Travail en rotation<br>
-                    <input type="checkbox" name="qhse_organisation[]" value="Travail isolé"> Travail isolé<br>
-                    <input type="checkbox" name="qhse_organisation[]" value="Pression temporelle élevée"> Pression temporelle élevée<br>
-                    <input type="checkbox" name="qhse_organisation[]" value="Manque de pauses"> Manque de pauses<br>
-
-                    <hr>
-
-                    <h6>VI. EPI</h6>
-                    <p><b>1. Mise à disposition </b></p>
-                    <input type="checkbox" name="qhse_epi_dispo[]" value="Casque" > Casque<br>
-                    <input type="checkbox" name="qhse_epi_dispo[]" value="Gants"> Gants<br>
-                    <input type="checkbox" name="qhse_epi_dispo[]" value="Bottes"> Bottes<br>
-                    <input type="checkbox" name="qhse_epi_dispo[]" value="Masque"> Masque<br>
-                    <input type="checkbox" name="qhse_epi_dispo[]" value="Gilet haute visibilité"> Gilet haute visibilité<br>
-                    <input type="checkbox" name="qhse_epi_dispo[]" value="Autres"> Autres<br><br>
-
-                    <p><b>2. Utilisation </b></p>
-                    <input type="radio" name="qhse_epi_utilisation" value="Toujours" > Toujours
-                    <input type="radio" name="qhse_epi_utilisation" value="Souvent"> Souvent
-                    <input type="radio" name="qhse_epi_utilisation" value="Rarement"> Rarement
-                    <input type="radio" name="qhse_epi_utilisation" value="Jamais"> Jamais <br><br>
-
-                    <p><b>3. Difficultés rencontrées </b></p>
-                    <input type="checkbox" name="qhse_epi_difficulte[]" value="Inconfort" > Inconfort<br>
-                    <input type="checkbox" name="qhse_epi_difficulte[]" value="Inadaptation"> Inadaptation<br>
-                    <input type="checkbox" name="qhse_epi_difficulte[]" value="Usure rapide"> Usure rapide<br>
-                    <input type="checkbox" name="qhse_epi_difficulte[]" value="Indisponibilité"> Indisponibilité<br>
-
-                    <hr>
-
-                    <h6>VII. FORMATION ET INFORMATION SST</h6>
-                    <input type="checkbox" name="qhse_formation[]" value="Formation SST reçue" > Formation SST reçue<br>
-                    <input type="checkbox" name="qhse_formation[]" value="Sensibilisation aux risques"> Sensibilisation aux risques<br>
-                    <input type="checkbox" name="qhse_formation[]" value="Formation EPI"> Formation EPI<br>
-                    <input type="checkbox" name="qhse_formation[]" value="Formation conduite"> Formation conduite<br>
-                    <input type="checkbox" name="qhse_formation[]" value="Aucune formation récente"> Aucune formation récente<br>
-
-                    <hr>
-
-                    <h6>VIII. APPRÉCIATION GLOBALE</h6>
-                    <input type="radio" name="qhse_appreciation" value="Faible risque" > Faible risque
-                    <input type="radio" name="qhse_appreciation" value="Risque modéré"> Risque modéré
-                    <input type="radio" name="qhse_appreciation" value="Risque élevé"> Risque élevé
-                    <input type="radio" name="qhse_appreciation" value="Risque très élevé"> Risque très élevé
-
-                    <hr>
-
-                    <h6>IX. OBSERVATIONS / SUGGESTIONS</h6>
-                    <textarea name="qhse_observations" class="form-control" rows="4" ></textarea>
-
-                    <hr>
-
-                    <h6>X. SYNTHÈSE QHSE (À REMPLIR PAR QHSE / SST)</h6>
-                    <p><b>Poste à risque identifié </b> </p>
-                    <input type="radio" name="qhse_synthese_risque" value="Oui" > Oui
-                    <input type="radio" name="qhse_synthese_risque" value="Non"> Non<br><br>
-
-                    <p><b>Facteurs de risques dominants </b></p>
-                    <input type="checkbox" name="qhse_synthese_facteurs[]" value="Ergonomie" > Ergonomie
-                    <input type="checkbox" name="qhse_synthese_facteurs[]" value="Physique"> Physique
-                    <input type="checkbox" name="qhse_synthese_facteurs[]" value="Chimique"> Chimique
-                    <input type="checkbox" name="qhse_synthese_facteurs[]" value="Biologique"> Biologique
-                    <input type="checkbox" name="qhse_synthese_facteurs[]" value="Organisationnel"> Organisationnel<br><br>
-
-                    <p><b>Actions recommandées </b></p>
-                    <input type="checkbox" name="qhse_synthese_actions[]" value="Étude ergonomique" > Étude ergonomique
-                    <input type="checkbox" name="qhse_synthese_actions[]" value="Aménagement de poste"> Aménagement de poste
-                    <input type="checkbox" name="qhse_synthese_actions[]" value="Renforcement EPI"> Renforcement EPI
-                    <input type="checkbox" name="qhse_synthese_actions[]" value="Formation ciblée"> Formation ciblée
-                    <input type="checkbox" name="qhse_synthese_actions[]" value="Suivi SST"> Suivi SST
-
-                    <div class="d-flex justify-content-between mt-4">
-    <button type="button" id="btnBackToMedical" class="btn btn-secondary">
-        ⬅ Retour
-    </button>
-
-    <button type="button" id="btnShowRecap" class="btn btn-primary-custom text-white">
-        Enregistrer
-    </button>
-</div>
-                </div>
 
                 
 
@@ -358,7 +629,7 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-recap-custom text-white">
-                <h5 class="modal-title">Récapitulatif - Vérifiez avant d'enregistrer</h5>
+                <h5 class="modal-title recap-title">Récapitulatif - Vérifiez avant d'enregistrer</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
@@ -367,8 +638,14 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Retour</button>
-                <button type="button" id="confirmSave" class="btn btn-recap-custom">
+                <button type="button" class="btn btn-secondary-custom no-print" data-bs-dismiss="modal">Retour</button>
+                <button type="button" id="printRecap" class="btn btn-secondary-custom no-print">
+                    Imprimer
+                </button>
+                <button type="button" id="downloadPdf" class="btn btn-secondary-custom no-print">
+                    Télécharger PDF
+                </button>
+                <button type="button" id="confirmSave" class="btn btn-recap-custom no-print">
                     Confirmer et Enregistrer
                 </button>
             </div>
@@ -484,17 +761,69 @@ document.getElementById('btnShowRecap').addEventListener('click', function () {
         { title: 'DÉPISTAGE RPS', radios: ['stress','sommeil','charge_travail','soutien'] },
         { title: 'AVIS MÉDICAL', radios: ['avis'] },
         { title: 'OBSERVATIONS', textareas: ['observations'] },
-        { title: 'QUESTIONNAIRE QHSE / SST', prefix: 'qhse_' }
     ];
 
+    const recapBadges = {
+        'IDENTIFICATION': 'I',
+        'ANTÉCÉDENTS': 'II',
+        'EXAMEN CLINIQUE': 'III',
+        'DÉPISTAGE RPS': 'IV',
+        'AVIS MÉDICAL': 'V',
+        'OBSERVATIONS': 'VI'
+    };
+
+    const recapIcons = {
+        'IDENTIFICATION': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z"/></svg>',
+        'ANTÉCÉDENTS': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3H5c-1.1 0-2 .9-2 2v16l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-6 8h-2V9H9V7h2V5h2v2h2v2h-2v2z"/></svg>',
+        'EXAMEN CLINIQUE': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-3H7v-2h3V9h2v3h3v2h-3v3z"/></svg>',
+        'DÉPISTAGE RPS': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm2.07-7.75-.9.92C11.45 10.9 11 11.5 11 13h2v-.5c0-.55.45-1 1-1 1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2H9c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.54-.87 2.88-2.13 3.59z"/></svg>',
+        'AVIS MÉDICAL': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 10l-3-3 1.41-1.41L11 10.17l4.59-4.59L17 7l-6 6z"/></svg>',
+        'OBSERVATIONS': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41L18.37 3.29a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>'
+    };
+
+    const radioLabels = {
+        stress: 'Stress lié au travail',
+        sommeil: 'Troubles du sommeil',
+        charge_travail: 'Charge de travail supportable',
+        soutien: 'Soutien hiérarchique',
+        avis: 'Avis médical'
+    };
+
+    const fieldLabels = {
+        agent_nom: 'Nom et Prénom',
+        agent_matricule: 'Matricule',
+        agent_sexe: 'Sexe',
+        agent_age: 'Âge',
+        agent_direction: 'Direction / Département / Service',
+        agent_poste: 'Intitulé du poste occupé',
+        agent_anciennete: 'Ancienneté au poste',
+        agent_site: 'Site (R / D / C)',
+        taille: 'Taille (cm)',
+        poids: 'Poids (kg)',
+        imc: 'IMC',
+        tension: 'Tension artérielle',
+        observations: 'Observations / Recommandations'
+    };
+
     sections.forEach(section => {
-        recapHtml += `<h6 class="mt-3 fw-bold">${section.title}</h6><ul class="list-group mb-3">`;
+        const badge = recapBadges[section.title] || '•';
+        const icon = recapIcons[section.title] || '';
+        recapHtml += `
+            <div class="recap-section">
+                <div class="recap-title-row">
+                    <span class="recap-badge">${badge}</span>
+                    ${icon}
+                    <h6 class="fw-bold mb-0">${section.title}</h6>
+                </div>
+                <ul class="list-group mb-0">
+        `;
 
         // Champs simples par ID
         section.fields?.forEach(id => {
             const el = document.getElementById(id);
             if (el && el.value) {
-                recapHtml += `<li class="list-group-item"><strong>${el.previousElementSibling?.innerText || id} :</strong> ${el.value}</li>`;
+                const label = fieldLabels[id] || el.previousElementSibling?.innerText || id;
+                recapHtml += `<li class="list-group-item"><strong>${label} :</strong> ${el.value}</li>`;
             }
         });
 
@@ -502,7 +831,8 @@ document.getElementById('btnShowRecap').addEventListener('click', function () {
         section.radios?.forEach(name => {
             const checked = form.querySelector(`input[name="${name}"]:checked`);
             if (checked) {
-                recapHtml += `<li class="list-group-item"><strong>${name} :</strong> ${checked.value}</li>`;
+                const label = radioLabels[name] || name;
+                recapHtml += `<li class="list-group-item"><strong>${label} :</strong> ${checked.value}</li>`;
             }
         });
 
@@ -510,7 +840,8 @@ document.getElementById('btnShowRecap').addEventListener('click', function () {
         section.textareas?.forEach(name => {
             const el = form.querySelector(`textarea[name="${name}"]`);
             if (el && el.value) {
-                recapHtml += `<li class="list-group-item"><strong>${name} :</strong> ${el.value}</li>`;
+                const label = fieldLabels[name] || name;
+                recapHtml += `<li class="list-group-item"><strong>${label} :</strong> ${el.value}</li>`;
             }
         });
 
@@ -523,29 +854,34 @@ document.getElementById('btnShowRecap').addEventListener('click', function () {
             }
         }
 
-        // QHSE auto
-        if (section.prefix) {
-            const qhseFields = [...form.elements].filter(e => e.name?.startsWith(section.prefix));
-            const grouped = {};
-
-            qhseFields.forEach(el => {
-                if (el.checked) {
-                    grouped[el.name] ??= [];
-                    grouped[el.name].push(el.value);
-                }
-            });
-
-            Object.values(grouped).forEach(values => {
-                recapHtml += `<li class="list-group-item">${values.join(', ')}</li>`;
-            });
-        }
-
-        recapHtml += `</ul>`;
+        recapHtml += `</ul></div>`;
     });
 
     document.getElementById('recapBody').innerHTML = recapHtml;
 
     new bootstrap.Modal(document.getElementById('recapModal')).show();
+});
+
+document.getElementById('printRecap').addEventListener('click', function () {
+    window.print();
+});
+
+document.getElementById('downloadPdf').addEventListener('click', function () {
+    const form = document.getElementById('visitForm');
+    const downloadInput = document.getElementById('download_pdf');
+
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+    }
+
+    downloadInput.value = '1';
+    const previousTarget = form.target;
+    form.target = '_blank';
+    form.submit();
+
+    form.target = previousTarget || '';
+    downloadInput.value = '0';
 });
 
 // document.getElementById('confirmSave').addEventListener('click', function () {
@@ -595,61 +931,6 @@ document.getElementById('btnShowRecap').addEventListener('click', function () {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-    document.getElementById('btnNextToQuestionnaire').addEventListener('click', function () {
-
-        const stepMedical = document.getElementById('stepMedical');
-        let isValid = true;
-
-        stepMedical.querySelectorAll('input, textarea, select').forEach(el => {
-
-            // Champs invisibles
-            if (el.offsetParent === null) return;
-
-            // Champs readonly
-            if (el.readOnly) return;
-
-            // 👉 ANTÉCÉDENTS = PAS OBLIGATOIRE
-            if (el.type === 'checkbox' && el.name === 'antecedents[]') {
-                el.classList.remove('is-invalid');
-                return;
-            }
-
-            // Checkbox obligatoires (autres que antécédents)
-            if (el.type === 'checkbox' && el.name.endsWith('[]')) {
-                const group = stepMedical.querySelectorAll(`input[name="${el.name}"]`);
-                const checked = [...group].some(c => c.checked);
-
-                if (!checked) {
-                    isValid = false;
-                    group.forEach(c => c.classList.add('is-invalid'));
-                } else {
-                    group.forEach(c => c.classList.remove('is-invalid'));
-                }
-                return;
-            }
-
-            // Validation normale
-            if (!el.checkValidity()) {
-                el.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                el.classList.remove('is-invalid');
-            }
-        });
-
-        if (!isValid) return;
-
-        // Passage à l'étape suivante
-        stepMedical.style.display = 'none';
-        document.getElementById('stepQuestionnaire').style.display = 'block';
-        document.querySelector('.modal-body').scrollTop = 0;
-    });
-
-    document.getElementById('btnBackToMedical').addEventListener('click', function () {
-        document.getElementById('stepQuestionnaire').style.display = 'none';
-        document.getElementById('stepMedical').style.display = 'block';
-    });
 
 });
 </script>

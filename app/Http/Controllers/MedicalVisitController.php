@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\MedicalVisit;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MedicalVisitController extends Controller
 {
@@ -21,7 +23,14 @@ class MedicalVisitController extends Controller
 
     public function index()
     {
-        return view('medical_visits.index');
+        $recentVisits = MedicalVisit::with('user')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('medical_visits.index', [
+            'recentVisits' => $recentVisits,
+        ]);
     }
 
     public function store(Request $request)
@@ -40,7 +49,7 @@ class MedicalVisitController extends Controller
         $imc = $poids / (($taille / 100) * ($taille / 100));
         $imc = round($imc, 2);
 
-        MedicalVisit::create([
+        $visit = MedicalVisit::create([
             'user_id' => $request->user_id,
             'antecedents' => $request->antecedents,
             'antecedents_precisions' => $request->antecedents_precisions,
@@ -78,6 +87,56 @@ class MedicalVisitController extends Controller
     'synthese_actions' => $request->qhse_synthese_actions,
         ]);
 
-return redirect()->back()->with('success', 'Visite médicale enregistrée avec succès');
+        $this->storePdf($visit);
+
+        if ($request->boolean('download_pdf')) {
+            return $this->downloadPdf($visit);
+        }
+
+        return redirect()->back()->with('success', 'Visite médicale enregistrée avec succès');
+    }
+
+    public function pdf(MedicalVisit $medicalVisit)
+    {
+        $this->storePdf($medicalVisit);
+
+        return $this->downloadPdf($medicalVisit);
+    }
+
+    private function downloadPdf(MedicalVisit $medicalVisit)
+    {
+        $medicalVisit->load('user');
+
+        if ($medicalVisit->pdf_path && Storage::disk('local')->exists($medicalVisit->pdf_path)) {
+            $filename = 'fiche-medicale-' . $medicalVisit->id . '.pdf';
+            return Storage::disk('local')->download($medicalVisit->pdf_path, $filename);
+        }
+
+        $pdf = Pdf::loadView('medical_visits.pdf', [
+            'visit' => $medicalVisit,
+            'user' => $medicalVisit->user,
+        ])->setPaper('a4', 'portrait');
+
+        $filename = 'fiche-medicale-' . $medicalVisit->id . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    private function storePdf(MedicalVisit $medicalVisit): void
+    {
+        $medicalVisit->load('user');
+
+        $pdf = Pdf::loadView('medical_visits.pdf', [
+            'visit' => $medicalVisit,
+            'user' => $medicalVisit->user,
+        ])->setPaper('a4', 'portrait');
+
+        $path = 'medical_visits/fiche-medicale-' . $medicalVisit->id . '.pdf';
+        Storage::disk('local')->put($path, $pdf->output());
+
+        if ($medicalVisit->pdf_path !== $path) {
+            $medicalVisit->pdf_path = $path;
+            $medicalVisit->save();
+        }
     }
 }

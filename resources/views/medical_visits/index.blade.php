@@ -2,21 +2,59 @@
 
 @section('content')
 
-<div class="card shadow-sm mb-4">
-    <div class="card-body text-center">
-        <h3 class="text-primary-custom fw-bold" >
-           🩺 FICHE MÉDICALE – VISITE MÉDICALE ANNUELLE DU PERSONNEL (VMAP 2026)
-        </h3>
-    </div>
+<div class="medical-hero mb-4 text-center">
+    <h3>FICHE MÉDICALE – VISITE MÉDICALE ANNUELLE DU PERSONNEL (VMAP 2026)</h3>
+    <p>Recherchez un agent puis complétez la fiche médicale en quelques étapes.</p>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <label class="form-label fw-bold" style="color:#afcb61;" >Rechercher un agent</label>
-        <input type="text" id="search" class="form-control" placeholder="Nom, prénom ou matricule">
+<div class="medical-search">
+    <label class="form-label fw-bold">Rechercher un agent</label>
+    <input type="text" id="search" class="form-control" placeholder="Nom, prénom ou matricule">
 
-        <ul class="list-group mt-2" id="results"></ul>
-    </div>
+    <ul class="list-group mt-3" id="results"></ul>
+</div>
+
+<div class="medical-search mt-4">
+    <label class="form-label fw-bold">Dernières visites enregistrées</label>
+
+    @if($recentVisits->isEmpty())
+        <p class="mb-0 text-muted">Aucune visite enregistrée pour le moment.</p>
+    @else
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Agent</th>
+                        <th>Matricule</th>
+                        <th>Avis</th>
+                        <th class="text-end">PDF</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($recentVisits as $visit)
+                        @php
+                            $agentName = trim(($visit->user->nom ?? '') . ' ' . ($visit->user->prenom ?? ''));
+                            if ($agentName === '') {
+                                $agentName = $visit->user->name ?? '—';
+                            }
+                        @endphp
+                        <tr>
+                            <td>{{ $visit->created_at->format('d/m/Y') }}</td>
+                            <td>{{ $agentName }}</td>
+                            <td>{{ $visit->user->matricule ?? '—' }}</td>
+                            <td>{{ $visit->avis ?? '—' }}</td>
+                            <td class="text-end">
+                                <a class="btn btn-secondary-custom btn-sm" href="{{ route('medical-visits.pdf', $visit) }}" target="_blank">
+                                    Télécharger
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
 </div>
 
 @include('medical_visits.form')
