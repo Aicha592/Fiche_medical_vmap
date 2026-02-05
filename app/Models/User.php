@@ -24,6 +24,7 @@ class User extends Model implements AuthenticatableContract
         'email',
         'password',
         'is_doctor',
+        'role',
         'telephone'
     ];
 
@@ -35,5 +36,20 @@ class User extends Model implements AuthenticatableContract
     public function medicalVisits()
     {
         return $this->hasMany(MedicalVisit::class);
+    }
+
+    public function isDoctor(): bool
+    {
+        return $this->is_doctor || $this->role === 'doctor';
+    }
+
+    public function isRh(): bool
+    {
+        return $this->role === 'rh';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 }

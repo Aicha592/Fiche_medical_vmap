@@ -7,6 +7,9 @@ use App\Http\Controllers\MedicalVisitController;
 use App\Http\Controllers\MedicalVisitQhseController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SmsController;
+use App\Http\Controllers\Backoffice\DashboardController as BackofficeDashboardController;
+use App\Http\Controllers\Backoffice\MedicalRecordController;
+use App\Http\Controllers\Backoffice\UserAdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,4 +69,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | BACKOFFICE
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('backoffice')->name('backoffice.')->group(function () {
+        Route::get('/dashboard', [BackofficeDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/fiches', [MedicalRecordController::class, 'index'])->name('medical-records.index');
+        Route::get('/fiches/{medicalVisit}', [MedicalRecordController::class, 'show'])->name('medical-records.show');
+        Route::get('/utilisateurs', [UserAdminController::class, 'index'])->name('users.index');
+    });
 });

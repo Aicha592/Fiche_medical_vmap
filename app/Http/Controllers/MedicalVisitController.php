@@ -14,7 +14,7 @@ class MedicalVisitController extends Controller
         $this->middleware('auth');
 
         $this->middleware(function ($request, $next) {
-            if (!auth()->check() || !auth()->user()->is_doctor) {
+            if (!auth()->check() || !auth()->user()->isDoctor()) {
                 abort(403, 'Accès réservé au médecin');
             }
             return $next($request);
