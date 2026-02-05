@@ -43,6 +43,10 @@ class MedicalVisit extends Model
         'pdf_path',
         'created_by_user_id',
         'updated_by_user_id',
+        'manutention_frequence',
+        'manutention_precision',
+        'postures_penibilite',
+        'epi_autres',
     ];
 
     protected $casts = [

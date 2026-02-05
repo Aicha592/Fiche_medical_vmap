@@ -49,9 +49,18 @@ class MedicalVisitController extends Controller
         $imc = $poids / (($taille / 100) * ($taille / 100));
         $imc = round($imc, 2);
 
-        $visit = MedicalVisit::create([
-            'employee_id' => $request->employee_id,
-            'created_by_user_id' => $request->user()->id,
+        $visit = MedicalVisit::where('employee_id', $request->employee_id)
+            ->latest()
+            ->first();
+
+        if (!$visit) {
+            $visit = new MedicalVisit([
+                'employee_id' => $request->employee_id,
+                'created_by_user_id' => $request->user()->id,
+            ]);
+        }
+
+        $visit->fill([
             'updated_by_user_id' => $request->user()->id,
             'antecedents' => $request->antecedents,
             'antecedents_precisions' => $request->antecedents_precisions,
@@ -68,26 +77,22 @@ class MedicalVisitController extends Controller
 
             // QHSE / SST
             'contrainte_manutention' => $request->qhse_manutention,
-    'contrainte_postures' => $request->qhse_postures,
-
-    'nuisances_physiques' => $request->qhse_nuisances_physiques,
-    'nuisances_chimiques' => $request->qhse_nuisances_chimiques,
-
-    'risques_mecaniques' => $request->qhse_risques,
-    'organisation_travail' => $request->qhse_organisation,
-
-    'epi_disponibilite' => $request->qhse_epi_dispo,
-    'epi_utilisation' => $request->qhse_epi_utilisation,
-    'epi_difficultes' => $request->qhse_epi_difficulte,
-
-    'formation_sst' => $request->qhse_formation,
-    'appreciation_poste' => $request->qhse_appreciation,
-    'observations_qhse' => $request->qhse_observations,
-
-    'synthese_risque' => $request->qhse_synthese_risque,
-    'synthese_facteurs' => $request->qhse_synthese_facteurs,
-    'synthese_actions' => $request->qhse_synthese_actions,
+            'contrainte_postures' => $request->qhse_postures,
+            'nuisances_physiques' => $request->qhse_nuisances_physiques,
+            'nuisances_chimiques' => $request->qhse_nuisances_chimiques,
+            'risques_mecaniques' => $request->qhse_risques,
+            'organisation_travail' => $request->qhse_organisation,
+            'epi_disponibilite' => $request->qhse_epi_dispo,
+            'epi_utilisation' => $request->qhse_epi_utilisation,
+            'epi_difficultes' => $request->qhse_epi_difficulte,
+            'formation_sst' => $request->qhse_formation,
+            'appreciation_poste' => $request->qhse_appreciation,
+            'observations_qhse' => $request->qhse_observations,
+            'synthese_risque' => $request->qhse_synthese_risque,
+            'synthese_facteurs' => $request->qhse_synthese_facteurs,
+            'synthese_actions' => $request->qhse_synthese_actions,
         ]);
+        $visit->save();
 
         $this->storePdf($visit);
 
