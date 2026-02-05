@@ -7,7 +7,7 @@
             <div class="bo-muted">Gestion des comptes et des rôles.</div>
         </div>
         <form class="d-flex gap-2" method="GET" action="{{ route('backoffice.users.index') }}">
-            <input class="form-control" type="search" name="q" value="{{ $search }}" placeholder="Nom, matricule, email">
+            <input class="form-control" type="search" name="q" value="{{ $search }}" placeholder="Nom, email">
             <button class="btn btn-bo" type="submit">Rechercher</button>
         </form>
     </div>
@@ -21,7 +21,6 @@
                     <thead>
                         <tr>
                             <th>Nom</th>
-                            <th>Matricule</th>
                             <th>Email</th>
                             <th>Rôle</th>
                             <th>Doctor</th>
@@ -30,8 +29,7 @@
                     <tbody>
                         @foreach($users as $user)
                             <tr>
-                                <td>{{ $user->nom ?? '' }} {{ $user->prenom ?? '' }}</td>
-                                <td>{{ $user->matricule ?? '—' }}</td>
+                                <td>{{ $user->name ?? '—' }}</td>
                                 <td>{{ $user->email ?? '—' }}</td>
                                 <td>{{ $user->role ?? '—' }}</td>
                                 <td>{{ $user->is_doctor ? 'Oui' : 'Non' }}</td>

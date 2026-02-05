@@ -65,13 +65,13 @@
                             @endphp
                             <tr>
                                 <td>{{ $visit->created_at->format('d/m/Y') }}</td>
-                                <td>{{ $visit->user->nom ?? '' }} {{ $visit->user->prenom ?? '' }}</td>
-                                <td>{{ $visit->user->matricule ?? '—' }}</td>
+                                <td>{{ $visit->employee->nom ?? '' }} {{ $visit->employee->prenom ?? '' }}</td>
+                                <td>{{ $visit->employee->matricule ?? '—' }}</td>
                                 @if($user->isDoctor())
                                     <td>{{ $visit->imc ?? '—' }}</td>
                                     <td>{{ $visit->avis ?? '—' }}</td>
                                 @else
-                                    <td>{{ $visit->user->poste ?? '—' }}</td>
+                                    <td>{{ $visit->employee->emploi_occupe ?? '—' }}</td>
                                     <td>
                                         <span class="bo-pill">{{ $hasQhse ? 'Complété' : 'En attente' }}</span>
                                     </td>

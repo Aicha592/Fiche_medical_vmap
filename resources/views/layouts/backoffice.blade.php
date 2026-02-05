@@ -18,6 +18,10 @@
             --bo-accent-2: #b1c56a;
             --bo-border: #e4e0d8;
             --bo-shadow: 0 12px 30px rgba(20, 32, 24, 0.08);
+            --pagination-bg: #ffffff;
+            --pagination-border: #e4e0d8;
+            --pagination-text: #2a3a34;
+            --pagination-accent: #356a45;
         }
 
         body {
@@ -133,6 +137,45 @@
                 position: relative;
             }
         }
+
+        .pagination-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .pagination {
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 0;
+        }
+
+        .pagination .page-link {
+            border-radius: 999px;
+            border: 1px solid var(--pagination-border);
+            color: var(--pagination-text);
+            padding: 6px 12px;
+            min-width: 38px;
+            text-align: center;
+            background: var(--pagination-bg);
+            box-shadow: 0 6px 18px rgba(20, 32, 24, 0.08);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--pagination-accent);
+            color: #fff;
+            border-color: var(--pagination-accent);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #9aa69a;
+            border-color: #e6ebe3;
+            box-shadow: none;
+        }
+
+        .pagination .page-link:focus {
+            box-shadow: 0 0 0 0.2rem rgba(53, 106, 69, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -155,6 +198,10 @@
                        href="{{ route('backoffice.users.index') }}">
                         Utilisateurs
                     </a>
+                    <a class="nav-link {{ request()->routeIs('backoffice.employees.*') ? 'active' : '' }}"
+                       href="{{ route('backoffice.employees.index') }}">
+                        Employés
+                    </a>
                 @endif
             </nav>
         </aside>
@@ -162,7 +209,7 @@
         <main class="bo-content">
             <div class="bo-topbar">
                 <div>
-                    <div class="fw-semibold">Bonjour {{ auth()->user()->prenom }} {{ auth()->user()->nom }}</div>
+                    <div class="fw-semibold">Bonjour {{ auth()->user()->name ?? auth()->user()->email ?? 'Utilisateur' }}</div>
                     <div class="bo-muted">
                         @if(auth()->user()->isAdmin())
                             Administrateur

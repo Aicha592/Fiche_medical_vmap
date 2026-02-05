@@ -10,7 +10,7 @@ class MedicalVisit extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
+        'employee_id',
         'antecedents',
         'antecedents_precisions',
         'taille',
@@ -41,6 +41,8 @@ class MedicalVisit extends Model
         'synthese_facteurs',
         'synthese_actions',
         'pdf_path',
+        'created_by_user_id',
+        'updated_by_user_id',
     ];
 
     protected $casts = [
@@ -59,8 +61,18 @@ class MedicalVisit extends Model
         'synthese_actions' => 'array',
     ];
 
-    public function user()
+    public function employee()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by_user_id');
     }
 }

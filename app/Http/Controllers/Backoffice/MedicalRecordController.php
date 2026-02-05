@@ -14,8 +14,8 @@ class MedicalRecordController extends Controller
 
         $this->middleware(function ($request, $next) {
             $user = auth()->user();
-            if (!$user || (!$user->isDoctor() && !$user->isRh())) {
-                abort(403, 'Accès réservé au médecin ou au RH');
+            if (!$user || !$user->isAdmin()) {
+                abort(403, 'Accès réservé à l’administrateur');
             }
             return $next($request);
         });
@@ -26,10 +26,10 @@ class MedicalRecordController extends Controller
         $user = $request->user();
         $search = $request->string('q')->trim()->value();
 
-        $query = MedicalVisit::with('user')->latest();
+        $query = MedicalVisit::with('employee')->latest();
 
         if ($search !== '') {
-            $query->whereHas('user', function ($builder) use ($search) {
+            $query->whereHas('employee', function ($builder) use ($search) {
                 $builder->where('nom', 'like', "%{$search}%")
                     ->orWhere('prenom', 'like', "%{$search}%")
                     ->orWhere('matricule', 'like', "%{$search}%");
@@ -47,7 +47,7 @@ class MedicalRecordController extends Controller
 
     public function show(Request $request, MedicalVisit $medicalVisit)
     {
-        $medicalVisit->load('user');
+        $medicalVisit->load('employee');
 
         return view('backoffice.medical_records.show', [
             'user' => $request->user(),

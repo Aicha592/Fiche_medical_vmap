@@ -18,27 +18,28 @@ class AuthController extends Controller
         $this->sms = $sms;
     }
 
- 
+
     public function showLogin()
     {
         return view('auth.login');
     }
 
-  
+
     public function login(Request $request)
     {
         // Validation
         $request->validate([
-            'matricule' => 'required',
+            'email' => 'required|email',
             'password'  => 'required',
         ]);
 
-    
-        $user = User::where('matricule', $request->matricule)->first();
+        $user = User::where('email', $request->email)->first();
+
+        //dd('user', $user);
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return back()->withErrors([
-                'matricule' => 'Matricule ou mot de passe incorrect'
+                'email' => 'Email ou mot de passe incorrect'
             ])->withInput();
         }
 
@@ -52,7 +53,7 @@ class AuthController extends Controller
             'phone' => $user->telephone,
         ]);
 
-        // Envoyer le SMS 
+        // Envoyer le SMS
         try {
             $this->sms->sendSms(
                 $user->telephone,
@@ -75,7 +76,7 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
-    return view('auth.otp'); 
+    return view('auth.otp');
 }
 
 
@@ -109,10 +110,24 @@ class AuthController extends Controller
         // Nettoyer la session
         session()->forget(['otp', 'user_id', 'phone']);
 
+        $user = Auth::user();
+
+        if ($user?->isAdmin()) {
+            return redirect()->route('backoffice.dashboard')->with('success', 'Connexion réussie');
+        }
+
+        if ($user?->isRh()) {
+            return redirect()->route('medical-visits.qhse.index')->with('success', 'Connexion réussie');
+        }
+
+        if ($user?->isDoctor()) {
+            return redirect()->route('home')->with('success', 'Connexion réussie');
+        }
+
         return redirect()->route('home')->with('success', 'Connexion réussie');
     }
 
-   
+
     public function logout()
     {
         Auth::logout();

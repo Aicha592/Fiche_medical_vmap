@@ -433,7 +433,7 @@ input[type="radio"] {
                        <div class="col-md-6 mb-3">
                            <label class="form-label">Nom et Prénom</label>
                            <input type="text" id="agent_nom" class="form-control" readonly>
-                           <input type="hidden" name="user_id" id="agent_user_id">
+                           <input type="hidden" name="employee_id" id="agent_employee_id">
                        </div>
 
                        <div class="col-md-6 mb-3">
@@ -460,6 +460,23 @@ input[type="radio"] {
                    </div>
 
                    <div class="row">
+                       <div class="col-md-4 mb-3">
+                           <label class="form-label">Délégation / Région</label>
+                           <input type="text" id="agent_delegation" class="form-control" readonly>
+                       </div>
+
+                       <div class="col-md-4 mb-3">
+                           <label class="form-label">Service</label>
+                           <input type="text" id="agent_service" class="form-control" readonly>
+                       </div>
+
+                       <div class="col-md-4 mb-3">
+                           <label class="form-label">Unité communale</label>
+                           <input type="text" id="agent_unite_communale" class="form-control" readonly>
+                       </div>
+                   </div>
+
+                   <div class="row">
                        <div class="col-md-6 mb-3">
                            <label class="form-label">Intitulé du poste occupé</label>
                            <input type="text" id="agent_poste" name="poste" class="form-control" readonly>
@@ -473,6 +490,28 @@ input[type="radio"] {
                        <div class="col-md-3 mb-3">
                            <label class="form-label">Site (R / D / C)</label>
                            <input type="text" id="agent_site" name="site" class="form-control" readonly>
+                       </div>
+                   </div>
+
+                   <div class="row">
+                       <div class="col-md-3 mb-3">
+                           <label class="form-label">Date de naissance</label>
+                           <input type="text" id="agent_date_naissance" class="form-control" readonly>
+                       </div>
+
+                       <div class="col-md-3 mb-3">
+                           <label class="form-label">Date d'embauche</label>
+                           <input type="text" id="agent_date_embauche" class="form-control" readonly>
+                       </div>
+
+                       <div class="col-md-3 mb-3">
+                           <label class="form-label">Date de passage</label>
+                           <input type="text" id="agent_date_passage" class="form-control" readonly>
+                       </div>
+
+                       <div class="col-md-3 mb-3">
+                           <label class="form-label">Téléphone</label>
+                           <input type="text" id="agent_telephone" class="form-control" readonly>
                        </div>
                    </div>
                     </section>
@@ -665,22 +704,29 @@ input[type="radio"] {
             return;
         }
 
-        fetch(`/agents/search?q=${query}`)
+        fetch(`/employees/search?q=${query}`)
             .then(res => res.json())
             .then(data => {
                 let html = '';
                 data.forEach(agent => {
                     html += `
                         <a href="#" class="list-group-item list-group-item-action"
-                           data-id="${agent.id}"
+                           data-employee-id="${agent.employee_id}"
                            data-nom="${agent.name}"
                            data-matricule="${agent.matricule}"
                            data-sexe="${agent.sexe}"
                            data-age="${agent.age}"
+                           data-date-naissance="${agent.date_naissance ?? ''}"
+                           data-date-embauche="${agent.date_embauche ?? ''}"
                            data-direction="${agent.direction}"
+                           data-delegation="${agent.delegation_r ?? ''}"
+                           data-service="${agent.service ?? ''}"
+                           data-unite-communale="${agent.unite_communale ?? ''}"
                            data-poste="${agent.poste}"
                            data-anciennete="${agent.anciennete}"
-                           data-site="${agent.site}">
+                           data-site="${agent.site}"
+                           data-telephone="${agent.telephone ?? ''}"
+                           data-date-passage="${agent.date_passage ?? ''}">
                             ${agent.name} - ${agent.matricule}
                         </a>
                     `;
@@ -692,15 +738,22 @@ input[type="radio"] {
                     a.addEventListener('click', function(e){
                         e.preventDefault();
 
-                        document.getElementById('agent_user_id').value = this.dataset.id;
+                        document.getElementById('agent_employee_id').value = this.dataset.employeeId;
                         document.getElementById('agent_nom').value = this.dataset.nom;
                         document.getElementById('agent_matricule').value = this.dataset.matricule;
                         document.getElementById('agent_sexe').value = this.dataset.sexe;
                         document.getElementById('agent_age').value = this.dataset.age;
+                        document.getElementById('agent_date_naissance').value = this.dataset.dateNaissance || '';
+                        document.getElementById('agent_date_embauche').value = this.dataset.dateEmbauche || '';
                         document.getElementById('agent_direction').value = this.dataset.direction;
+                        document.getElementById('agent_delegation').value = this.dataset.delegation || '';
+                        document.getElementById('agent_service').value = this.dataset.service || '';
+                        document.getElementById('agent_unite_communale').value = this.dataset.uniteCommunale || '';
                         document.getElementById('agent_poste').value = this.dataset.poste;
                         document.getElementById('agent_anciennete').value = this.dataset.anciennete;
                         document.getElementById('agent_site').value = this.dataset.site;
+                        document.getElementById('agent_date_passage').value = this.dataset.datePassage || '';
+                        document.getElementById('agent_telephone').value = this.dataset.telephone || '';
 
                         // ouvrir modal
                         new bootstrap.Modal(document.getElementById('visitModal')).show();
@@ -755,7 +808,7 @@ document.getElementById('btnShowRecap').addEventListener('click', function () {
     let recapHtml = '';
 
     const sections = [
-        { title: 'IDENTIFICATION', fields: ['agent_nom','agent_matricule','agent_sexe','agent_age','agent_direction','agent_poste','agent_anciennete','agent_site'] },
+        { title: 'IDENTIFICATION', fields: ['agent_nom','agent_matricule','agent_sexe','agent_age','agent_date_naissance','agent_date_embauche','agent_direction','agent_delegation','agent_service','agent_unite_communale','agent_poste','agent_anciennete','agent_site','agent_date_passage','agent_telephone'] },
         { title: 'ANTÉCÉDENTS', nameEndsWith: 'antecedents' },
         { title: 'EXAMEN CLINIQUE', fields: ['taille','poids','imc','tension'] },
         { title: 'DÉPISTAGE RPS', radios: ['stress','sommeil','charge_travail','soutien'] },
@@ -794,10 +847,17 @@ document.getElementById('btnShowRecap').addEventListener('click', function () {
         agent_matricule: 'Matricule',
         agent_sexe: 'Sexe',
         agent_age: 'Âge',
+        agent_date_naissance: 'Date de naissance',
+        agent_date_embauche: "Date d'embauche",
         agent_direction: 'Direction / Département / Service',
+        agent_delegation: 'Délégation / Région',
+        agent_service: 'Service',
+        agent_unite_communale: 'Unité communale',
         agent_poste: 'Intitulé du poste occupé',
         agent_anciennete: 'Ancienneté au poste',
         agent_site: 'Site (R / D / C)',
+        agent_date_passage: 'Date de passage',
+        agent_telephone: 'Téléphone',
         taille: 'Taille (cm)',
         poids: 'Poids (kg)',
         imc: 'IMC',

@@ -23,7 +23,7 @@ class MedicalVisitController extends Controller
 
     public function index()
     {
-        $recentVisits = MedicalVisit::with('user')
+        $recentVisits = MedicalVisit::with('employee')
             ->latest()
             ->take(10)
             ->get();
@@ -36,7 +36,7 @@ class MedicalVisitController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'employee_id' => 'required|exists:employees,id',
             'taille' => 'required|numeric|min:50|max:250',
             'poids' => 'required|numeric|min:20|max:250',
             'tension' => 'nullable|string',
@@ -50,7 +50,9 @@ class MedicalVisitController extends Controller
         $imc = round($imc, 2);
 
         $visit = MedicalVisit::create([
-            'user_id' => $request->user_id,
+            'employee_id' => $request->employee_id,
+            'created_by_user_id' => $request->user()->id,
+            'updated_by_user_id' => $request->user()->id,
             'antecedents' => $request->antecedents,
             'antecedents_precisions' => $request->antecedents_precisions,
             'taille' => $taille,
@@ -105,7 +107,7 @@ class MedicalVisitController extends Controller
 
     private function downloadPdf(MedicalVisit $medicalVisit)
     {
-        $medicalVisit->load('user');
+        $medicalVisit->load('employee', 'createdBy.employee');
 
         if ($medicalVisit->pdf_path && Storage::disk('local')->exists($medicalVisit->pdf_path)) {
             $filename = 'fiche-medicale-' . $medicalVisit->id . '.pdf';
@@ -114,7 +116,7 @@ class MedicalVisitController extends Controller
 
         $pdf = Pdf::loadView('medical_visits.pdf', [
             'visit' => $medicalVisit,
-            'user' => $medicalVisit->user,
+            'employee' => $medicalVisit->employee,
         ])->setPaper('a4', 'portrait');
 
         $filename = 'fiche-medicale-' . $medicalVisit->id . '.pdf';
@@ -124,11 +126,11 @@ class MedicalVisitController extends Controller
 
     private function storePdf(MedicalVisit $medicalVisit): void
     {
-        $medicalVisit->load('user');
+        $medicalVisit->load('employee', 'createdBy.employee');
 
         $pdf = Pdf::loadView('medical_visits.pdf', [
             'visit' => $medicalVisit,
-            'user' => $medicalVisit->user,
+            'employee' => $medicalVisit->employee,
         ])->setPaper('a4', 'portrait');
 
         $path = 'medical_visits/fiche-medicale-' . $medicalVisit->id . '.pdf';

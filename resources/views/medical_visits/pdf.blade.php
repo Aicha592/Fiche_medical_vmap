@@ -103,15 +103,22 @@
 </head>
 <body>
     @php
-        $fullName = trim(($user?->nom ?? '') . ' ' . ($user?->prenom ?? ''));
+        $fullName = trim(($employee?->nom ?? '') . ' ' . ($employee?->prenom ?? ''));
         if ($fullName === '') {
-            $fullName = $user?->name ?? '—';
+            $fullName = '—';
         }
     @endphp
 
     <div class="header">
         <h1>Fiche médicale – VMAP 2026</h1>
-        <p>Agent : {{ $fullName }} | Matricule : {{ $user?->matricule ?? '—' }}</p>
+        @php
+            $createdByName = trim(($visit->createdBy?->nom ?? '') . ' ' . ($visit->createdBy?->prenom ?? ''));
+            if ($createdByName === '') {
+                $createdByName = $visit->createdBy?->name ?? '—';
+            }
+        @endphp
+        <p>Agent : {{ $fullName }} | Matricule : {{ $employee?->matricule ?? '—' }}</p>
+        <p>Enregistré par : {{ $createdByName }}</p>
     </div>
 
     @php
@@ -127,13 +134,20 @@
         <div class="section-title">Identification</div>
         <table class="grid">
             <tr><td class="label">Nom et prénom</td><td class="value">{{ $fullName }}</td></tr>
-            <tr><td class="label">Matricule</td><td class="value">{{ $user?->matricule ?? '—' }}</td></tr>
-            <tr><td class="label">Sexe</td><td class="value">{{ $user?->sexe ?? '—' }}</td></tr>
-            <tr><td class="label">Âge</td><td class="value">{{ $user?->age ?? '—' }}</td></tr>
-            <tr><td class="label">Direction</td><td class="value">{{ $user?->direction ?? '—' }}</td></tr>
-            <tr><td class="label">Poste</td><td class="value">{{ $user?->poste ?? '—' }}</td></tr>
-            <tr><td class="label">Ancienneté</td><td class="value">{{ $user?->anciennete ?? '—' }}</td></tr>
-            <tr><td class="label">Site</td><td class="value">{{ $user?->site ?? '—' }}</td></tr>
+            <tr><td class="label">Matricule</td><td class="value">{{ $employee?->matricule ?? '—' }}</td></tr>
+            <tr><td class="label">Sexe</td><td class="value">{{ $employee?->sexe ?? '—' }}</td></tr>
+            <tr><td class="label">Âge</td><td class="value">{{ $employee?->age ?? '—' }}</td></tr>
+            <tr><td class="label">Date de naissance</td><td class="value">{{ $employee?->date_naissance?->format('d/m/Y') ?? '—' }}</td></tr>
+            <tr><td class="label">Date d'embauche</td><td class="value">{{ $employee?->date_embauche?->format('d/m/Y') ?? '—' }}</td></tr>
+            <tr><td class="label">Direction</td><td class="value">{{ $employee?->direction ?? '—' }}</td></tr>
+            <tr><td class="label">Délégation / Région</td><td class="value">{{ $employee?->delegation_r ?? '—' }}</td></tr>
+            <tr><td class="label">Service</td><td class="value">{{ $employee?->service ?? '—' }}</td></tr>
+            <tr><td class="label">Unité communale</td><td class="value">{{ $employee?->unite_communale ?? '—' }}</td></tr>
+            <tr><td class="label">Poste</td><td class="value">{{ $employee?->emploi_occupe ?? '—' }}</td></tr>
+            <tr><td class="label">Ancienneté</td><td class="value">{{ $employee?->anciennete ?? '—' }}</td></tr>
+            <tr><td class="label">Site</td><td class="value">{{ $employee?->site ?? '—' }}</td></tr>
+            <tr><td class="label">Téléphone</td><td class="value">{{ $employee?->telephone ?? '—' }}</td></tr>
+            <tr><td class="label">Date de passage</td><td class="value">{{ $employee?->date_passage?->format('d/m/Y') ?? '—' }}</td></tr>
         </table>
     </div>
 

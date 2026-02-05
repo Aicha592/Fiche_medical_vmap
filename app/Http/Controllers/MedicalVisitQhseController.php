@@ -21,7 +21,7 @@ class MedicalVisitQhseController extends Controller
 
     public function index()
     {
-        $visits = MedicalVisit::with('user')
+        $visits = MedicalVisit::with('employee')
             ->latest()
             ->paginate(15);
 
@@ -32,11 +32,11 @@ class MedicalVisitQhseController extends Controller
 
     public function edit(MedicalVisit $medicalVisit)
     {
-        $medicalVisit->load('user');
+        $medicalVisit->load('employee');
 
         return view('medical_visits.qhse.form', [
             'visit' => $medicalVisit,
-            'user' => $medicalVisit->user,
+            'employee' => $medicalVisit->employee,
         ]);
     }
 
@@ -76,10 +76,32 @@ class MedicalVisitQhseController extends Controller
             'synthese_risque' => $data['qhse_synthese_risque'] ?? null,
             'synthese_facteurs' => $data['qhse_synthese_facteurs'] ?? null,
             'synthese_actions' => $data['qhse_synthese_actions'] ?? null,
+            'updated_by_user_id' => $request->user()->id,
         ]);
 
         return redirect()
             ->route('medical-visits.qhse.index')
             ->with('success', 'QHSE mis à jour avec succès.');
+    }
+
+    public function lookup(Request $request)
+    {
+        $data = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+        ]);
+
+        $visit = MedicalVisit::where('employee_id', $data['employee_id'])
+            ->latest()
+            ->first();
+
+        if (!$visit) {
+            return response()->json([
+                'message' => 'Aucune visite trouvée pour cet agent.',
+            ], 404);
+        }
+
+        return response()->json([
+            'visit_id' => $visit->id,
+        ]);
     }
 }

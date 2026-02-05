@@ -21,35 +21,35 @@
                 <div class="row g-2">
                     <div class="col-6">
                         <div class="bo-muted">Nom</div>
-                        <div>{{ $visit->user->nom ?? '—' }}</div>
+                        <div>{{ $visit->employee->nom ?? '—' }}</div>
                     </div>
                     <div class="col-6">
                         <div class="bo-muted">Prénom</div>
-                        <div>{{ $visit->user->prenom ?? '—' }}</div>
+                        <div>{{ $visit->employee->prenom ?? '—' }}</div>
                     </div>
                     <div class="col-6">
                         <div class="bo-muted">Matricule</div>
-                        <div>{{ $visit->user->matricule ?? '—' }}</div>
+                        <div>{{ $visit->employee->matricule ?? '—' }}</div>
                     </div>
                     <div class="col-6">
                         <div class="bo-muted">Téléphone</div>
-                        <div>{{ $visit->user->telephone ?? '—' }}</div>
+                        <div>{{ $visit->employee->telephone ?? '—' }}</div>
                     </div>
                     <div class="col-6">
                         <div class="bo-muted">Direction</div>
-                        <div>{{ $visit->user->direction ?? '—' }}</div>
+                        <div>{{ $visit->employee->direction ?? '—' }}</div>
                     </div>
                     <div class="col-6">
                         <div class="bo-muted">Poste</div>
-                        <div>{{ $visit->user->poste ?? '—' }}</div>
+                        <div>{{ $visit->employee->emploi_occupe ?? '—' }}</div>
                     </div>
                     <div class="col-6">
                         <div class="bo-muted">Site</div>
-                        <div>{{ $visit->user->site ?? '—' }}</div>
+                        <div>{{ $visit->employee->site ?? '—' }}</div>
                     </div>
                     <div class="col-6">
                         <div class="bo-muted">Ancienneté</div>
-                        <div>{{ $visit->user->anciennete ?? '—' }}</div>
+                        <div>{{ $visit->employee->anciennete ?? '—' }}</div>
                     </div>
                     <div class="col-6">
                         <div class="bo-muted">Date visite</div>
@@ -59,85 +59,92 @@
             </div>
         </div>
         <div class="col-lg-7">
-            @if($user->isDoctor())
-                <div class="bo-card h-100">
-                    <div class="fw-semibold mb-3">Résumé médical</div>
-                    <div class="row g-3">
-                        <div class="col-4">
-                            <div class="bo-muted">Taille</div>
-                            <div>{{ $visit->taille ?? '—' }}</div>
+            <ul class="nav nav-tabs mb-3" role="tablist">
+                @if($user->role === 'med-taf')
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="medical-tab" data-bs-toggle="tab" data-bs-target="#medical-pane" type="button" role="tab" aria-controls="medical-pane" aria-selected="true">
+                            Médicale
+                        </button>
+                    </li>
+                @endif
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ $user->role === 'med-taf' ? '' : 'active' }}" id="qhse-tab" data-bs-toggle="tab" data-bs-target="#qhse-pane" type="button" role="tab" aria-controls="qhse-pane" aria-selected="{{ $user->role === 'med-taf' ? 'false' : 'true' }}">
+                        QHSE
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                @if($user->role === 'med-taf')
+                    <div class="tab-pane fade show active" id="medical-pane" role="tabpanel" aria-labelledby="medical-tab">
+                        <div class="bo-card mb-4">
+                            <div class="fw-semibold mb-3">Résumé médical</div>
+                            <div class="row g-3">
+                                <div class="col-4">
+                                    <div class="bo-muted">Taille</div>
+                                    <div>{{ $visit->taille ?? '—' }}</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="bo-muted">Poids</div>
+                                    <div>{{ $visit->poids ?? '—' }}</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="bo-muted">IMC</div>
+                                    <div>{{ $visit->imc ?? '—' }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bo-muted">Tension</div>
+                                    <div>{{ $visit->tension ?? '—' }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bo-muted">Avis médical</div>
+                                    <div>{{ $visit->avis ?? '—' }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bo-muted">Stress</div>
+                                    <div>{{ $visit->stress ?? '—' }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bo-muted">Sommeil</div>
+                                    <div>{{ $visit->sommeil ?? '—' }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bo-muted">Charge de travail</div>
+                                    <div>{{ $visit->charge_travail ?? '—' }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bo-muted">Soutien</div>
+                                    <div>{{ $visit->soutien ?? '—' }}</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-4">
-                            <div class="bo-muted">Poids</div>
-                            <div>{{ $visit->poids ?? '—' }}</div>
+
+                        <div class="bo-card mb-4">
+                            <div class="fw-semibold mb-2">Antécédents</div>
+                            @if(is_array($visit->antecedents) && count($visit->antecedents))
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach($visit->antecedents as $item)
+                                        <span class="bo-pill">{{ $item }}</span>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="bo-muted">—</div>
+                            @endif
+                            @if($visit->antecedents_precisions)
+                                <div class="mt-2"><strong>Précisions :</strong> {{ $visit->antecedents_precisions }}</div>
+                            @endif
                         </div>
-                        <div class="col-4">
-                            <div class="bo-muted">IMC</div>
-                            <div>{{ $visit->imc ?? '—' }}</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="bo-muted">Tension</div>
-                            <div>{{ $visit->tension ?? '—' }}</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="bo-muted">Avis médical</div>
-                            <div>{{ $visit->avis ?? '—' }}</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="bo-muted">Stress</div>
-                            <div>{{ $visit->stress ?? '—' }}</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="bo-muted">Sommeil</div>
-                            <div>{{ $visit->sommeil ?? '—' }}</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="bo-muted">Charge de travail</div>
-                            <div>{{ $visit->charge_travail ?? '—' }}</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="bo-muted">Soutien</div>
-                            <div>{{ $visit->soutien ?? '—' }}</div>
+
+                        <div class="bo-card mb-4">
+                            <div class="fw-semibold mb-2">Observations</div>
+                            <div>{{ $visit->observations ?? '—' }}</div>
                         </div>
                     </div>
-                </div>
-            @else
-                <div class="bo-card h-100">
-                    <div class="fw-semibold mb-2">Synthèse QHSE</div>
-                    <div class="bo-muted mb-2">Informations QHSE et identification uniquement.</div>
-                    <div><strong>Risque global :</strong> {{ $visit->synthese_risque ?? '—' }}</div>
-                    <div class="mt-2"><strong>Observations :</strong> {{ $visit->observations_qhse ?? '—' }}</div>
-                </div>
-            @endif
-        </div>
-    </div>
+                @endif
 
-    @if($user->isDoctor())
-        <div class="bo-card mb-4">
-            <div class="fw-semibold mb-2">Antécédents</div>
-            @if(is_array($visit->antecedents) && count($visit->antecedents))
-                <div class="d-flex flex-wrap gap-2">
-                    @foreach($visit->antecedents as $item)
-                        <span class="bo-pill">{{ $item }}</span>
-                    @endforeach
-                </div>
-            @else
-                <div class="bo-muted">—</div>
-            @endif
-            @if($visit->antecedents_precisions)
-                <div class="mt-2"><strong>Précisions :</strong> {{ $visit->antecedents_precisions }}</div>
-            @endif
-        </div>
-
-        <div class="bo-card mb-4">
-            <div class="fw-semibold mb-2">Observations</div>
-            <div>{{ $visit->observations ?? '—' }}</div>
-        </div>
-    @endif
-
-    @if($user->isRh())
-        <div class="bo-card mb-4">
-            <div class="fw-semibold mb-3">QHSE / SST</div>
+                <div class="tab-pane fade {{ $user->role === 'med-taf' ? '' : 'show active' }}" id="qhse-pane" role="tabpanel" aria-labelledby="qhse-tab">
+                    <div class="bo-card mb-4">
+                        <div class="fw-semibold mb-3">QHSE / SST</div>
 
             <div class="row g-3">
                 <div class="col-md-6">
@@ -281,6 +288,9 @@
                     @endif
                 </div>
             </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    @endif
+    </div>
 @endsection

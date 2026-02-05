@@ -10,6 +10,7 @@ use App\Http\Controllers\SmsController;
 use App\Http\Controllers\Backoffice\DashboardController as BackofficeDashboardController;
 use App\Http\Controllers\Backoffice\MedicalRecordController;
 use App\Http\Controllers\Backoffice\UserAdminController;
+use App\Http\Controllers\Backoffice\EmployeeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,8 +54,8 @@ Route::middleware('auth')->group(function () {
     // Page principale / visites médicales
     Route::get('/home', [MedicalVisitController::class, 'index'])->name('home');
 
-    // Recherche agents
-    Route::get('/agents/search', [UserController::class, 'search'])->name('agents.search');
+    // Recherche employés (alias agents)
+    Route::get('/employees/search', [UserController::class, 'search'])->name('employees.search');
 
     // Ajouter une visite médicale
     Route::post('/medical-visits', [MedicalVisitController::class, 'store'])->name('medical-visits.store');
@@ -62,6 +63,7 @@ Route::middleware('auth')->group(function () {
 
     // QHSE (RH uniquement)
     Route::get('/medical-visits-qhse', [MedicalVisitQhseController::class, 'index'])->name('medical-visits.qhse.index');
+    Route::get('/medical-visits-qhse/lookup', [MedicalVisitQhseController::class, 'lookup'])->name('medical-visits.qhse.lookup');
     Route::get('/medical-visits/{medicalVisit}/qhse', [MedicalVisitQhseController::class, 'edit'])->name('medical-visits.qhse.edit');
     Route::put('/medical-visits/{medicalVisit}/qhse', [MedicalVisitQhseController::class, 'update'])->name('medical-visits.qhse.update');
 
@@ -80,5 +82,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/fiches', [MedicalRecordController::class, 'index'])->name('medical-records.index');
         Route::get('/fiches/{medicalVisit}', [MedicalRecordController::class, 'show'])->name('medical-records.show');
         Route::get('/utilisateurs', [UserAdminController::class, 'index'])->name('users.index');
+        Route::get('/employees/import', [EmployeeController::class, 'importForm'])->name('employees.import');
+        Route::get('/employees/import/template', [EmployeeController::class, 'importTemplate'])->name('employees.import.template');
+        Route::post('/employees/import', [EmployeeController::class, 'importProcess'])->name('employees.import.process');
+        Route::resource('/employees', EmployeeController::class)->except(['show']);
     });
 });

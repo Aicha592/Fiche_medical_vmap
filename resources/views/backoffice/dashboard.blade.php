@@ -37,49 +37,85 @@
         @if($user->isAdmin())
             <div class="col-md-4">
                 <div class="bo-card bo-kpi">
-                    <div class="bo-muted">Utilisateurs</div>
-                    <div class="fs-3 fw-semibold">{{ $stats['users_count'] }}</div>
+                    <div class="bo-muted">Employés</div>
+                    <div class="fs-3 fw-semibold">{{ $stats['employees_count'] }}</div>
                 </div>
             </div>
         @endif
     </div>
 
-    <div class="bo-card">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="fw-semibold">Dernières visites</div>
-            @if($user->isDoctor() || $user->isRh())
-                <a class="btn btn-outline-dark btn-sm" href="{{ route('backoffice.medical-records.index') }}">Voir tout</a>
+    @if($user->isAdmin())
+        <div class="bo-card mt-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="fw-semibold">Visites médicales effectuées (par date de passage)</div>
+                <form class="d-flex gap-2" method="GET" action="{{ route('backoffice.dashboard') }}">
+                    <input type="date" name="date_passage" class="form-control" value="{{ $selectedDate }}">
+                    <button class="btn btn-outline-dark btn-sm" type="submit">Filtrer</button>
+                    <button class="btn btn-outline-dark btn-sm" type="submit" name="today" value="1">Aujourd’hui</button>
+                </form>
+            </div>
+            @if($selectedDate)
+                <div class="alert alert-info py-2 mb-3">
+                    {{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }} :
+                    {{ $visitsByPassageDay->planned_total ?? 0 }} prévue(s),
+                    {{ $visitsByPassageDay->done_total ?? 0 }} effectuée(s)
+                </div>
+            @endif
+            @if($visitsByPassage->isEmpty())
+                <div class="bo-muted">Aucune date de passage renseignée.</div>
+            @else
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Date de passage</th>
+                                <th>Nombre de visites prévues</th>
+                                <th>Nombre de visites effectuées</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($visitsByPassage as $row)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::parse($row->date_passage)->format('d/m/Y') }}</td>
+                                    <td>{{ $row->planned_total }}</td>
+                                    <td>{{ $row->done_total }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             @endif
         </div>
-        @if($recentVisits->isEmpty())
-            <div class="bo-muted">Aucune visite enregistrée.</div>
-        @else
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Agent</th>
-                            <th>Matricule</th>
-                            @if($user->isDoctor())
-                                <th>Avis</th>
-                            @endif
-                            @if($user->isRh())
-                                <th>QHSE</th>
-                            @endif
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($recentVisits as $visit)
+    @endif
+
+    @if($user->isAdmin())
+        <div class="bo-card mt-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="fw-semibold">Dernières visites</div>
+                <a class="btn btn-outline-dark btn-sm" href="{{ route('backoffice.medical-records.index') }}">Voir tout</a>
+            </div>
+            @if($recentVisits->isEmpty())
+                <div class="bo-muted">Aucune visite enregistrée.</div>
+            @else
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
                             <tr>
-                                <td>{{ $visit->created_at->format('d/m/Y') }}</td>
-                                <td>{{ $visit->user->nom ?? '' }} {{ $visit->user->prenom ?? '' }}</td>
-                                <td>{{ $visit->user->matricule ?? '—' }}</td>
-                                @if($user->isDoctor())
+                                <th>Date</th>
+                                <th>Agent</th>
+                                <th>Matricule</th>
+                                <th>Avis</th>
+                                <th>QHSE</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($recentVisits as $visit)
+                                <tr>
+                                    <td>{{ $visit->created_at->format('d/m/Y') }}</td>
+                                    <td>{{ $visit->employee->nom ?? '' }} {{ $visit->employee->prenom ?? '' }}</td>
+                                    <td>{{ $visit->employee->matricule ?? '—' }}</td>
                                     <td>{{ $visit->avis ?? '—' }}</td>
-                                @endif
-                                @if($user->isRh())
                                     @php
                                         $qhseFields = [
                                             $visit->contrainte_manutention,
@@ -105,20 +141,18 @@
                                     <td>
                                         <span class="bo-pill">{{ $hasQhse ? 'Complété' : 'En attente' }}</span>
                                     </td>
-                                @endif
-                                <td class="text-end">
-                                    @if($user->isDoctor() || $user->isRh())
+                                    <td class="text-end">
                                         <a class="btn btn-outline-dark btn-sm"
                                            href="{{ route('backoffice.medical-records.show', $visit) }}">
                                             Ouvrir
                                         </a>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-    </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+    @endif
 @endsection

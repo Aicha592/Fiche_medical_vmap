@@ -207,13 +207,13 @@
             @csrf
 
             <div class="mb-3">
-                <label for="matricule" class="form-label">Matricule</label>
+                <label for="email" class="form-label">Email</label>
                 <input
-                    type="text"
+                    type="email"
                     class="form-control"
-                    id="matricule"
-                    name="matricule"
-                    value="{{ old('matricule') }}"
+                    id="email"
+                    name="email"
+                    value="{{ old('email') }}"
                     required
                     autofocus
                 >

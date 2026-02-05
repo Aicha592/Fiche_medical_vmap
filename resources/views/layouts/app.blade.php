@@ -15,6 +15,10 @@
         :root{
             --primary: #456f48;
             --secondary: #b0cc66;
+            --pagination-bg: #ffffff;
+            --pagination-border: #dfe5d9;
+            --pagination-text: #2d3b33;
+            --pagination-accent: #456f48;
         }
         .bg-primary-custom{ background: var(--primary); }
         .text-primary-custom{ color: var(--primary); }
@@ -29,6 +33,45 @@
 .navbar-brand img {
       height: 80px;
       margin-right: 10px;
+    }
+
+    .pagination-wrap {
+        display: flex;
+        justify-content: center;
+        margin-top: 16px;
+    }
+
+    .pagination {
+        gap: 6px;
+        flex-wrap: wrap;
+        margin: 0;
+    }
+
+    .pagination .page-link {
+        border-radius: 999px;
+        border: 1px solid var(--pagination-border);
+        color: var(--pagination-text);
+        padding: 6px 12px;
+        min-width: 38px;
+        text-align: center;
+        background: var(--pagination-bg);
+        box-shadow: 0 6px 18px rgba(69, 111, 72, 0.08);
+    }
+
+    .pagination .page-item.active .page-link {
+        background: var(--pagination-accent);
+        color: #fff;
+        border-color: var(--pagination-accent);
+    }
+
+    .pagination .page-item.disabled .page-link {
+        color: #9aa69a;
+        border-color: #e6ebe3;
+        box-shadow: none;
+    }
+
+    .pagination .page-link:focus {
+        box-shadow: 0 0 0 0.2rem rgba(69, 111, 72, 0.2);
     }
     </style>
 </head>

@@ -12,31 +12,18 @@ class User extends Model implements AuthenticatableContract
     use HasFactory, Authenticatable;
 
     protected $fillable = [
-        'nom',
-        'prenom',
-        'matricule',
-        'sexe',
-        'age',
-        'direction',
-        'poste',
-        'anciennete',
-        'site',
         'email',
         'password',
         'is_doctor',
         'role',
-        'telephone'
+        'name',
+        'telephone',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
     ];
-
-    public function medicalVisits()
-    {
-        return $this->hasMany(MedicalVisit::class);
-    }
 
     public function isDoctor(): bool
     {
@@ -45,7 +32,7 @@ class User extends Model implements AuthenticatableContract
 
     public function isRh(): bool
     {
-        return $this->role === 'rh';
+        return $this->role == 'rh';
     }
 
     public function isAdmin(): bool

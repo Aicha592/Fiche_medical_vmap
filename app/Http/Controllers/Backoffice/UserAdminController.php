@@ -25,13 +25,15 @@ class UserAdminController extends Controller
     {
         $search = $request->string('q')->trim()->value();
 
-        $query = User::query()->orderBy('nom');
+        $query = User::query()
+            ->select('users.*')
+            ->orderBy('email');
 
         if ($search !== '') {
-            $query->where('nom', 'like', "%{$search}%")
-                ->orWhere('prenom', 'like', "%{$search}%")
-                ->orWhere('matricule', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%");
+            $query->where(function ($builder) use ($search) {
+                $builder->where('users.email', 'like', "%{$search}%")
+                    ->orWhere('users.name', 'like', "%{$search}%");
+            });
         }
 
         $users = $query->paginate(15)->withQueryString();
