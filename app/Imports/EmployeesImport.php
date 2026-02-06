@@ -50,7 +50,6 @@ class EmployeesImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'unite_communale' => $normalized['unite_communale'] ?? null,
                     'telephone' => $normalized['telephone'] ?? null,
                     'date_passage' => $this->parseDate($normalized['date_passage'] ?? null),
-                    'site' => $normalized['site'] ?? null,
                 ];
 
                 $employee = Employee::where('matricule', $matricule)->first();

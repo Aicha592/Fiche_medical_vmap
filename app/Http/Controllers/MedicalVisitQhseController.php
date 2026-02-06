@@ -79,6 +79,8 @@ class MedicalVisitQhseController extends Controller
                 'employee_id' => $employeeId,
                 'created_by_user_id' => $request->user()->id,
             ]);
+        } elseif (!$visit->created_by_user_id) {
+            $visit->created_by_user_id = $request->user()->id;
         }
 
         $visit->fill([

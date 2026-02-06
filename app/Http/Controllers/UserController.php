@@ -18,7 +18,6 @@ class UserController extends Controller
                 'employees.prenom',
                 'employees.matricule',
                 'employees.sexe',
-                'employees.age',
                 'employees.date_naissance',
                 'employees.date_embauche',
                 'employees.direction',
@@ -26,8 +25,6 @@ class UserController extends Controller
                 'employees.service',
                 'employees.unite_communale',
                 'employees.emploi_occupe',
-                'employees.anciennete',
-                'employees.site',
                 'employees.telephone',
                 'employees.date_passage',
             ])
@@ -58,7 +55,6 @@ class UserController extends Controller
                 'unite_communale' => $employee->unite_communale,
                 'poste' => $employee->emploi_occupe,
                 'anciennete' => $employee->anciennete,
-                'site' => $employee->site,
                 'telephone' => $employee->telephone,
                 'date_passage' => optional($employee->date_passage)->format('Y-m-d'),
             ];

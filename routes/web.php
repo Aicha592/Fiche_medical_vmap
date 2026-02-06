@@ -82,6 +82,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/fiches', [MedicalRecordController::class, 'index'])->name('medical-records.index');
         Route::get('/fiches/{medicalVisit}', [MedicalRecordController::class, 'show'])->name('medical-records.show');
         Route::get('/utilisateurs', [UserAdminController::class, 'index'])->name('users.index');
+        Route::get('/utilisateurs/nouveau', [UserAdminController::class, 'create'])->name('users.create');
+        Route::post('/utilisateurs', [UserAdminController::class, 'store'])->name('users.store');
+        Route::get('/utilisateurs/{user}/modifier', [UserAdminController::class, 'edit'])->name('users.edit');
+        Route::put('/utilisateurs/{user}', [UserAdminController::class, 'update'])->name('users.update');
+        Route::delete('/utilisateurs/{user}', [UserAdminController::class, 'destroy'])->name('users.destroy');
         Route::get('/employees/import', [EmployeeController::class, 'importForm'])->name('employees.import');
         Route::get('/employees/import/template', [EmployeeController::class, 'importTemplate'])->name('employees.import.template');
         Route::post('/employees/import', [EmployeeController::class, 'importProcess'])->name('employees.import.process');

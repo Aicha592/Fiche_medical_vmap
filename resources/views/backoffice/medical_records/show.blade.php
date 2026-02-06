@@ -44,10 +44,6 @@
                         <div>{{ $visit->employee->emploi_occupe ?? '—' }}</div>
                     </div>
                     <div class="col-6">
-                        <div class="bo-muted">Site</div>
-                        <div>{{ $visit->employee->site ?? '—' }}</div>
-                    </div>
-                    <div class="col-6">
                         <div class="bo-muted">Ancienneté</div>
                         <div>{{ $visit->employee->anciennete ?? '—' }}</div>
                     </div>

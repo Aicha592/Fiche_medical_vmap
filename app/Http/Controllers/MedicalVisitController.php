@@ -58,6 +58,8 @@ class MedicalVisitController extends Controller
                 'employee_id' => $request->employee_id,
                 'created_by_user_id' => $request->user()->id,
             ]);
+        } elseif (!$visit->created_by_user_id) {
+            $visit->created_by_user_id = $request->user()->id;
         }
 
         $visit->fill([
@@ -94,11 +96,11 @@ class MedicalVisitController extends Controller
         ]);
         $visit->save();
 
-        $this->storePdf($visit);
+        // $this->storePdf($visit);
 
-        if ($request->boolean('download_pdf')) {
-            return $this->downloadPdf($visit);
-        }
+        // if ($request->boolean('download_pdf')) {
+        //     return $this->downloadPdf($visit);
+        // }
 
         return redirect()->back()->with('success', 'Visite médicale enregistrée avec succès');
     }

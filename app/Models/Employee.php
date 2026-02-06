@@ -15,7 +15,6 @@ class Employee extends Model
         'nom',
         'prenom',
         'sexe',
-        'age',
         'date_naissance',
         'date_embauche',
         'emploi_occupe',
@@ -23,8 +22,6 @@ class Employee extends Model
         'delegation_r',
         'service',
         'unite_communale',
-        'anciennete',
-        'site',
         'telephone',
         'date_passage',
     ];
@@ -35,18 +32,23 @@ class Employee extends Model
         'date_passage' => 'date',
     ];
 
-    protected static function booted()
+    public function getAgeAttribute(): ?int
     {
-        static::saving(function (Employee $employee) {
-            if ($employee->date_naissance) {
-                $employee->age = Carbon::parse($employee->date_naissance)->age;
-            }
+        if (!$this->date_naissance) {
+            return null;
+        }
 
-            if ($employee->date_embauche) {
-                $years = Carbon::parse($employee->date_embauche)->diffInYears(Carbon::today());
-                $employee->anciennete = $years . ' ans';
-            }
-        });
+        return Carbon::parse($this->date_naissance)->age;
+    }
+
+    public function getAncienneteAttribute(): ?string
+    {
+        if (!$this->date_embauche) {
+            return null;
+        }
+
+        $years = Carbon::parse($this->date_embauche)->diffInYears(Carbon::today());
+        return $years . ' ans';
     }
 
     public function medicalVisits()

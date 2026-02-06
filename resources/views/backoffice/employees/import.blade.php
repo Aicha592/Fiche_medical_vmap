@@ -30,7 +30,7 @@
         </div>
         <p class="bo-muted mb-2">Les colonnes obligatoires sont: <strong>matricule</strong>, <strong>nom</strong>, <strong>prenom</strong>.</p>
         <p class="bo-muted mb-3">Les autres colonnes possibles:</p>
-        <code class="d-block mb-2">matricule;sexe;prenom;nom;date_naissance;date_embauche;emploi_occupe;direction;delegation_r;service;unite_communale;telephone;date_passage;site</code>
+        <code class="d-block mb-2">matricule;sexe;prenom;nom;date_naissance;date_embauche;emploi_occupe;direction;delegation_r;service;unite_communale;telephone;date_passage</code>
         <div class="bo-muted">Formats de date acceptés: <code>YYYY-MM-DD</code> ou <code>DD/MM/YYYY</code>.</div>
     </div>
 @endsection

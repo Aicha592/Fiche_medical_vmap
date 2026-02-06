@@ -102,15 +102,28 @@
             document.getElementById('agent_delegation').value = user.delegation_r ?? '';
             document.getElementById('agent_service').value = user.service ?? '';
             document.getElementById('agent_unite_communale').value = user.unite_communale ?? '';
-            document.getElementById('agent_poste').value = user.poste;
-            document.getElementById('agent_anciennete').value = user.anciennete;
-            document.getElementById('agent_site').value = user.site;
-            document.getElementById('agent_date_passage').value = user.date_passage ?? '';
-            document.getElementById('agent_telephone').value = user.telephone ?? '';
-            document.getElementById('agent_employee_id').value = user.employee_id;
+    document.getElementById('agent_poste').value = user.poste;
+    document.getElementById('agent_anciennete').value = user.anciennete;
+    document.getElementById('agent_date_passage').value = user.date_passage ?? '';
+    document.getElementById('agent_telephone').value = user.telephone ?? '';
+    document.getElementById('agent_employee_id').value = user.employee_id;
 
-            let modal = new bootstrap.Modal(document.getElementById('visitModal'));
-            modal.show();
+    const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = value && value !== '' ? value : '—';
         }
+    };
+
+    const fullName = `${user.nom || ''} ${user.prenom || ''}`.trim();
+    setText('agent_nom_display', fullName || '—');
+    setText('agent_matricule_display', user.matricule || '—');
+    setText('agent_sexe_display', user.sexe || '—');
+    setText('agent_age_display', user.age || '—');
+    setText('agent_poste_display', user.poste || '—');
+
+    let modal = new bootstrap.Modal(document.getElementById('visitModal'));
+    modal.show();
+}
     </script>
 @endsection

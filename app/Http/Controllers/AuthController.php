@@ -76,7 +76,9 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
-    return view('auth.otp');
+    $user = User::find(session('user_id'));
+
+    return view('auth.otp', compact('user'));
 }
 
 

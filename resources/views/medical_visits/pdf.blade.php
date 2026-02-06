@@ -145,7 +145,6 @@
             <tr><td class="label">Unité communale</td><td class="value">{{ $employee?->unite_communale ?? '—' }}</td></tr>
             <tr><td class="label">Poste</td><td class="value">{{ $employee?->emploi_occupe ?? '—' }}</td></tr>
             <tr><td class="label">Ancienneté</td><td class="value">{{ $employee?->anciennete ?? '—' }}</td></tr>
-            <tr><td class="label">Site</td><td class="value">{{ $employee?->site ?? '—' }}</td></tr>
             <tr><td class="label">Téléphone</td><td class="value">{{ $employee?->telephone ?? '—' }}</td></tr>
             <tr><td class="label">Date de passage</td><td class="value">{{ $employee?->date_passage?->format('d/m/Y') ?? '—' }}</td></tr>
         </table>

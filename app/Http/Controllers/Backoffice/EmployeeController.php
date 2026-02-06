@@ -180,7 +180,6 @@ class EmployeeController extends Controller
             'nom' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
             'sexe' => ['nullable', 'in:M,F'],
-            'age' => ['nullable', 'integer', 'min:0'],
             'date_naissance' => ['nullable', 'date'],
             'date_embauche' => ['nullable', 'date'],
             'emploi_occupe' => ['nullable', 'string', 'max:255'],
@@ -188,8 +187,6 @@ class EmployeeController extends Controller
             'delegation_r' => ['nullable', 'string', 'max:255'],
             'service' => ['nullable', 'string', 'max:255'],
             'unite_communale' => ['nullable', 'string', 'max:255'],
-            'anciennete' => ['nullable', 'string', 'max:255'],
-            'site' => ['nullable', 'in:R,D,C'],
             'telephone' => ['nullable', 'string', 'max:50'],
             'date_passage' => ['nullable', 'date'],
         ]);

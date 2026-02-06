@@ -75,15 +75,6 @@
         <input type="text" class="form-control" value="{{ old('anciennete', $employee->anciennete) }}" readonly>
     </div>
     <div class="col-md-4 mb-3">
-        <label class="form-label">Site</label>
-        <select name="site" class="form-select">
-            <option value="">—</option>
-            <option value="R" {{ old('site', $employee->site) === 'R' ? 'selected' : '' }}>R</option>
-            <option value="D" {{ old('site', $employee->site) === 'D' ? 'selected' : '' }}>D</option>
-            <option value="C" {{ old('site', $employee->site) === 'C' ? 'selected' : '' }}>C</option>
-        </select>
-    </div>
-    <div class="col-md-4 mb-3">
         <label class="form-label">Téléphone</label>
         <input type="text" name="telephone" class="form-control" value="{{ old('telephone', $employee->telephone) }}">
     </div>

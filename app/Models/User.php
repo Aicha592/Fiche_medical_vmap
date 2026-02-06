@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Employee;
 
 class User extends Model implements AuthenticatableContract
 {
@@ -38,5 +39,10 @@ class User extends Model implements AuthenticatableContract
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
     }
 }
