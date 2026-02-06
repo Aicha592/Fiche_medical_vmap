@@ -490,6 +490,10 @@
                                         value="Cardiopathie"> Cardiopathie</label>
                                 <label class="option-line"><input type="checkbox" name="antecedents[]"
                                         value="Traumato Orthopédie"> Traumato Orthopédie</label>
+                                <label class="option-line"><input type="checkbox" name="antecedents[]"
+                                        value="Dermatose"> Dermatose</label>
+                                <label class="option-line"><input type="checkbox" name="antecedents[]"
+                                        value="Pathologies Respiratoires"> Pathologies Respiratoires</label>
                                 <label class="option-line"><input type="checkbox" name="antecedents[]" value="Autres">
                                     Autres</label>
                             </div>
