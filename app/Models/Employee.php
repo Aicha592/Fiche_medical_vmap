@@ -47,7 +47,7 @@ class Employee extends Model
             return null;
         }
 
-        $years = Carbon::parse($this->date_embauche)->diffInYears(Carbon::today());
+        $years = (int) Carbon::parse($this->date_embauche)->diffInYears(Carbon::today());
         return $years . ' ans';
     }
 
