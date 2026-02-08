@@ -12,8 +12,10 @@
                     placeholder="Nom, matricule, direction">
                 <button class="btn btn-bo" type="submit">Rechercher</button>
             </form>
-            <a class="btn btn-outline-dark" href="{{ route('backoffice.employees.import') }}">Importer CSV</a>
-            <a class="btn btn-outline-dark" href="{{ route('backoffice.employees.create') }}">Nouvel employé</a>
+            @if (auth()->user()->role === 'admin')
+                <a class="btn btn-outline-dark" href="{{ route('backoffice.employees.import') }}">Importer CSV</a>
+                <a class="btn btn-outline-dark" href="{{ route('backoffice.employees.create') }}">Nouvel employé</a>
+            @endif
         </div>
     </div>
 

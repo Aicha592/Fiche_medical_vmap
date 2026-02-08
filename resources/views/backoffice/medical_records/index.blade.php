@@ -1,35 +1,36 @@
 @extends('layouts.backoffice')
 
 @section('content')
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="mb-4 d-flex align-items-center justify-content-between">
         <div>
             <h4 class="mb-1">Fiches médicales</h4>
             <div class="bo-muted">
-                @if($user->isDoctor())
+                @if ($user->isMedecin())
                     Accès médical (données cliniques et avis).
                 @else
                     Accès RH/QHSE (identification + QHSE).
                 @endif
             </div>
         </div>
-        <form class="d-flex gap-2" method="GET" action="{{ route('backoffice.medical-records.index') }}">
-            <input class="form-control" type="search" name="q" value="{{ $search }}" placeholder="Nom, prénom, matricule">
+        <form class="gap-2 d-flex" method="GET" action="{{ route('backoffice.medical-records.index') }}">
+            <input class="form-control" type="search" name="q" value="{{ $search }}"
+                placeholder="Nom, prénom, matricule">
             <button class="btn btn-bo" type="submit">Rechercher</button>
         </form>
     </div>
 
     <div class="bo-card">
-        @if($visits->isEmpty())
+        @if ($visits->isEmpty())
             <div class="bo-muted">Aucune fiche trouvée.</div>
         @else
             <div class="table-responsive">
-                <table class="table align-middle mb-0">
+                <table class="table mb-0 align-middle">
                     <thead>
                         <tr>
                             <th>Date</th>
                             <th>Agent</th>
                             <th>Matricule</th>
-                            @if($user->isDoctor())
+                            @if ($user->isDoctor())
                                 <th>IMC</th>
                                 <th>Avis</th>
                             @else
@@ -40,7 +41,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($visits as $visit)
+                        @foreach ($visits as $visit)
                             @php
                                 $qhseFields = [
                                     $visit->contrainte_manutention,
@@ -59,15 +60,17 @@
                                     $visit->synthese_facteurs,
                                     $visit->synthese_actions,
                                 ];
-                                $hasQhse = collect($qhseFields)->filter(function ($value) {
-                                    return !empty($value);
-                                })->isNotEmpty();
+                                $hasQhse = collect($qhseFields)
+                                    ->filter(function ($value) {
+                                        return !empty($value);
+                                    })
+                                    ->isNotEmpty();
                             @endphp
                             <tr>
                                 <td>{{ $visit->created_at->format('d/m/Y') }}</td>
                                 <td>{{ $visit->employee->nom ?? '' }} {{ $visit->employee->prenom ?? '' }}</td>
                                 <td>{{ $visit->employee->matricule ?? '—' }}</td>
-                                @if($user->isDoctor())
+                                @if ($user->isDoctor())
                                     <td>{{ $visit->imc ?? '—' }}</td>
                                     <td>{{ $visit->avis ?? '—' }}</td>
                                 @else
@@ -77,11 +80,13 @@
                                     </td>
                                 @endif
                                 <td class="text-end">
-                                    <a class="btn btn-outline-dark btn-sm" href="{{ route('backoffice.medical-records.show', $visit) }}">
+                                    <a class="btn btn-outline-dark btn-sm"
+                                        href="{{ route('backoffice.medical-records.show', $visit) }}">
                                         Consulter
                                     </a>
-                                    @if($user->isDoctor())
-                                        <a class="btn btn-bo btn-sm" href="{{ route('medical-visits.pdf', $visit) }}" target="_blank">
+                                    @if ($user->isDoctor())
+                                        <a class="btn btn-bo btn-sm" href="{{ route('medical-visits.pdf', $visit) }}"
+                                            target="_blank">
                                             PDF
                                         </a>
                                     @endif

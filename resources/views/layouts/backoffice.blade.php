@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -178,40 +179,42 @@
         }
     </style>
 </head>
+
 <body>
     <div class="bo-shell">
         <aside class="bo-sidebar">
             <div class="bo-brand">VMAP Backoffice</div>
             <nav class="nav flex-column bo-nav">
                 <a class="nav-link {{ request()->routeIs('backoffice.dashboard') ? 'active' : '' }}"
-                   href="{{ route('backoffice.dashboard') }}">
+                    href="{{ route('backoffice.dashboard') }}">
                     Tableau de bord
                 </a>
-                @if(auth()->user()->isDoctor() || auth()->user()->isRh())
+                @if (auth()->user()->isMedecin())
                     <a class="nav-link {{ request()->routeIs('backoffice.medical-records.*') ? 'active' : '' }}"
-                       href="{{ route('backoffice.medical-records.index') }}">
+                        href="{{ route('backoffice.medical-records.index') }}">
                         Fiches médicales
                     </a>
                 @endif
-                @if(auth()->user()->isAdmin())
+                @if (auth()->user()->isAdmin())
                     <a class="nav-link {{ request()->routeIs('backoffice.users.*') ? 'active' : '' }}"
-                       href="{{ route('backoffice.users.index') }}">
+                        href="{{ route('backoffice.users.index') }}">
                         Utilisateurs
                     </a>
-                    <a class="nav-link {{ request()->routeIs('backoffice.employees.*') ? 'active' : '' }}"
-                       href="{{ route('backoffice.employees.index') }}">
-                        Employés
-                    </a>
                 @endif
+                <a class="nav-link {{ request()->routeIs('backoffice.employees.*') ? 'active' : '' }}"
+                    href="{{ route('backoffice.employees.index') }}">
+                    Employés
+                </a>
             </nav>
         </aside>
 
         <main class="bo-content">
             <div class="bo-topbar">
                 <div>
-                    <div class="fw-semibold">Bonjour {{ auth()->user()->name ?? auth()->user()->email ?? 'Utilisateur' }}</div>
+                    <div class="fw-semibold">Bonjour
+                        {{ auth()->user()->name ?? (auth()->user()->email ?? 'Utilisateur') }}</div>
                     <div class="bo-muted">
-                        @if(auth()->user()->isAdmin())
+                        @if (auth()->user()->isAdmin())
                             Administrateur
                         @elseif(auth()->user()->isDoctor())
                             Médecin
@@ -222,10 +225,20 @@
                         @endif
                     </div>
                 </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="btn btn-outline-dark btn-sm">Déconnexion</button>
-                </form>
+                <div class="gap-2 text-end d-flex justify-content-end">
+                    @if (auth()->user()->isMedecin())
+                        <a class="btn btn-sm btn-outline-success me-2" href="{{ route('employees.search') }}">
+                            Formulaire Médical</a>
+                    @else
+                        <a class="btn btn-sm btn-outline-success me-2" href="{{ route('medical-visits.qhse.index') }}">
+                            Formulaire QHSE</a>
+                    @endif
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="btn btn-outline-dark btn-sm">Déconnexion</button>
+                    </form>
+                </div>
             </div>
 
             @yield('content')
@@ -234,4 +247,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

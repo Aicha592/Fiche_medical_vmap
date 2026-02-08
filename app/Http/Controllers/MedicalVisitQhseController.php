@@ -12,8 +12,8 @@ class MedicalVisitQhseController extends Controller
         $this->middleware('auth');
 
         $this->middleware(function ($request, $next) {
-            if (!auth()->check() || !auth()->user()->isRh()) {
-                abort(403, 'Accès réservé au rôle RH');
+            if (!auth()->check()) {
+                abort(403, 'Accès réservé au rôle autorisé !!!!');
             }
             return $next($request);
         });
