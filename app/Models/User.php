@@ -36,6 +36,16 @@ class User extends Model implements AuthenticatableContract
         return $this->role == 'rh';
     }
 
+    public function isCh(): bool
+    {
+        return $this->role == 'ch';
+    }
+
+    public function isMedecin(): bool
+    {
+        return $this->role === 'med-taf';
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

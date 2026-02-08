@@ -1,18 +1,18 @@
 @extends('layouts.backoffice')
 
 @section('content')
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="mb-4 d-flex align-items-center justify-content-between">
         <div>
             <h4 class="mb-1">Tableau de bord</h4>
             <div class="bo-muted">Vue d’ensemble des visites et des accès.</div>
         </div>
-        @if($user->isDoctor() || $user->isRh())
+        @if ($user->isMedecin())
             <a class="btn btn-bo" href="{{ route('backoffice.medical-records.index') }}">Consulter les fiches</a>
         @endif
     </div>
 
-    <div class="row g-3 mb-4">
-        @if($user->isDoctor() || $user->isRh())
+    <div class="mb-4 row g-3">
+        @if ($user->isMedecin() || $user->isCh())
             <div class="col-md-4">
                 <div class="bo-card bo-kpi">
                     <div class="bo-muted">Total visites</div>
@@ -26,7 +26,7 @@
                 </div>
             </div>
         @endif
-        @if($user->isRh())
+        @if ($user->isCh())
             <div class="col-md-4">
                 <div class="bo-card bo-kpi">
                     <div class="bo-muted">Fiches avec QHSE</div>
@@ -34,38 +34,41 @@
                 </div>
             </div>
         @endif
-        @if($user->isAdmin())
+        @if ($user->isAdmin() || $user->isCh() || $user->isMedecin())
             <div class="col-md-4">
                 <div class="bo-card bo-kpi">
                     <div class="bo-muted">Employés</div>
                     <div class="fs-3 fw-semibold">{{ $stats['employees_count'] }}</div>
+                    <div class="mt-2 bo-muted">Visites effectuées / employés</div>
+                    <div class="fw-semibold">{{ $stats['total_visits'] }} / {{ $stats['employees_count'] }}</div>
                 </div>
             </div>
         @endif
     </div>
 
-    @if($user->isAdmin())
-        <div class="bo-card mt-4">
-            <div class="d-flex align-items-center justify-content-between mb-3">
+    @if ($user->isAdmin() || $user->isCh() || $user->isMedecin())
+        <div class="mt-4 bo-card">
+            <div class="mb-3 d-flex align-items-center justify-content-between">
                 <div class="fw-semibold">Visites médicales effectuées (par date de passage)</div>
-                <form class="d-flex gap-2" method="GET" action="{{ route('backoffice.dashboard') }}">
+                <form class="gap-2 d-flex" method="GET" action="{{ route('backoffice.dashboard') }}">
                     <input type="date" name="date_passage" class="form-control" value="{{ $selectedDate }}">
                     <button class="btn btn-outline-dark btn-sm" type="submit">Filtrer</button>
-                    <button class="btn btn-outline-dark btn-sm" type="submit" name="today" value="1">Aujourd’hui</button>
+                    <button class="btn btn-outline-dark btn-sm" type="submit" name="today"
+                        value="1">Aujourd’hui</button>
                 </form>
             </div>
-            @if($selectedDate)
-                <div class="alert alert-info py-2 mb-3">
+            @if ($selectedDate)
+                <div class="py-2 mb-3 alert alert-info">
                     {{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }} :
                     {{ $visitsByPassageDay->planned_total ?? 0 }} prévue(s),
                     {{ $visitsByPassageDay->done_total ?? 0 }} effectuée(s)
                 </div>
             @endif
-            @if($visitsByPassage->isEmpty())
+            @if ($visitsByPassage->isEmpty())
                 <div class="bo-muted">Aucune date de passage renseignée.</div>
             @else
                 <div class="table-responsive">
-                    <table class="table align-middle mb-0">
+                    <table class="table mb-0 align-middle">
                         <thead>
                             <tr>
                                 <th>Date de passage</th>
@@ -74,7 +77,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($visitsByPassage as $row)
+                            @foreach ($visitsByPassage as $row)
                                 <tr>
                                     <td>{{ \Carbon\Carbon::parse($row->date_passage)->format('d/m/Y') }}</td>
                                     <td>{{ $row->planned_total }}</td>
@@ -88,17 +91,17 @@
         </div>
     @endif
 
-    @if($user->isAdmin())
-        <div class="bo-card mt-4">
-            <div class="d-flex align-items-center justify-content-between mb-3">
+    @if ($user->isAdmin())
+        <div class="mt-4 bo-card">
+            <div class="mb-3 d-flex align-items-center justify-content-between">
                 <div class="fw-semibold">Dernières visites</div>
                 <a class="btn btn-outline-dark btn-sm" href="{{ route('backoffice.medical-records.index') }}">Voir tout</a>
             </div>
-            @if($recentVisits->isEmpty())
+            @if ($recentVisits->isEmpty())
                 <div class="bo-muted">Aucune visite enregistrée.</div>
             @else
                 <div class="table-responsive">
-                    <table class="table align-middle mb-0">
+                    <table class="table mb-0 align-middle">
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -110,7 +113,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($recentVisits as $visit)
+                            @foreach ($recentVisits as $visit)
                                 <tr>
                                     <td>{{ $visit->created_at->format('d/m/Y') }}</td>
                                     <td>{{ $visit->employee->nom ?? '' }} {{ $visit->employee->prenom ?? '' }}</td>
@@ -134,16 +137,18 @@
                                             $visit->synthese_facteurs,
                                             $visit->synthese_actions,
                                         ];
-                                        $hasQhse = collect($qhseFields)->filter(function ($value) {
-                                            return !empty($value);
-                                        })->isNotEmpty();
+                                        $hasQhse = collect($qhseFields)
+                                            ->filter(function ($value) {
+                                                return !empty($value);
+                                            })
+                                            ->isNotEmpty();
                                     @endphp
                                     <td>
                                         <span class="bo-pill">{{ $hasQhse ? 'Complété' : 'En attente' }}</span>
                                     </td>
                                     <td class="text-end">
                                         <a class="btn btn-outline-dark btn-sm"
-                                           href="{{ route('backoffice.medical-records.show', $visit) }}">
+                                            href="{{ route('backoffice.medical-records.show', $visit) }}">
                                             Ouvrir
                                         </a>
                                     </td>
