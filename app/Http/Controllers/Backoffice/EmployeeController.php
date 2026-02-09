@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Imports\EmployeesImport;
 use App\Models\Employee;
 use App\Models\MedicalVisit;
+use App\Models\MedicalVisitQhse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
@@ -37,12 +38,12 @@ class EmployeeController extends Controller
             ->latest('medical_visits.created_at')
             ->limit(1);
 
-        $qhseVisitsCount = MedicalVisit::selectRaw('count(*)')
-            ->whereColumn('medical_visits.employee_id', 'employees.id')
+        $qhseVisitsCount = MedicalVisitQhse::selectRaw('count(*)')
+            ->whereColumn('medical_visit_qhses.employee_id', 'employees.id')
             ->where(function ($builder) {
-                $builder->whereNotNull('synthese_risque')
-                    ->orWhereNotNull('observations_qhse')
-                    ->orWhereNotNull('synthese_actions');
+                $builder->whereNotNull('medical_visit_qhses.synthese_risque')
+                    ->orWhereNotNull('medical_visit_qhses.observations_qhse')
+                    ->orWhereNotNull('medical_visit_qhses.synthese_actions');
             });
 
         $query = Employee::query()

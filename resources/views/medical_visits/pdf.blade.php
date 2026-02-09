@@ -107,6 +107,7 @@
         if ($fullName === '') {
             $fullName = '—';
         }
+        $qhse = $visit->qhse;
     @endphp
 
     <div class="header">
@@ -187,23 +188,23 @@
     </div>
 
     <div class="section">
-        <div class="section-title">QHSE / SST</div>
+        <div class="section-title">QHSE / SST (employé)</div>
         <table class="grid">
-            <tr><td class="label">Manutention</td><td class="value">{{ $join($visit->contrainte_manutention) }}</td></tr>
-            <tr><td class="label">Postures</td><td class="value">{{ $join($visit->contrainte_postures) }}</td></tr>
-            <tr><td class="label">Nuisances physiques</td><td class="value">{{ $join($visit->nuisances_physiques) }}</td></tr>
-            <tr><td class="label">Nuisances chimiques</td><td class="value">{{ $join($visit->nuisances_chimiques) }}</td></tr>
-            <tr><td class="label">Risques mécaniques</td><td class="value">{{ $join($visit->risques_mecaniques) }}</td></tr>
-            <tr><td class="label">Organisation du travail</td><td class="value">{{ $join($visit->organisation_travail) }}</td></tr>
-            <tr><td class="label">EPI disponibles</td><td class="value">{{ $join($visit->epi_disponibilite) }}</td></tr>
-            <tr><td class="label">EPI utilisation</td><td class="value">{{ $visit->epi_utilisation ?? '—' }}</td></tr>
-            <tr><td class="label">Difficultés EPI</td><td class="value">{{ $join($visit->epi_difficultes) }}</td></tr>
-            <tr><td class="label">Formations SST</td><td class="value">{{ $join($visit->formation_sst) }}</td></tr>
-            <tr><td class="label">Appréciation globale</td><td class="value"><span class="pill">{{ $visit->appreciation_poste ?? '—' }}</span></td></tr>
-            <tr><td class="label">Observations QHSE</td><td class="value">{!! $visit->observations_qhse ? nl2br(e($visit->observations_qhse)) : '—' !!}</td></tr>
-            <tr><td class="label">Poste à risque</td><td class="value"><span class="pill">{{ $visit->synthese_risque ?? '—' }}</span></td></tr>
-            <tr><td class="label">Facteurs dominants</td><td class="value">{{ $join($visit->synthese_facteurs) }}</td></tr>
-            <tr><td class="label">Actions recommandées</td><td class="value">{{ $join($visit->synthese_actions) }}</td></tr>
+            <tr><td class="label">Manutention</td><td class="value">{{ $join($qhse->contrainte_manutention) }}</td></tr>
+            <tr><td class="label">Postures</td><td class="value">{{ $join($qhse->contrainte_postures) }}</td></tr>
+            <tr><td class="label">Nuisances physiques</td><td class="value">{{ $join($qhse->nuisances_physiques) }}</td></tr>
+            <tr><td class="label">Nuisances chimiques</td><td class="value">{{ $join($qhse->nuisances_chimiques) }}</td></tr>
+            <tr><td class="label">Risques mécaniques</td><td class="value">{{ $join($qhse->risques_mecaniques) }}</td></tr>
+            <tr><td class="label">Organisation du travail</td><td class="value">{{ $join($qhse->organisation_travail) }}</td></tr>
+            <tr><td class="label">EPI disponibles</td><td class="value">{{ $join($qhse->epi_disponibilite) }}</td></tr>
+            <tr><td class="label">EPI utilisation</td><td class="value">{{ $qhse->epi_utilisation ?? '—' }}</td></tr>
+            <tr><td class="label">Difficultés EPI</td><td class="value">{{ $join($qhse->epi_difficultes) }}</td></tr>
+            <tr><td class="label">Formations SST</td><td class="value">{{ $join($qhse->formation_sst) }}</td></tr>
+            <tr><td class="label">Appréciation globale</td><td class="value"><span class="pill">{{ $qhse->appreciation_poste ?? '—' }}</span></td></tr>
+            <tr><td class="label">Observations QHSE</td><td class="value">{!! $qhse->observations_qhse ? nl2br(e($qhse->observations_qhse)) : '—' !!}</td></tr>
+            <tr><td class="label">Poste à risque</td><td class="value"><span class="pill">{{ $qhse->synthese_risque ?? '—' }}</span></td></tr>
+            <tr><td class="label">Facteurs dominants</td><td class="value">{{ $join($qhse->synthese_facteurs) }}</td></tr>
+            <tr><td class="label">Actions recommandées</td><td class="value">{{ $join($qhse->synthese_actions) }}</td></tr>
         </table>
     </div>
 

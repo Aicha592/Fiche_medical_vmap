@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backoffice;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\MedicalVisit;
+use App\Models\MedicalVisitQhse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +39,7 @@ class DashboardController extends Controller
         $stats = [
             'total_visits' => MedicalVisit::count(),
             'visits_last_7_days' => MedicalVisit::where('created_at', '>=', now()->subDays(7))->count(),
-            'qhse_filled' => MedicalVisit::whereNotNull('synthese_risque')
+            'qhse_filled' => MedicalVisitQhse::whereNotNull('synthese_risque')
                 ->orWhereNotNull('observations_qhse')
                 ->orWhereNotNull('synthese_actions')
                 ->count(),
@@ -46,7 +47,7 @@ class DashboardController extends Controller
             'employees_count' => Employee::count(),
         ];
 
-        $recentVisits = MedicalVisit::with('employee')
+        $recentVisits = MedicalVisit::with(['employee', 'qhse'])
             ->latest()
             ->take(5)
             ->get();

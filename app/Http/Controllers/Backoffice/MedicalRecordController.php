@@ -26,7 +26,7 @@ class MedicalRecordController extends Controller
         $user = $request->user();
         $search = $request->string('q')->trim()->value();
 
-        $query = MedicalVisit::with('employee')->latest();
+        $query = MedicalVisit::with(['employee', 'qhse'])->latest();
 
         if ($search !== '') {
             $query->whereHas('employee', function ($builder) use ($search) {
@@ -47,7 +47,7 @@ class MedicalRecordController extends Controller
 
     public function show(Request $request, MedicalVisit $medicalVisit)
     {
-        $medicalVisit->load('employee');
+        $medicalVisit->load('employee', 'qhse');
 
         return view('backoffice.medical_records.show', [
             'user' => $request->user(),

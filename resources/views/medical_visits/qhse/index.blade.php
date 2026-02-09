@@ -100,7 +100,7 @@
                     <th>Date</th>
                     <th>Agent</th>
                     <th>Matricule</th>
-                    <th>QHSE</th>
+                <th>QHSE (employé)</th>
                     <th class="text-end">Action</th>
                 </tr>
             </thead>
@@ -111,7 +111,8 @@
                         if ($agentName === '') {
                             $agentName = '—';
                         }
-                        $qhseFilled = !empty($visit->appreciation_poste) || !empty($visit->synthese_risque);
+                        $qhse = $visit->qhse;
+                        $qhseFilled = !empty($qhse->appreciation_poste) || !empty($qhse->synthese_risque);
                     @endphp
                     <tr>
                         <td>{{ $visit->created_at->format('d/m/Y') }}</td>
@@ -119,7 +120,7 @@
                         <td>{{ $visit->employee->matricule ?? '—' }}</td>
                         <td>
                             <span class="badge-qhse">
-                                {{ $qhseFilled ? 'Complété' : 'À compléter' }}
+                                {{ $qhseFilled ? 'Complété (employé)' : 'À compléter (employé)' }}
                             </span>
                         </td>
                         <td class="text-end">

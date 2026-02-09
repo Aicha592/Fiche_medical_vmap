@@ -35,7 +35,7 @@
                                 <th>Avis</th>
                             @else
                                 <th>Poste</th>
-                                <th>QHSE</th>
+                                <th>QHSE (employé)</th>
                             @endif
                             <th class="text-end">Actions</th>
                         </tr>
@@ -43,22 +43,23 @@
                     <tbody>
                         @foreach ($visits as $visit)
                             @php
+                                $qhse = $visit->qhse;
                                 $qhseFields = [
-                                    $visit->contrainte_manutention,
-                                    $visit->contrainte_postures,
-                                    $visit->nuisances_physiques,
-                                    $visit->nuisances_chimiques,
-                                    $visit->risques_mecaniques,
-                                    $visit->organisation_travail,
-                                    $visit->epi_disponibilite,
-                                    $visit->epi_utilisation,
-                                    $visit->epi_difficultes,
-                                    $visit->formation_sst,
-                                    $visit->appreciation_poste,
-                                    $visit->observations_qhse,
-                                    $visit->synthese_risque,
-                                    $visit->synthese_facteurs,
-                                    $visit->synthese_actions,
+                                    $qhse->contrainte_manutention,
+                                    $qhse->contrainte_postures,
+                                    $qhse->nuisances_physiques,
+                                    $qhse->nuisances_chimiques,
+                                    $qhse->risques_mecaniques,
+                                    $qhse->organisation_travail,
+                                    $qhse->epi_disponibilite,
+                                    $qhse->epi_utilisation,
+                                    $qhse->epi_difficultes,
+                                    $qhse->formation_sst,
+                                    $qhse->appreciation_poste,
+                                    $qhse->observations_qhse,
+                                    $qhse->synthese_risque,
+                                    $qhse->synthese_facteurs,
+                                    $qhse->synthese_actions,
                                 ];
                                 $hasQhse = collect($qhseFields)
                                     ->filter(function ($value) {
@@ -76,7 +77,7 @@
                                 @else
                                     <td>{{ $visit->employee->emploi_occupe ?? '—' }}</td>
                                     <td>
-                                        <span class="bo-pill">{{ $hasQhse ? 'Complété' : 'En attente' }}</span>
+                                        <span class="bo-pill">{{ $hasQhse ? 'Complété (employé)' : 'En attente (employé)' }}</span>
                                     </td>
                                 @endif
                                 <td class="text-end">

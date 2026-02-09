@@ -31,7 +31,8 @@ class UserController extends Controller
             ->where(function ($builder) use ($query) {
                 $builder->where('employees.nom', 'like', "%{$query}%")
                     ->orWhere('employees.prenom', 'like', "%{$query}%")
-                    ->orWhere('employees.matricule', 'like', "%{$query}%");
+                    ->orWhere('employees.matricule', 'like', "%{$query}%")
+                    ->orWhereRaw('CONCAT(employees.prenom, " ", employees.nom) LIKE ?', ["%{$query}%"]);
             })
             ->limit(10)
             ->get();

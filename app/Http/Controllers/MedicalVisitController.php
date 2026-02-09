@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MedicalVisit;
+use App\Models\MedicalVisitQhse;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -76,25 +77,9 @@ class MedicalVisitController extends Controller
             'soutien' => $request->soutien,
             'avis' => $request->avis,
             'observations' => $request->observations,
-
-            // QHSE / SST
-            'contrainte_manutention' => $request->qhse_manutention,
-            'contrainte_postures' => $request->qhse_postures,
-            'nuisances_physiques' => $request->qhse_nuisances_physiques,
-            'nuisances_chimiques' => $request->qhse_nuisances_chimiques,
-            'risques_mecaniques' => $request->qhse_risques,
-            'organisation_travail' => $request->qhse_organisation,
-            'epi_disponibilite' => $request->qhse_epi_dispo,
-            'epi_utilisation' => $request->qhse_epi_utilisation,
-            'epi_difficultes' => $request->qhse_epi_difficulte,
-            'formation_sst' => $request->qhse_formation,
-            'appreciation_poste' => $request->qhse_appreciation,
-            'observations_qhse' => $request->qhse_observations,
-            'synthese_risque' => $request->qhse_synthese_risque,
-            'synthese_facteurs' => $request->qhse_synthese_facteurs,
-            'synthese_actions' => $request->qhse_synthese_actions,
         ]);
         $visit->save();
+        $this->syncQhse($visit, $request);
 
         // $this->storePdf($visit);
 
@@ -114,7 +99,7 @@ class MedicalVisitController extends Controller
 
     private function downloadPdf(MedicalVisit $medicalVisit)
     {
-        $medicalVisit->load('employee', 'createdBy.employee');
+        $medicalVisit->load('employee', 'createdBy.employee', 'qhse');
 
         if ($medicalVisit->pdf_path && Storage::disk('local')->exists($medicalVisit->pdf_path)) {
             $filename = 'fiche-medicale-' . $medicalVisit->id . '.pdf';
@@ -133,7 +118,7 @@ class MedicalVisitController extends Controller
 
     private function storePdf(MedicalVisit $medicalVisit): void
     {
-        $medicalVisit->load('employee', 'createdBy.employee');
+        $medicalVisit->load('employee', 'createdBy.employee', 'qhse');
 
         $pdf = Pdf::loadView('medical_visits.pdf', [
             'visit' => $medicalVisit,
@@ -147,5 +132,39 @@ class MedicalVisitController extends Controller
             $medicalVisit->pdf_path = $path;
             $medicalVisit->save();
         }
+    }
+
+    private function syncQhse(MedicalVisit $visit, Request $request): void
+    {
+        if (!$visit->employee_id) {
+            return;
+        }
+
+        $data = [
+            'contrainte_manutention' => $request->qhse_manutention,
+            'manutention_frequence' => $request->qhse_manutention_frequence,
+            'manutention_precision' => $request->qhse_manutention_precision,
+            'contrainte_postures' => $request->qhse_postures,
+            'postures_penibilite' => $request->qhse_postures_penibilite,
+            'nuisances_physiques' => $request->qhse_nuisances_physiques,
+            'nuisances_chimiques' => $request->qhse_nuisances_chimiques,
+            'risques_mecaniques' => $request->qhse_risques,
+            'organisation_travail' => $request->qhse_organisation,
+            'epi_disponibilite' => $request->qhse_epi_dispo,
+            'epi_utilisation' => $request->qhse_epi_utilisation,
+            'epi_difficultes' => $request->qhse_epi_difficulte,
+            'epi_autres' => $request->qhse_epi_autres,
+            'formation_sst' => $request->qhse_formation,
+            'appreciation_poste' => $request->qhse_appreciation,
+            'observations_qhse' => $request->qhse_observations,
+            'synthese_risque' => $request->qhse_synthese_risque,
+            'synthese_facteurs' => $request->qhse_synthese_facteurs,
+            'synthese_actions' => $request->qhse_synthese_actions,
+        ];
+
+        MedicalVisitQhse::updateOrCreate(
+            ['employee_id' => $visit->employee_id],
+            $data
+        );
     }
 }

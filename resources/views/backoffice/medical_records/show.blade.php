@@ -93,6 +93,10 @@
                 </li>
             </ul>
 
+            @php
+                $qhse = $visit->qhse;
+            @endphp
+
             <div class="tab-content">
                 @if ($user->role === 'med-taf')
                     <div class="tab-pane fade show active" id="medical-pane" role="tabpanel" aria-labelledby="medical-tab">
@@ -165,14 +169,14 @@
                 <div class="tab-pane fade {{ $user->role === 'med-taf' ? '' : 'show active' }}" id="qhse-pane"
                     role="tabpanel" aria-labelledby="qhse-tab">
                     <div class="mb-4 bo-card">
-                        <div class="mb-3 fw-semibold">QHSE / SST</div>
+                        <div class="mb-3 fw-semibold">QHSE / SST (employé)</div>
 
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="bo-muted">Contraintes manutention</div>
-                                @if (is_array($visit->contrainte_manutention) && count($visit->contrainte_manutention))
+                                @if (is_array($qhse->contrainte_manutention) && count($qhse->contrainte_manutention))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->contrainte_manutention as $item)
+                                        @foreach ($qhse->contrainte_manutention as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
@@ -182,9 +186,9 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="bo-muted">Contraintes postures</div>
-                                @if (is_array($visit->contrainte_postures) && count($visit->contrainte_postures))
+                                @if (is_array($qhse->contrainte_postures) && count($qhse->contrainte_postures))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->contrainte_postures as $item)
+                                        @foreach ($qhse->contrainte_postures as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
@@ -194,9 +198,9 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="bo-muted">Nuisances physiques</div>
-                                @if (is_array($visit->nuisances_physiques) && count($visit->nuisances_physiques))
+                                @if (is_array($qhse->nuisances_physiques) && count($qhse->nuisances_physiques))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->nuisances_physiques as $item)
+                                        @foreach ($qhse->nuisances_physiques as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
@@ -206,9 +210,9 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="bo-muted">Nuisances chimiques</div>
-                                @if (is_array($visit->nuisances_chimiques) && count($visit->nuisances_chimiques))
+                                @if (is_array($qhse->nuisances_chimiques) && count($qhse->nuisances_chimiques))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->nuisances_chimiques as $item)
+                                        @foreach ($qhse->nuisances_chimiques as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
@@ -218,9 +222,9 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="bo-muted">Risques mécaniques</div>
-                                @if (is_array($visit->risques_mecaniques) && count($visit->risques_mecaniques))
+                                @if (is_array($qhse->risques_mecaniques) && count($qhse->risques_mecaniques))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->risques_mecaniques as $item)
+                                        @foreach ($qhse->risques_mecaniques as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
@@ -230,9 +234,9 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="bo-muted">Organisation travail</div>
-                                @if (is_array($visit->organisation_travail) && count($visit->organisation_travail))
+                                @if (is_array($qhse->organisation_travail) && count($qhse->organisation_travail))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->organisation_travail as $item)
+                                        @foreach ($qhse->organisation_travail as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
@@ -242,9 +246,9 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="bo-muted">EPI disponibilité</div>
-                                @if (is_array($visit->epi_disponibilite) && count($visit->epi_disponibilite))
+                                @if (is_array($qhse->epi_disponibilite) && count($qhse->epi_disponibilite))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->epi_disponibilite as $item)
+                                        @foreach ($qhse->epi_disponibilite as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
@@ -254,13 +258,13 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="bo-muted">EPI utilisation</div>
-                                <div>{{ $visit->epi_utilisation ?? '—' }}</div>
+                                <div>{{ $qhse->epi_utilisation ?? '—' }}</div>
                             </div>
                             <div class="col-md-6">
                                 <div class="bo-muted">EPI difficultés</div>
-                                @if (is_array($visit->epi_difficultes) && count($visit->epi_difficultes))
+                                @if (is_array($qhse->epi_difficultes) && count($qhse->epi_difficultes))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->epi_difficultes as $item)
+                                        @foreach ($qhse->epi_difficultes as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
@@ -270,9 +274,9 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="bo-muted">Formation SST</div>
-                                @if (is_array($visit->formation_sst) && count($visit->formation_sst))
+                                @if (is_array($qhse->formation_sst) && count($qhse->formation_sst))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->formation_sst as $item)
+                                        @foreach ($qhse->formation_sst as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
@@ -282,13 +286,13 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="bo-muted">Appréciation poste</div>
-                                <div>{{ $visit->appreciation_poste ?? '—' }}</div>
+                                <div>{{ $qhse->appreciation_poste ?? '—' }}</div>
                             </div>
                             <div class="col-md-12">
                                 <div class="bo-muted">Synthèse facteurs</div>
-                                @if (is_array($visit->synthese_facteurs) && count($visit->synthese_facteurs))
+                                @if (is_array($qhse->synthese_facteurs) && count($qhse->synthese_facteurs))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->synthese_facteurs as $item)
+                                        @foreach ($qhse->synthese_facteurs as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
@@ -298,9 +302,9 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="bo-muted">Synthèse actions</div>
-                                @if (is_array($visit->synthese_actions) && count($visit->synthese_actions))
+                                @if (is_array($qhse->synthese_actions) && count($qhse->synthese_actions))
                                     <div class="flex-wrap gap-2 d-flex">
-                                        @foreach ($visit->synthese_actions as $item)
+                                        @foreach ($qhse->synthese_actions as $item)
                                             <span class="bo-pill">{{ $item }}</span>
                                         @endforeach
                                     </div>
