@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MedicalVisit;
+use App\Models\Employee;
 use App\Models\MedicalVisitQhse;
 use Illuminate\Http\Request;
 
@@ -22,30 +22,26 @@ class MedicalVisitQhseController extends Controller
 
     public function index()
     {
-        $visits = MedicalVisit::with(['employee', 'qhse'])
-            ->latest()
-            ->paginate(15);
-
         return view('medical_visits.qhse.index', [
-            'visits' => $visits,
+            'visits' => [],
         ]);
     }
 
-    public function edit(MedicalVisit $medicalVisit)
+    public function edit(Employee $employee)
     {
-        $medicalVisit->load('employee', 'qhse');
+        $qhse = MedicalVisitQhse::firstOrNew([
+            'employee_id' => $employee->id,
+        ]);
 
         return view('medical_visits.qhse.form', [
-            'visit' => $medicalVisit,
-            'qhse' => $medicalVisit->qhse,
-            'employee' => $medicalVisit->employee,
+            'qhse' => $qhse,
+            'employee' => $employee,
         ]);
     }
 
-    public function update(Request $request, MedicalVisit $medicalVisit)
+    public function update(Request $request, Employee $employee)
     {
         $data = $request->validate([
-            'employee_id' => 'nullable|exists:employees,id',
             'qhse_manutention' => 'array|nullable',
             'qhse_manutention_frequence' => 'nullable|string',
             'qhse_manutention_precision' => 'nullable|string',
@@ -67,45 +63,24 @@ class MedicalVisitQhseController extends Controller
             'qhse_synthese_actions' => 'array|nullable',
         ]);
 
-        $employeeId = $medicalVisit->employee_id ?? $data['employee_id'] ?? null;
-        if (!$employeeId) {
-            return back()->withErrors(['employee_id' => 'Employé manquant pour la mise à jour QHSE.']);
-        }
-
-        $visit = MedicalVisit::where('employee_id', $employeeId)
-            ->latest()
-            ->first();
-
-        if (!$visit) {
-            $visit = new MedicalVisit([
-                'employee_id' => $employeeId,
-                'created_by_user_id' => $request->user()->id,
-            ]);
-        } elseif (!$visit->created_by_user_id) {
-            $visit->created_by_user_id = $request->user()->id;
-        }
-
-        $visit->updated_by_user_id = $request->user()->id;
-        $visit->save();
-
         MedicalVisitQhse::updateOrCreate(
-            ['employee_id' => $employeeId],
+            ['employee_id' => $employee->id],
             [
                 'contrainte_manutention' => $data['qhse_manutention'] ?? null,
                 'manutention_frequence' => $data['qhse_manutention_frequence'] ?? null,
                 'manutention_precision' => $data['qhse_manutention_precision'] ?? null,
                 'contrainte_postures' => $data['qhse_postures'] ?? null,
                 'postures_penibilite' => $data['qhse_postures_penibilite'] ?? null,
-            'nuisances_physiques' => $data['qhse_nuisances_physiques'] ?? null,
-            'nuisances_chimiques' => $data['qhse_nuisances_chimiques'] ?? null,
-            'risques_mecaniques' => $data['qhse_risques'] ?? null,
-            'organisation_travail' => $data['qhse_organisation'] ?? null,
-            'epi_disponibilite' => $data['qhse_epi_dispo'] ?? null,
-            'epi_utilisation' => $data['qhse_epi_utilisation'] ?? null,
-            'epi_difficultes' => $data['qhse_epi_difficulte'] ?? null,
-            'epi_autres' => $data['qhse_epi_autres'] ?? null,
-            'formation_sst' => $data['qhse_formation'] ?? null,
-            'appreciation_poste' => $data['qhse_appreciation'] ?? null,
+                'nuisances_physiques' => $data['qhse_nuisances_physiques'] ?? null,
+                'nuisances_chimiques' => $data['qhse_nuisances_chimiques'] ?? null,
+                'risques_mecaniques' => $data['qhse_risques'] ?? null,
+                'organisation_travail' => $data['qhse_organisation'] ?? null,
+                'epi_disponibilite' => $data['qhse_epi_dispo'] ?? null,
+                'epi_utilisation' => $data['qhse_epi_utilisation'] ?? null,
+                'epi_difficultes' => $data['qhse_epi_difficulte'] ?? null,
+                'epi_autres' => $data['qhse_epi_autres'] ?? null,
+                'formation_sst' => $data['qhse_formation'] ?? null,
+                'appreciation_poste' => $data['qhse_appreciation'] ?? null,
                 'observations_qhse' => $data['qhse_observations'] ?? null,
                 'synthese_risque' => $data['qhse_synthese_risque'] ?? null,
                 'synthese_facteurs' => $data['qhse_synthese_facteurs'] ?? null,
@@ -118,24 +93,4 @@ class MedicalVisitQhseController extends Controller
             ->with('success', 'QHSE mis à jour avec succès.');
     }
 
-    public function lookup(Request $request)
-    {
-        $data = $request->validate([
-            'employee_id' => 'required|exists:employees,id',
-        ]);
-
-        $visit = MedicalVisit::where('employee_id', $data['employee_id'])
-            ->latest()
-            ->first();
-
-        if (!$visit) {
-            return response()->json([
-                'message' => 'Aucune visite trouvée pour cet agent.',
-            ], 404);
-        }
-
-        return response()->json([
-            'visit_id' => $visit->id,
-        ]);
-    }
 }

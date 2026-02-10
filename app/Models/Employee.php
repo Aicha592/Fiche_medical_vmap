@@ -53,6 +53,11 @@ class Employee extends Model
 
     public function medicalVisits()
     {
-        return $this->hasMany(MedicalVisit::class);
+        return $this->hasMany(MedicalVisit::class, 'employee_id', 'id');
+    }
+
+    public function qhse()
+    {
+        return $this->hasOne(MedicalVisitQhse::class, 'employee_id', 'id')->withDefault();
     }
 }

@@ -15,10 +15,11 @@ class MedicalVisitController extends Controller
         $this->middleware('auth');
 
         $this->middleware(function ($request, $next) {
-            if (!auth()->check() || !auth()->user()->isDoctor()) {
-                abort(403, 'Accès réservé au médecin');
+            if (auth()->check() && (auth()->user()->isDoctor() || auth()->user()->isMedecin())) {
+                return $next($request);
             }
-            return $next($request);
+            
+            abort(403, 'Accès réservé au médecin');
         });
     }
 
@@ -99,7 +100,7 @@ class MedicalVisitController extends Controller
 
     private function downloadPdf(MedicalVisit $medicalVisit)
     {
-        $medicalVisit->load('employee', 'createdBy.employee', 'qhse');
+        $medicalVisit->load('employee', 'employee.qhse', 'createdBy.employee');
 
         if ($medicalVisit->pdf_path && Storage::disk('local')->exists($medicalVisit->pdf_path)) {
             $filename = 'fiche-medicale-' . $medicalVisit->id . '.pdf';
@@ -118,7 +119,7 @@ class MedicalVisitController extends Controller
 
     private function storePdf(MedicalVisit $medicalVisit): void
     {
-        $medicalVisit->load('employee', 'createdBy.employee', 'qhse');
+        $medicalVisit->load('employee', 'employee.qhse', 'createdBy.employee');
 
         $pdf = Pdf::loadView('medical_visits.pdf', [
             'visit' => $medicalVisit,

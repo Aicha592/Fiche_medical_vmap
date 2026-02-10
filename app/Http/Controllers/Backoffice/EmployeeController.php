@@ -19,10 +19,10 @@ class EmployeeController extends Controller
 
         $this->middleware(function ($request, $next) {
             $user = Auth::user();
-            if (!$user || !$user->isAdmin()) {
-                abort(403, 'Accès réservé à l’administrateur');
+            if ($user && ($user->isAdmin() || $user->isMedecin() || $user->isCh())) {
+                return $next($request);
             }
-            return $next($request);
+            abort(403, 'Accès réservé à l’administrateur');
         });
     }
 

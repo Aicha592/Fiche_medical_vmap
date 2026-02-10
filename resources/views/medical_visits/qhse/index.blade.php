@@ -111,7 +111,7 @@
                         if ($agentName === '') {
                             $agentName = '—';
                         }
-                        $qhse = $visit->qhse;
+                        $qhse = $visit->employee?->qhse;
                         $qhseFilled = !empty($qhse->appreciation_poste) || !empty($qhse->synthese_risque);
                     @endphp
                     <tr>
@@ -181,24 +181,7 @@
         });
 
         function selectQhseAgent(user) {
-            const error = document.getElementById('qhse-search-error');
-            error.style.display = 'none';
-            error.textContent = '';
-
-            fetch(`/medical-visits-qhse/lookup?employee_id=${encodeURIComponent(user.employee_id)}`)
-                .then(res => {
-                    if (!res.ok) {
-                        throw new Error('Aucune visite trouvée pour cet agent.');
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    window.location.href = `/medical-visits/${data.visit_id}/qhse`;
-                })
-                .catch(err => {
-                    error.textContent = err.message;
-                    error.style.display = 'block';
-                });
+            window.location.href = `/medical-visits-qhse/${user.employee_id}/form`;
         }
     </script>
 @endsection

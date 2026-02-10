@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Backoffice;
 
-use App\Http\Controllers\Controller;
 use App\Models\MedicalVisit;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class MedicalRecordController extends Controller
 {
@@ -13,11 +15,11 @@ class MedicalRecordController extends Controller
         $this->middleware('auth');
 
         $this->middleware(function ($request, $next) {
-            $user = auth()->user();
-            if (!$user || !$user->isAdmin()) {
-                abort(403, 'Accès réservé à l’administrateur');
+            $user = Auth::user();
+            if ($user && ($user->isAdmin() || $user->isMedecin() || $user->isCh())) {
+                return $next($request);
             }
-            return $next($request);
+            abort(403, 'Accès réservé à l’administrateur');
         });
     }
 
@@ -26,7 +28,17 @@ class MedicalRecordController extends Controller
         $user = $request->user();
         $search = $request->string('q')->trim()->value();
 
-        $query = MedicalVisit::with(['employee', 'qhse'])->latest();
+        [$medicalTable, $qhseTable] = $this->resolveTables();
+
+        $query = MedicalVisit::query()
+            ->from("{$medicalTable} as medical_visits")
+            ->with([
+                'employee',
+                'employee.qhse' => function ($builder) use ($qhseTable) {
+                    $builder->from("{$qhseTable} as medical_visit_qhses");
+                },
+            ])
+            ->latest('medical_visits.created_at');
 
         if ($search !== '') {
             $query->whereHas('employee', function ($builder) use ($search) {
@@ -45,13 +57,31 @@ class MedicalRecordController extends Controller
         ]);
     }
 
-    public function show(Request $request, MedicalVisit $medicalVisit)
+    public function show(Request $request, $medicalVisit)
     {
-        $medicalVisit->load('employee', 'qhse');
+        [$medicalTable, $qhseTable] = $this->resolveTables();
+
+        $medicalVisit = MedicalVisit::query()
+            ->from("{$medicalTable} as medical_visits")
+            ->with([
+                'employee',
+                'employee.qhse' => function ($builder) use ($qhseTable) {
+                    $builder->from("{$qhseTable} as medical_visit_qhses");
+                },
+            ])
+            ->findOrFail($medicalVisit);
 
         return view('backoffice.medical_records.show', [
             'user' => $request->user(),
             'visit' => $medicalVisit,
         ]);
+    }
+
+    private function resolveTables(): array
+    {
+        $medicalTable = Schema::hasTable('visitemedicale') ? 'visitemedicale' : 'medical_visits';
+        $qhseTable = Schema::hasTable('visitemedicalqhse') ? 'visitemedicalqhse' : 'medical_visit_qhses';
+
+        return [$medicalTable, $qhseTable];
     }
 }

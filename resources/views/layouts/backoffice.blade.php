@@ -227,7 +227,7 @@
                 </div>
                 <div class="gap-2 text-end d-flex justify-content-end">
                     @if (auth()->user()->isMedecin())
-                        <a class="btn btn-sm btn-outline-success me-2" href="{{ route('employees.search') }}">
+                        <a class="btn btn-sm btn-outline-success me-2" href="{{ route('home') }}">
                             Formulaire Médical</a>
                     @else
                         <a class="btn btn-sm btn-outline-success me-2" href="{{ route('medical-visits.qhse.index') }}">

@@ -138,6 +138,35 @@
             color: #fff;
         }
 
+        .btn-resend {
+            background-color: transparent;
+            border: 1px solid rgba(70, 112, 73, 0.5);
+            color: var(--green-dark);
+            font-family: var(--font-strong);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 16px;
+            border-radius: 999px;
+        }
+
+        .btn-resend:hover {
+            background-color: rgba(70, 112, 73, 0.08);
+            border-color: var(--green-dark);
+            color: var(--green-dark);
+        }
+
+        .btn-resend[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .resend-hint {
+            color: var(--ink-soft);
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 8px;
+        }
+
         .alert {
             border-radius: var(--radius-md);
             font-size: 0.9rem;
@@ -195,6 +224,21 @@
                     {{ session('error') }}
                 </div>
             @endif
+            @if (session('success'))
+                <div class="text-center alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if ($errors->has('session'))
+                <div class="text-center alert alert-danger">
+                    {{ $errors->first('session') }}
+                </div>
+            @endif
+            @if ($errors->has('otp'))
+                <div class="text-center alert alert-danger">
+                    {{ $errors->first('otp') }}
+                </div>
+            @endif
 
             <form method="POST" action="{{ route('otp.verify') }}">
                 @csrf
@@ -206,9 +250,59 @@
                     <button type="submit" class="btn btn-custom">Vérifier</button>
                 </div>
             </form>
+            <form method="POST" action="{{ route('otp.resend') }}" class="mt-3 d-grid">
+                @csrf
+                @php
+                    $cooldownSeconds = 60;
+                    $lastSentAt = session('otp_resent_at');
+                    $remainingSeconds = 0;
+                    if ($lastSentAt) {
+                        $elapsed = now()->diffInSeconds($lastSentAt);
+                        $remainingSeconds = max(0, $cooldownSeconds - $elapsed);
+                    }
+                @endphp
+                <button type="submit" class="btn btn-resend" id="resendBtn" {{ $remainingSeconds > 0 ? 'disabled' : '' }}>
+                    Renvoyer le code
+                </button>
+                <div class="resend-hint" id="resendHint" data-remaining="{{ $remainingSeconds }}">
+                    @if ($remainingSeconds > 0)
+                        Vous pourrez renvoyer un code dans {{ sprintf('%02d:%02d', intdiv($remainingSeconds, 60), $remainingSeconds % 60) }}.
+                    @else
+                        Vous n'avez pas reçu de code ? Vous pouvez le renvoyer.
+                    @endif
+                </div>
+            </form>
         </div>
     </div>
 
+    <script>
+        (() => {
+            const hint = document.getElementById('resendHint');
+            const btn = document.getElementById('resendBtn');
+            if (!hint || !btn) return;
+            let remaining = parseInt(hint.dataset.remaining || '0', 10);
+            if (!Number.isFinite(remaining) || remaining <= 0) return;
+
+            const fmt = (seconds) => {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            };
+
+            const tick = () => {
+                remaining -= 1;
+                if (remaining <= 0) {
+                    btn.disabled = false;
+                    hint.textContent = "Vous n'avez pas reçu de code ? Vous pouvez le renvoyer.";
+                    return;
+                }
+                hint.textContent = `Vous pourrez renvoyer un code dans ${fmt(remaining)}.`;
+                setTimeout(tick, 1000);
+            };
+
+            setTimeout(tick, 1000);
+        })();
+    </script>
 </body>
 
 </html>

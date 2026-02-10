@@ -180,7 +180,7 @@
         $agentName = '—';
     }
 
-    $qhse = $qhse ?? $visit->qhse;
+    $qhse = $qhse ?? new \App\Models\MedicalVisitQhse();
 
     $checked = function ($value, $array) {
         return is_array($array) && in_array($value, $array, true);
@@ -193,7 +193,7 @@
     <p class="note-accent mb-0">Compléter uniquement les rubriques QHSE.</p>
 </div>
 
-<form method="POST" action="{{ route('medical-visits.qhse.update', $visit) }}">
+<form method="POST" action="{{ route('medical-visits.qhse.update', $employee) }}">
     @csrf
     @method('PUT')
 

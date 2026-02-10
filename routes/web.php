@@ -31,6 +31,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
 Route::get('/otp', [AuthController::class, 'showOtp'])->name('otp.form');
 Route::post('/otp', [AuthController::class, 'verifyOtp'])->name('otp.verify');
+Route::post('/otp/resend', [AuthController::class, 'resendOtp'])->name('otp.resend');
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -63,9 +64,8 @@ Route::middleware('auth')->group(function () {
 
     // QHSE (RH uniquement)
     Route::get('/medical-visits-qhse', [MedicalVisitQhseController::class, 'index'])->name('medical-visits.qhse.index');
-    Route::get('/medical-visits-qhse/lookup', [MedicalVisitQhseController::class, 'lookup'])->name('medical-visits.qhse.lookup');
-    Route::get('/medical-visits/{medicalVisit}/qhse', [MedicalVisitQhseController::class, 'edit'])->name('medical-visits.qhse.edit');
-    Route::put('/medical-visits/{medicalVisit}/qhse', [MedicalVisitQhseController::class, 'update'])->name('medical-visits.qhse.update');
+    Route::get('/medical-visits-qhse/{employee}/form', [MedicalVisitQhseController::class, 'edit'])->name('medical-visits.qhse.edit');
+    Route::put('/medical-visits-qhse/{employee}', [MedicalVisitQhseController::class, 'update'])->name('medical-visits.qhse.update');
 
     // Profil utilisateur
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

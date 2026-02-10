@@ -114,7 +114,7 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        if ($user?->isAdmin()) {
+        if ($user?->isAdmin() || $user?->isMedecin() || $user?->isCh()) {
             return redirect()->route('backoffice.dashboard')->with('success', 'Connexion réussie');
         }
 
@@ -134,5 +134,54 @@ class AuthController extends Controller
     {
         Auth::logout();
         return redirect()->route('login');
+    }
+
+    /* ======================
+        RENVOI OTP
+    ======================= */
+    public function resendOtp()
+    {
+        $userId = session('user_id');
+        $phone = session('phone');
+
+        if (!$userId || !$phone) {
+            return redirect()->route('login')->withErrors([
+                'session' => 'Session expirée, veuillez vous reconnecter'
+            ]);
+        }
+
+        $cooldownSeconds = 60;
+        $lastSentAt = session('otp_resent_at');
+        if ($lastSentAt && now()->diffInSeconds($lastSentAt) < $cooldownSeconds) {
+            $remaining = $cooldownSeconds - now()->diffInSeconds($lastSentAt);
+            return back()->with('error', "Veuillez patienter {$remaining}s avant de renvoyer un code.");
+        }
+
+        $user = User::find($userId);
+        if (!$user) {
+            session()->forget(['otp', 'user_id', 'phone']);
+            return redirect()->route('login')->withErrors([
+                'session' => 'Utilisateur introuvable, veuillez vous reconnecter'
+            ]);
+        }
+
+        // Supprimer l'ancien code et générer un nouveau
+        session()->forget('otp');
+        $otpCode = rand(100000, 999999);
+        session(['otp' => $otpCode]);
+
+        try {
+            $this->sms->sendSms(
+                $user->telephone,
+                "Votre code de vérification est : $otpCode",
+                "Code de vérification"
+            );
+        } catch (\Exception $e) {
+            Log::info($e);
+            return back()->with('error', 'Erreur lors de l\'envoi du code. Veuillez réessayer.');
+        }
+
+        session(['otp_resent_at' => now()]);
+        return back()->with('success', 'Un nouveau code vous a été envoyé par SMS.');
     }
 }

@@ -107,7 +107,7 @@
         if ($fullName === '') {
             $fullName = '—';
         }
-        $qhse = $visit->qhse;
+        $qhse = $employee?->qhse ?? new \App\Models\MedicalVisitQhse();
     @endphp
 
     <div class="header">

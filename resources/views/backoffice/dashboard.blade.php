@@ -61,7 +61,8 @@
                 <div class="py-2 mb-3 alert alert-info">
                     {{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }} :
                     {{ $visitsByPassageDay->planned_total ?? 0 }} prévue(s),
-                    {{ $visitsByPassageDay->done_total ?? 0 }} effectuée(s)
+                    {{ $visitsByPassageDay->done_total ?? 0 }} médicale(s) effectuée(s),
+                    {{ $visitsByPassageDay->qhse_total ?? 0 }} QHSE effectuée(s)
                 </div>
             @endif
             @if ($visitsByPassage->isEmpty())
@@ -73,7 +74,8 @@
                             <tr>
                                 <th>Date de passage</th>
                                 <th>Nombre de visites prévues</th>
-                                <th>Nombre de visites effectuées</th>
+                                <th>Nombre de visites médicales effectuées</th>
+                                <th>Nombre de visites QHSE effectuées</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -82,6 +84,7 @@
                                     <td>{{ \Carbon\Carbon::parse($row->date_passage)->format('d/m/Y') }}</td>
                                     <td>{{ $row->planned_total }}</td>
                                     <td>{{ $row->done_total }}</td>
+                                    <td>{{ $row->qhse_total }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -120,23 +123,23 @@
                                     <td>{{ $visit->employee->matricule ?? '—' }}</td>
                                     <td>{{ $visit->avis ?? '—' }}</td>
                                     @php
-                                        $qhse = $visit->qhse;
+                                        $qhse = $visit->employee?->qhse;
                                         $qhseFields = [
-                                            $qhse->contrainte_manutention,
-                                            $qhse->contrainte_postures,
-                                            $qhse->nuisances_physiques,
-                                            $qhse->nuisances_chimiques,
-                                            $qhse->risques_mecaniques,
-                                            $qhse->organisation_travail,
-                                            $qhse->epi_disponibilite,
-                                            $qhse->epi_utilisation,
-                                            $qhse->epi_difficultes,
-                                            $qhse->formation_sst,
-                                            $qhse->appreciation_poste,
-                                            $qhse->observations_qhse,
-                                            $qhse->synthese_risque,
-                                            $qhse->synthese_facteurs,
-                                            $qhse->synthese_actions,
+                                            $qhse?->contrainte_manutention,
+                                            $qhse?->contrainte_postures,
+                                            $qhse?->nuisances_physiques,
+                                            $qhse?->nuisances_chimiques,
+                                            $qhse?->risques_mecaniques,
+                                            $qhse?->organisation_travail,
+                                            $qhse?->epi_disponibilite,
+                                            $qhse?->epi_utilisation,
+                                            $qhse?->epi_difficultes,
+                                            $qhse?->formation_sst,
+                                            $qhse?->appreciation_poste,
+                                            $qhse?->observations_qhse,
+                                            $qhse?->synthese_risque,
+                                            $qhse?->synthese_facteurs,
+                                            $qhse?->synthese_actions,
                                         ];
                                         $hasQhse = collect($qhseFields)
                                             ->filter(function ($value) {

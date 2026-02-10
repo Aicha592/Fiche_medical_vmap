@@ -43,23 +43,23 @@
                     <tbody>
                         @foreach ($visits as $visit)
                             @php
-                                $qhse = $visit->qhse;
+                                $qhse = $visit->employee?->qhse;
                                 $qhseFields = [
-                                    $qhse->contrainte_manutention,
-                                    $qhse->contrainte_postures,
-                                    $qhse->nuisances_physiques,
-                                    $qhse->nuisances_chimiques,
-                                    $qhse->risques_mecaniques,
-                                    $qhse->organisation_travail,
-                                    $qhse->epi_disponibilite,
-                                    $qhse->epi_utilisation,
-                                    $qhse->epi_difficultes,
-                                    $qhse->formation_sst,
-                                    $qhse->appreciation_poste,
-                                    $qhse->observations_qhse,
-                                    $qhse->synthese_risque,
-                                    $qhse->synthese_facteurs,
-                                    $qhse->synthese_actions,
+                                    $qhse?->contrainte_manutention,
+                                    $qhse?->contrainte_postures,
+                                    $qhse?->nuisances_physiques,
+                                    $qhse?->nuisances_chimiques,
+                                    $qhse?->risques_mecaniques,
+                                    $qhse?->organisation_travail,
+                                    $qhse?->epi_disponibilite,
+                                    $qhse?->epi_utilisation,
+                                    $qhse?->epi_difficultes,
+                                    $qhse?->formation_sst,
+                                    $qhse?->appreciation_poste,
+                                    $qhse?->observations_qhse,
+                                    $qhse?->synthese_risque,
+                                    $qhse?->synthese_facteurs,
+                                    $qhse?->synthese_actions,
                                 ];
                                 $hasQhse = collect($qhseFields)
                                     ->filter(function ($value) {

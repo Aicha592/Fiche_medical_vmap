@@ -34,7 +34,7 @@ class MedicalVisit extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employee::class, 'employee_id', 'id');
     }
 
     public function createdBy()
@@ -45,10 +45,5 @@ class MedicalVisit extends Model
     public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by_user_id');
-    }
-
-    public function qhse()
-    {
-        return $this->hasOne(MedicalVisitQhse::class, 'employee_id', 'employee_id')->withDefault();
     }
 }

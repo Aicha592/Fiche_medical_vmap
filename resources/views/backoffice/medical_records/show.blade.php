@@ -94,7 +94,7 @@
             </ul>
 
             @php
-                $qhse = $visit->qhse;
+                $qhse = $visit->employee?->qhse ?? new \App\Models\MedicalVisitQhse();
             @endphp
 
             <div class="tab-content">

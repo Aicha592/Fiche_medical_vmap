@@ -18,10 +18,11 @@ class DashboardController extends Controller
 
         $this->middleware(function ($request, $next) {
             $user = auth()->user();
-            if (!$user || !$user->isAdmin()) {
-                abort(403, 'Accès réservé à l’administrateur');
+            if ($user && ($user->isAdmin() || $user->isMedecin() || $user->isCh())) {
+                return $next($request);
             }
-            return $next($request);
+            
+            abort(403, 'Accès réservé à l’administrateur');
         });
     }
 
@@ -47,16 +48,18 @@ class DashboardController extends Controller
             'employees_count' => Employee::count(),
         ];
 
-        $recentVisits = MedicalVisit::with(['employee', 'qhse'])
+        $recentVisits = MedicalVisit::with(['employee', 'employee.qhse'])
             ->latest()
             ->take(5)
             ->get();
 
         $visitsByPassage = Employee::query()
             ->leftJoin('medical_visits', 'medical_visits.employee_id', '=', 'employees.id')
+            ->leftJoin('medical_visit_qhses', 'medical_visit_qhses.employee_id', '=', 'employees.id')
             ->selectRaw('employees.date_passage as date_passage')
             ->selectRaw('count(distinct employees.id) as planned_total')
             ->selectRaw('count(medical_visits.id) as done_total')
+            ->selectRaw('count(distinct case when medical_visit_qhses.synthese_risque is not null or medical_visit_qhses.observations_qhse is not null or medical_visit_qhses.synthese_actions is not null then employees.id end) as qhse_total')
             ->whereNotNull('employees.date_passage')
             ->whereDate('employees.date_passage', '<=', now()->toDateString())
             ->groupBy('employees.date_passage')
@@ -67,9 +70,11 @@ class DashboardController extends Controller
         if ($selectedDate) {
             $visitsByPassageDay = Employee::query()
                 ->leftJoin('medical_visits', 'medical_visits.employee_id', '=', 'employees.id')
+                ->leftJoin('medical_visit_qhses', 'medical_visit_qhses.employee_id', '=', 'employees.id')
                 ->whereDate('employees.date_passage', $selectedDate)
                 ->selectRaw('count(distinct employees.id) as planned_total')
                 ->selectRaw('count(medical_visits.id) as done_total')
+                ->selectRaw('count(distinct case when medical_visit_qhses.synthese_risque is not null or medical_visit_qhses.observations_qhse is not null or medical_visit_qhses.synthese_actions is not null then employees.id end) as qhse_total')
                 ->first();
         }
 
