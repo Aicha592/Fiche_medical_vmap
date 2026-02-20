@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\MedicalVisitQhse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class MedicalVisitQhseController extends Controller
 {
@@ -93,4 +94,118 @@ class MedicalVisitQhseController extends Controller
             ->with('success', 'QHSE mis à jour avec succès.');
     }
 
+    public function export()
+    {
+        $qhseTable = $this->resolveQhseTable();
+        $sourceColumns = collect(Schema::getColumnListing($qhseTable))
+            ->reject(fn(string $column) => $column === 'updated_at')
+            ->values()
+            ->all();
+        $headers = collect($sourceColumns)
+            ->map(function (string $column) {
+                if ($column === 'employee_id') {
+                    return 'employe';
+                }
+                if ($column === 'created_at') {
+                    return 'date_passage';
+                }
+                return $column;
+            })
+            ->push('age', 'service', 'direction', 'delegation')
+            ->all();
+        $filename = 'qhse-' . now()->format('Ymd-His') . '.csv';
+
+        $query = MedicalVisitQhse::query()
+            ->from("{$qhseTable} as medical_visit_qhses")
+            ->with('employee')
+            ->latest();
+
+        return response()->streamDownload(function () use ($query, $sourceColumns, $headers) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
+            fputcsv($handle, array_map([$this, 'normalizeCsvValue'], $headers), ';');
+
+            $query->chunk(200, function ($records) use ($handle, $sourceColumns) {
+                foreach ($records as $record) {
+                    $employee = $record->employee;
+                    $row = [];
+                    foreach ($sourceColumns as $column) {
+                        if ($column === 'employee_id') {
+                            $row[] = $this->employeeFullName($employee);
+                            continue;
+                        }
+                        if ($column === 'created_at') {
+                            $row[] = $this->normalizeCsvValue($employee?->date_passage);
+                            continue;
+                        }
+                        $row[] = $this->normalizeCsvValue($record->getAttribute($column));
+                    }
+                    $row[] = $this->employeeAge($employee?->date_naissance);
+                    $row[] = $this->normalizeCsvValue($employee?->service);
+                    $row[] = $this->normalizeCsvValue($employee?->direction);
+                    $row[] = $this->normalizeCsvValue($employee?->delegation_r);
+                    fputcsv($handle, $row, ';');
+                }
+            });
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=utf-8',
+        ]);
+    }
+
+    private function employeeFullName($employee): string
+    {
+        if (!$employee) {
+            return '';
+        }
+
+        return trim(($employee->nom ?? '') . ' ' . ($employee->prenom ?? ''));
+    }
+
+    private function employeeAge($dateNaissance): string
+    {
+        if (empty($dateNaissance)) {
+            return '';
+        }
+
+        try {
+            return (string) now()->diffInYears($dateNaissance);
+        } catch (\Throwable $exception) {
+            return '';
+        }
+    }
+
+    private function normalizeCsvValue($value): string
+    {
+        if (is_array($value) || is_object($value)) {
+            $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+        }
+
+        if ($value === null) {
+            return '';
+        }
+
+        $text = (string) $value;
+
+        if ($text === '') {
+            return '';
+        }
+
+        if (!preg_match('//u', $text)) {
+            if (function_exists('mb_convert_encoding')) {
+                $text = mb_convert_encoding($text, 'UTF-8', 'auto');
+            } elseif (function_exists('iconv')) {
+                $converted = iconv('ISO-8859-1', 'UTF-8//IGNORE', $text);
+                $text = $converted === false ? $text : $converted;
+            }
+        }
+
+        return $text;
+    }
+
+    private function resolveQhseTable(): string
+    {
+        return Schema::hasTable('visitemedicalqhse') ? 'visitemedicalqhse' : 'medical_visit_qhses';
+    }
 }

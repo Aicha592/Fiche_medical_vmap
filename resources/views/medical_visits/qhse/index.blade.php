@@ -77,6 +77,9 @@
     <div class="mb-4 qhse-hero">
         <h3>Questionnaire QHSE / SST</h3>
         <p>Accès RH uniquement — compléter et mettre à jour les sections QHSE des visites médicales.</p>
+        <div class="mt-3">
+            <a class="btn btn-qhse" href="{{ route('medical-visits.qhse.export') }}">Exporter CSV</a>
+        </div>
     </div>
 
     <div class="mb-4 qhse-card qhse-search">

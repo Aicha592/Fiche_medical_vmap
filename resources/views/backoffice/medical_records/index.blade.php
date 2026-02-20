@@ -12,11 +12,16 @@
                 @endif
             </div>
         </div>
-        <form class="gap-2 d-flex" method="GET" action="{{ route('backoffice.medical-records.index') }}">
-            <input class="form-control" type="search" name="q" value="{{ $search }}"
-                placeholder="Nom, prénom, matricule">
-            <button class="btn btn-bo" type="submit">Rechercher</button>
-        </form>
+        <div class="gap-2 d-flex">
+            <a class="btn btn-outline-dark" href="{{ route('backoffice.medical-records.export', ['q' => $search]) }}">
+                Export Excel
+            </a>
+            <form class="gap-2 d-flex" method="GET" action="{{ route('backoffice.medical-records.index') }}">
+                <input class="form-control" type="search" name="q" value="{{ $search }}"
+                    placeholder="Nom, prénom, matricule">
+                <button class="btn btn-bo" type="submit">Rechercher</button>
+            </form>
+        </div>
     </div>
 
     <div class="bo-card">

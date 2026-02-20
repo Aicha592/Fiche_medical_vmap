@@ -47,6 +47,115 @@
     </div>
 
     @if ($user->isAdmin() || $user->isCh() || $user->isMedecin())
+        <div class="mb-2 row g-3">
+            <div class="col-md-3">
+                <div class="bo-card bo-kpi" style="border-left-color: #356a45;">
+                    <div class="bo-muted">Couverture médicale</div>
+                    <div class="fs-3 fw-semibold" style="color: #356a45;">{{ $stats['coverage_pct'] }}%</div>
+                    <div class="mt-2 bo-muted">{{ $stats['employees_with_visit'] }} / {{ $stats['employees_count'] }}
+                        employés</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="bo-card bo-kpi" style="border-left-color: #356a45;">
+                    <div class="bo-muted">Aptes sans restriction</div>
+                    <div class="fs-3 fw-semibold" style="color: #356a45;">{{ $stats['aptes_sans_restriction'] }}</div>
+                    <div class="mt-2 bo-muted">Périmètre: dernière fiche / employé</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="bo-card bo-kpi" style="border-left-color: #4a7e59;">
+                    <div class="bo-muted">Aptes avec aménagement</div>
+                    <div class="fs-3 fw-semibold" style="color: #4a7e59;">{{ $stats['aptes_avec_amenagement'] }}</div>
+                    <div class="mt-2 bo-muted">Périmètre: dernière fiche / employé</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="bo-card bo-kpi" style="border-left-color: #9f3f3f;">
+                    <div class="bo-muted">Inaptes (temporaire + définitif)</div>
+                    <div class="fs-3 fw-semibold" style="color: #9f3f3f;">{{ $stats['inaptes'] }}</div>
+                    <div class="mt-2 bo-muted">Périmètre: dernière fiche / employé</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="bo-card bo-kpi" style="border-left-color: #9b7d34;">
+                    <div class="bo-muted">Postes à risque</div>
+                    <div class="fs-3 fw-semibold" style="color: #9b7d34;">{{ $stats['postes_risque'] }}</div>
+                    <div class="mt-2 bo-muted">QHSE sur dernière fiche / employé</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="bo-card bo-kpi" style="border-left-color: #9b7d34;">
+                    <div class="bo-muted">Risque élevé ou très élevé</div>
+                    <div class="fs-3 fw-semibold" style="color: #9b7d34;">{{ $stats['risque_eleve'] }}</div>
+                    <div class="mt-2 bo-muted">QHSE sur dernière fiche / employé</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="bo-card bo-kpi" style="border-left-color: #9b7d34;">
+                    <div class="bo-muted">EPI insuffisants</div>
+                    <div class="fs-3 fw-semibold" style="color: #9b7d34;">{{ $stats['epi_insuffisant'] }}</div>
+                    <div class="mt-2 bo-muted">QHSE sur dernière fiche / employé</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="bo-card bo-kpi" style="border-left-color: #9f3f3f;">
+                    <div class="bo-muted">Alertes RPS (score ≥ 2)</div>
+                    <div class="fs-3 fw-semibold" style="color: #9f3f3f;">{{ $stats['rps_alerts'] }}</div>
+                    <div class="mt-2 bo-muted">Périmètre: dernière fiche / employé</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4 row g-3">
+            <div class="col-lg-6">
+                <div class="bo-card">
+                    <div class="mb-3 d-flex align-items-center justify-content-between">
+                        <div class="fw-semibold">Répartition des avis médicaux</div>
+                        <div class="bo-muted">Base: {{ $latestVisitCount }} employés</div>
+                    </div>
+                    @forelse ($avisChart as $item)
+                        <div class="mb-3">
+                            <div class="mb-1 d-flex justify-content-between">
+                                <span>{{ $item['label'] }}</span>
+                                <span>{{ $item['count'] }} ({{ $item['percent'] }}%)</span>
+                            </div>
+                            <div class="progress" role="progressbar" aria-label="{{ $item['label'] }}">
+                                <div class="progress-bar"
+                                    style="width: {{ $item['percent'] }}%; background: {{ $item['color'] }};"></div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="bo-muted">Aucune donnée disponible.</div>
+                    @endforelse
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="bo-card">
+                    <div class="mb-3 d-flex align-items-center justify-content-between">
+                        <div class="fw-semibold">Top facteurs de risque QHSE</div>
+                        <div class="bo-muted">Top 8</div>
+                    </div>
+                    @forelse ($facteursChart as $item)
+                        <div class="mb-3">
+                            <div class="mb-1 d-flex justify-content-between">
+                                <span>{{ $item['label'] }}</span>
+                                <span>{{ $item['count'] }}</span>
+                            </div>
+                            <div class="progress" role="progressbar" aria-label="{{ $item['label'] }}">
+                                <div class="progress-bar"
+                                    style="width: {{ $item['percent'] }}%; background: {{ $item['color'] }};"></div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="bo-muted">Aucun facteur renseigné.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($user->isAdmin() || $user->isCh() || $user->isMedecin())
         <div class="mt-4 bo-card">
             <div class="mb-3 d-flex align-items-center justify-content-between">
                 <div class="fw-semibold">Visites médicales effectuées (par date de passage)</div>
@@ -98,7 +207,8 @@
         <div class="mt-4 bo-card">
             <div class="mb-3 d-flex align-items-center justify-content-between">
                 <div class="fw-semibold">Dernières visites</div>
-                <a class="btn btn-outline-dark btn-sm" href="{{ route('backoffice.medical-records.index') }}">Voir tout</a>
+                <a class="btn btn-outline-dark btn-sm" href="{{ route('backoffice.medical-records.index') }}">Voir
+                    tout</a>
             </div>
             @if ($recentVisits->isEmpty())
                 <div class="bo-muted">Aucune visite enregistrée.</div>
@@ -148,7 +258,8 @@
                                             ->isNotEmpty();
                                     @endphp
                                     <td>
-                                        <span class="bo-pill">{{ $hasQhse ? 'Complété (employé)' : 'En attente (employé)' }}</span>
+                                        <span
+                                            class="bo-pill">{{ $hasQhse ? 'Complété (employé)' : 'En attente (employé)' }}</span>
                                     </td>
                                     <td class="text-end">
                                         <a class="btn btn-outline-dark btn-sm"

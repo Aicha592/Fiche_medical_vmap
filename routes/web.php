@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
 
     // QHSE (RH uniquement)
     Route::get('/medical-visits-qhse', [MedicalVisitQhseController::class, 'index'])->name('medical-visits.qhse.index');
+    Route::get('/medical-visits-qhse/export', [MedicalVisitQhseController::class, 'export'])->name('medical-visits.qhse.export');
     Route::get('/medical-visits-qhse/{employee}/form', [MedicalVisitQhseController::class, 'edit'])->name('medical-visits.qhse.edit');
     Route::put('/medical-visits-qhse/{employee}', [MedicalVisitQhseController::class, 'update'])->name('medical-visits.qhse.update');
 
@@ -80,6 +81,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('backoffice')->name('backoffice.')->group(function () {
         Route::get('/dashboard', [BackofficeDashboardController::class, 'index'])->name('dashboard');
         Route::get('/fiches', [MedicalRecordController::class, 'index'])->name('medical-records.index');
+        Route::get('/fiches/export', [MedicalRecordController::class, 'export'])->name('medical-records.export');
         Route::get('/fiches/{medicalVisit}', [MedicalRecordController::class, 'show'])->name('medical-records.show');
         Route::get('/utilisateurs', [UserAdminController::class, 'index'])->name('users.index');
         Route::get('/utilisateurs/nouveau', [UserAdminController::class, 'create'])->name('users.create');
