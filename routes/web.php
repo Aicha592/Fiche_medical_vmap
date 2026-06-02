@@ -1,22 +1,24 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Backoffice\DashboardController as BackofficeDashboardController;
+use App\Http\Controllers\Backoffice\EmployeeController;
+use App\Http\Controllers\Backoffice\MedicalRecordController;
+use App\Http\Controllers\Backoffice\UserAdminController;
 use App\Http\Controllers\MedicalVisitController;
 use App\Http\Controllers\MedicalVisitQhseController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QhseEvaluationController;
 use App\Http\Controllers\SmsController;
-use App\Http\Controllers\Backoffice\DashboardController as BackofficeDashboardController;
-use App\Http\Controllers\Backoffice\MedicalRecordController;
-use App\Http\Controllers\Backoffice\UserAdminController;
-use App\Http\Controllers\Backoffice\EmployeeController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
 | REDIRECTION PAR DÉFAUT
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -42,6 +44,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 */
 Route::post('/send-sms', [SmsController::class, 'envoyerSms'])->name('sms.send');
 
+Route::get('/medical-qhse/search-employee', [QhseEvaluationController::class, 'searchEmployee'])->name('medical-qhse.search');
+Route::get('/qhse/evaluation', [QhseEvaluationController::class, 'create'])->name('qhse.create');
+Route::post('/qhse/store', [QhseEvaluationController::class, 'store'])->name('qhse.store');
+
 /*
 |--------------------------------------------------------------------------
 | ZONE PROTÉGÉE (APRÈS OTP)
@@ -50,7 +56,7 @@ Route::post('/send-sms', [SmsController::class, 'envoyerSms'])->name('sms.send')
 Route::middleware('auth')->group(function () {
 
     // Tableau de bord
-    Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
+    Route::get('/dashboard', fn() => view('dashboard'))->name('dashboard');
 
     // Page principale / visites médicales
     Route::get('/home', [MedicalVisitController::class, 'index'])->name('home');
