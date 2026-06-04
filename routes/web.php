@@ -46,7 +46,7 @@ Route::post('/send-sms', [SmsController::class, 'envoyerSms'])->name('sms.send')
 
 Route::get('/medical-qhse/search-employee', [QhseEvaluationController::class, 'searchEmployee'])->name('medical-qhse.search');
 Route::get('/qhse/evaluation', [QhseEvaluationController::class, 'create'])->name('qhse.create');
-Route::post('/qhse/store', [QhseEvaluationController::class, 'store'])->name('qhse.store');
+Route::post('/qhse', [QhseEvaluationController::class, 'store'])->name('qhse.store');
 
 /*
 |--------------------------------------------------------------------------

@@ -52,6 +52,8 @@
         color: #fff;
         padding: 40px 36px;
         position: relative;
+        display: flex;
+        flex-direction: column;
     }
 
     .login-aside::after {
@@ -61,6 +63,41 @@
         background: radial-gradient(circle, rgba(174, 202, 95, 0.45), transparent 70%);
         opacity: 0.9;
         pointer-events: none;
+    }
+
+    .login-aside-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .login-aside-button {
+        margin-top: auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-qhse-eval {
+        display: inline-block;
+        background-color: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-family: var(--font-strong);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        text-align: center;
+    }
+
+    .btn-qhse-eval:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.7);
+        color: #fff;
+        text-decoration: none;
     }
 
     .login-aside h1 {
@@ -178,10 +215,19 @@
 
 <div class="login-shell">
     <aside class="login-aside">
-        <img class="brand-logo aside" src="{{ asset('images/sonaged-logo.png') }}" alt="SONAGED">
-        <h1>VMap Santé</h1>
-        <p>Un espace sécurisé pour enregistrer, consulter et suivre les visites médicales du personnel.</p>
-        <p class="accent">Simple, clair, rigoureux.</p>
+        <div class="login-aside-content">
+            <img class="brand-logo aside" src="{{ asset('images/sonaged-logo.png') }}" alt="SONAGED">
+            <h1>VMap Santé</h1>
+            <p>Un espace sécurisé pour enregistrer, consulter et suivre les visites médicales du personnel.</p>
+            <p class="accent">Simple, clair, rigoureux.</p>
+        </div>
+        <hr>
+        <div class="login-aside-button">
+            <p style="font-size: 0.9rem; margin-bottom: 12px; opacity: 0.9; position: relative; z-index: 1;">Pour l'évaluation QHSE, cliquez sur ce bouton :</p>
+            <a href="{{ route('qhse.create') }}" class="btn-qhse-eval">
+                Fiche QHSE
+            </a>
+        </div>
     </aside>
 
     <div class="login-card">

@@ -49,33 +49,23 @@ class QhseEvaluationController extends Controller
     {
         $validated = $request->validated();
 
-        $qhseVisit = new QhseEvaluation();
-        $qhseVisit->employee_id = $validated['employee_id'];
-        $qhseVisit->type_activite_dominante = $validated['type_activite_dominante'];
-        $qhseVisit->horaire_travail = $validated['horaire_travail'];
-        $qhseVisit->manutention_efforts = $validated['manutention_efforts'] ?? [];
-        $qhseVisit->frequence_manutention = $validated['frequence_manutention'];
-        $qhseVisit->gestes_postures = $validated['gestes_postures'] ?? [];
-        $qhseVisit->niveau_penibilite = $validated['niveau_penibilite'];
-        $qhseVisit->outils_travail = $validated['outils_travail'] ?? [];
-        $qhseVisit->outils_travail_autre = $validated['outils_travail_autre'] ?? null;
-        $qhseVisit->nuisances_physiques = $validated['nuisances_physiques'] ?? [];
-        $qhseVisit->nuisances_chimiques_biologiques = $validated['nuisances_chimiques_biologiques'] ?? [];
-        $qhseVisit->risques_accidentels = $validated['risques_accidentels'] ?? [];
-        $qhseVisit->temoin_accident = (bool) $validated['temoin_accident'];
-        $qhseVisit->organisation_travail = $validated['organisation_travail'] ?? [];
-        $qhseVisit->epi_fournis = $validated['epi_fournis'] ?? [];
-        $qhseVisit->epi_fournis_autres = $validated['epi_fournis_autres'] ?? null;
-        $qhseVisit->epi_utilises_quotidien = $validated['epi_utilises_quotidien'] ?? [];
-        $qhseVisit->epi_utilises_autres = $validated['epi_utilises_autres'] ?? null;
-        $qhseVisit->epi_difficultes = $validated['epi_difficultes'] ?? [];
-        $qhseVisit->formations_recues = $validated['formations_recues'] ?? [];
-        $qhseVisit->date_derniere_formation = $validated['date_derniere_formation'] ?? null;
-        $qhseVisit->niveau_risque_agent = $validated['niveau_risque_agent'];
-        $qhseVisit->ameliorations_necessaires = (bool) $validated['ameliorations_necessaires'];
-        $qhseVisit->suggestions_amelioration = $validated['suggestions_amelioration'] ?? null;
+        $data = array_merge([
+            'poste_occupe' => [],
+            'horaire_travail' => [],
+            'manutention_efforts' => [],
+            'gestes_postures' => [],
+            'outils_travail' => [],
+            'nuisances_physiques' => [],
+            'nuisances_chimiques_biologiques' => [],
+            'risques_accidentels' => [],
+            'organisation_travail' => [],
+            'epi_fournis' => [],
+            'epi_utilises_quotidien' => [],
+            'epi_difficultes' => [],
+            'formations_recues' => [],
+        ], $validated);
 
-        $qhseVisit->save();
+        QhseEvaluation::create($data);
 
         return redirect()->route('qhse.create')
             ->with('success', 'Le formulaire QHSE a bien été enregistré pour cet agent.');

@@ -23,6 +23,7 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             // 1. IDENTIFICATION COMPLÉMENTAIRE (Les autres infos sont dans la table 'employees')
+            $table->json('poste_occupe')->nullable(); // Liste des postes occupés par l'agent (ex: ['Opérateur machine', 'Superviseur'])
             $table->enum('type_activite_dominante', ['Terrain', 'Bureau', 'Mixte']);
             $table->json('horaire_travail'); // Choix multiples : Jour, Après-midi, Nuit
 

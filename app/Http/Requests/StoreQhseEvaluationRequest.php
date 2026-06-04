@@ -19,6 +19,9 @@ class StoreQhseEvaluationRequest extends FormRequest
             'employee_id' => ['required', 'integer', 'exists:employees,id'],
 
             // Spécificités du parcours QHSE
+            'poste_occupe' => ['nullable', 'array'],
+            'poste_occupe.*' => ['string', 'max:255'],
+            'poste_occupe_autre' => ['nullable', 'string', 'max:255'],
             'type_activite_dominante' => ['required', Rule::in(['Terrain', 'Bureau', 'Mixte'])],
             'horaire_travail' => ['required', 'array', 'min:1'],
             'horaire_travail.*' => [Rule::in(['Jour', 'après midi', 'Nuit'])],
