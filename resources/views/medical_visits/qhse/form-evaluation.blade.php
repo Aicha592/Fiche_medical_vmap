@@ -11,7 +11,9 @@
 
 <body class="h-full font-sans antialiased text-gray-900">
 
-    <div class="max-w-4xl px-4 mx-auto my-12 sm:px-6 lg:px-8" x-data="{
+<script>
+function createFormData() {
+    return {
         step: 1,
         searchQuery: '',
         searchResults: [],
@@ -30,14 +32,37 @@
             this.employee = emp;
             this.searchResults = [];
             this.searchQuery = `${emp.prenom} ${emp.nom} (${emp.matricule})`;
+            this.calculateAnciennete();
+        },
+        calculateAnciennete() {
+            if (!this.employee?.matricule) return;
+            const matches = this.employee.matricule.match(/-(\d+)-/);
+            if (!matches || !matches[1]) return;
+            const yearSuffix = parseInt(matches[1]);
+            const currentYear = new Date().getFullYear();
+            const yearPrefix = Math.floor(currentYear / 100);
+            const hireYear = yearPrefix * 100 + yearSuffix;
+            const anciennete = currentYear - hireYear;
+            const ancienneteField = document.querySelector('input[name="anciennete"]');
+            if (ancienneteField) {
+                ancienneteField.value = `${anciennete} an${anciennete > 1 ? 's' : ''}`;
+            }
         },
         resetEmployee() {
             this.employee = null;
             this.searchQuery = '';
             this.searchResults = [];
             this.step = 1;
+            const ancienneteField = document.querySelector('input[name="anciennete"]');
+            if (ancienneteField) {
+                ancienneteField.value = '';
+            }
         }
-    }">
+    };
+}
+</script>
+
+    <div class="max-w-4xl px-4 mx-auto my-12 sm:px-6 lg:px-8" x-data="createFormData()">
 
         <div
             class="relative p-6 overflow-hidden text-center bg-white border-b border-gray-200 shadow-sm rounded-t-xl sm:p-8">
