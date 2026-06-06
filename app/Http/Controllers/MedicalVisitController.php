@@ -98,6 +98,27 @@ class MedicalVisitController extends Controller
         return $this->downloadPdf($medicalVisit);
     }
 
+    public function createBloodTest()
+    {
+        return view('medical_visits.blood_test');
+    }
+
+    public function storeBloodTest(Request $request)
+    {
+        $request->validate([
+            'file_name' => 'required|array',
+            'file_name.*' => 'file|mimes:jpeg,png,pdf|max:2048',
+        ]);
+
+        // Handle file uploads
+        foreach ($request->file('file_name') as $file) {
+            $path = $file->store('blood_test_results', 'local');
+        }
+
+        return redirect()->route('medical-visits.blood_test_form')
+            ->with('success', 'Bilan sanguin enregistré avec succès');
+    }
+
     private function downloadPdf(MedicalVisit $medicalVisit)
     {
         $medicalVisit->load('employee', 'employee.qhse', 'createdBy.employee');

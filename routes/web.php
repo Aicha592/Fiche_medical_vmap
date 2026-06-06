@@ -68,6 +68,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/medical-visits', [MedicalVisitController::class, 'store'])->name('medical-visits.store');
     Route::get('/medical-visits/{medicalVisit}/pdf', [MedicalVisitController::class, 'pdf'])->name('medical-visits.pdf');
 
+    // Ajouter un bilan sanguin
+    Route::get('/medical-visits/blood-test', [MedicalVisitController::class, 'createBloodTest'])->name('medical-visits.blood_test_form');
+    Route::post('/medical-visits/blood-test', [MedicalVisitController::class, 'storeBloodTest'])->name('medical-visits.store_blood_test');
+
     // QHSE (RH uniquement)
     Route::get('/medical-visits-qhse', [MedicalVisitQhseController::class, 'index'])->name('medical-visits.qhse.index');
     Route::get('/medical-visits-qhse/export', [MedicalVisitQhseController::class, 'export'])->name('medical-visits.qhse.export');
