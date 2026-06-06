@@ -18,7 +18,7 @@ class MedicalVisitController extends Controller
             if (auth()->check() && (auth()->user()->isDoctor() || auth()->user()->isMedecin())) {
                 return $next($request);
             }
-            
+
             abort(403, 'Accès réservé au médecin');
         });
     }
@@ -88,7 +88,7 @@ class MedicalVisitController extends Controller
         //     return $this->downloadPdf($visit);
         // }
 
-        return redirect()->back()->with('success', 'Visite médicale enregistrée avec succès');
+        return redirect()->route('home')->with('success', 'Visite médicale enregistrée avec succès');
     }
 
     public function pdf(MedicalVisit $medicalVisit)

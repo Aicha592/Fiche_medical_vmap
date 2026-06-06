@@ -6,6 +6,14 @@
         <p>Recherchez un agent puis complétez la fiche médicale en quelques étapes.</p>
     </div>
 
+    @if (session('success'))
+        <div
+            class="flex items-center p-4 mt-4 space-x-2 border bg-emerald-50 border-emerald-300 rounded-xl text-emerald-800">
+            <span class="font-bold text-emerald-600">✓</span>
+            <span class="text-sm font-medium">{{ session('success') }}</span>
+        </div>
+    @endif
+
     <div class="medical-search">
         <label class="form-label fw-bold">Rechercher un agent</label>
         <input type="text" id="search" class="form-control" placeholder="Nom, prénom ou matricule">
