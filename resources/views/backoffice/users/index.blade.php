@@ -8,6 +8,9 @@
         </div>
         <div class="gap-2 d-flex">
             <a class="btn btn-bo" href="{{ route('backoffice.users.create') }}">Nouvel utilisateur</a>
+            <a class="btn btn-outline-primary" href="{{ route('backoffice.users.import') }}">
+                <i class="bi bi-upload"></i> Importer
+            </a>
             <form class="gap-2 d-flex" method="GET" action="{{ route('backoffice.users.index') }}">
                 <input class="form-control" type="search" name="q" value="{{ $search }}"
                     placeholder="Nom, matricule, email">

@@ -95,6 +95,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/utilisateurs/{user}/modifier', [UserAdminController::class, 'edit'])->name('users.edit');
         Route::put('/utilisateurs/{user}', [UserAdminController::class, 'update'])->name('users.update');
         Route::delete('/utilisateurs/{user}', [UserAdminController::class, 'destroy'])->name('users.destroy');
+        Route::get('/utilisateurs/import/formulaire', [UserAdminController::class, 'showImportForm'])->name('users.import');
+        Route::post('/utilisateurs/import', [UserAdminController::class, 'import'])->name('users.import.process');
+        Route::get('/utilisateurs/import/modele', [UserAdminController::class, 'downloadTemplate'])->name('users.template');
         Route::get('/employees/import', [EmployeeController::class, 'importForm'])->name('employees.import');
         Route::get('/employees/import/template', [EmployeeController::class, 'importTemplate'])->name('employees.import.template');
         Route::post('/employees/import', [EmployeeController::class, 'importProcess'])->name('employees.import.process');

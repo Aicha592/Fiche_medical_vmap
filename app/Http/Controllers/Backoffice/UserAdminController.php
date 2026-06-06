@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Backoffice;
 
+use App\Exports\UsersTemplateExport;
 use App\Http\Controllers\Controller;
+use App\Imports\UsersImport;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserAdminController extends Controller
 {
@@ -142,5 +145,57 @@ class UserAdminController extends Controller
             'ch' => 'Capital Humain',
             'doctor' => 'Docteur',
         ];
+    }
+
+    public function downloadTemplate()
+    {
+        $fileName = 'modele_import_utilisateurs_' . now()->format('Y-m-d_His') . '.xlsx';
+        return Excel::download(new UsersTemplateExport(), $fileName);
+    }
+
+    public function showImportForm()
+    {
+        return view('backoffice.users.import', [
+            'roles' => $this->roles(),
+        ]);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file.required' => 'Le fichier est requis.',
+            'file.mimes' => 'Le fichier doit être un fichier Excel ou CSV.',
+            'file.max' => 'Le fichier ne doit pas dépasser 5 MB.',
+        ]);
+
+        try {
+            $import = new UsersImport();
+            Excel::import($import, $request->file('file'));
+
+            $message = "Import terminé. ";
+            $message .= "Créés: {$import->created}, ";
+            $message .= "Mis à jour: {$import->updated}, ";
+            $message .= "Ignorés: {$import->skipped}";
+
+            $warning = null;
+            if (!empty($import->errors)) {
+                $warning = implode("\n", array_slice($import->errors, 0, 10));
+                if (count($import->errors) > 10) {
+                    $warning .= "\n... et " . (count($import->errors) - 10) . " autre(s) erreur(s)";
+                }
+            }
+
+            return redirect()
+                ->route('backoffice.users.index')
+                ->with('success', $message)
+                ->with('warning', $warning);
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Erreur lors de l\'import: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 }
