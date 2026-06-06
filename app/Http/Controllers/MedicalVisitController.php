@@ -15,7 +15,7 @@ class MedicalVisitController extends Controller
         $this->middleware('auth');
 
         $this->middleware(function ($request, $next) {
-            if (auth()->check() && (auth()->user()->isDoctor() || auth()->user()->isMedecin())) {
+            if (auth()->check() && (auth()->user()->isDoctor() || auth()->user()->isMedecin() || auth()->user()->isAdmin())) {
                 return $next($request);
             }
 

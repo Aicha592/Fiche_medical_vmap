@@ -229,6 +229,12 @@
                     @if (auth()->user()->isMedecin())
                         <a class="btn btn-sm btn-outline-success me-2" href="{{ route('home') }}">
                             Formulaire Médical</a>
+                    @elseif (auth()->user()->isAdmin())
+                        <a class="btn btn-sm btn-outline-success me-2" href="{{ route('home') }}">
+                            Formulaire Médical</a>
+
+                        <a class="btn btn-sm btn-outline-success me-2" href="{{ route('medical-visits.qhse.index') }}">
+                            Formulaire QHSE</a>
                     @else
                         <a class="btn btn-sm btn-outline-success me-2" href="{{ route('medical-visits.qhse.index') }}">
                             Formulaire QHSE</a>
