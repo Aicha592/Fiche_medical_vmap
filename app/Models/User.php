@@ -51,6 +51,11 @@ class User extends Model implements AuthenticatableContract
         return $this->role === 'admin';
     }
 
+    public function isBio(): bool
+    {
+        return $this->role === 'bio';
+    }
+
     public function employee()
     {
         return $this->hasOne(Employee::class);

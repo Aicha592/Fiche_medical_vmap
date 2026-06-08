@@ -126,6 +126,10 @@ class AuthController extends Controller
             return redirect()->route('home')->with('success', 'Connexion réussie');
         }
 
+        if($user?->isBio()) {
+            return redirect()->route('medical-visits.blood_test_form')->with('success', 'Connexion réussie');
+        }
+
         return redirect()->route('home')->with('success', 'Connexion réussie');
     }
 

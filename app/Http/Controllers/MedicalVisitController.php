@@ -17,11 +17,11 @@ class MedicalVisitController extends Controller
         $this->middleware('auth');
 
         $this->middleware(function ($request, $next) {
-            if (auth()->check() && (auth()->user()->isDoctor() || auth()->user()->isMedecin() || auth()->user()->isAdmin())) {
+            if (auth()->check() && (auth()->user()->isDoctor() || auth()->user()->isMedecin() || auth()->user()->isAdmin() || auth()->user()->isBio())) {
                 return $next($request);
             }
 
-            abort(403, 'Accès réservé au médecin');
+            abort(403, 'Accès réservé au médecin ou au biologiste');
         });
     }
 

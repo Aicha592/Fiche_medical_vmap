@@ -61,7 +61,7 @@ class UserAdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:190|unique:users,email',
             'telephone' => 'nullable|string|max:20|unique:users,telephone',
-            'role' => 'required|in:admin,med-taf,rh,ch,doctor',
+            'role' => 'required|in:admin,med-taf,rh,ch,doctor,bio',
             'password' => 'nullable|string|min:6',
         ]);
 
@@ -98,7 +98,7 @@ class UserAdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:190|unique:users,email,' . $user->id,
             'telephone' => 'nullable|string|max:20|unique:users,telephone,' . $user->id,
-            'role' => 'required|in:admin,med-taf,rh,ch,doctor',
+            'role' => 'required|in:admin,med-taf,rh,ch,doctor,bio',
             'password' => 'nullable|string|min:6',
         ]);
 
@@ -144,6 +144,7 @@ class UserAdminController extends Controller
             'rh' => 'ATRH',
             'ch' => 'Capital Humain',
             'doctor' => 'Docteur',
+            'bio' => 'Biologiste',
         ];
     }
 
