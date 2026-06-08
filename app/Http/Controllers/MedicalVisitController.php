@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BloodTest;
 use App\Models\MedicalVisit;
 use App\Models\MedicalVisitQhse;
+use App\Models\Resultat;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -110,10 +112,26 @@ class MedicalVisitController extends Controller
             'file_name.*' => 'file|mimes:jpeg,png,pdf|max:2048',
         ]);
 
-        // Handle file uploads
+        $bloodTest = BloodTest::create([
+            'employee_id' => $request->employee_id,
+            'observations' => $request->observations,
+        ]);
+
+        // Handle file uploads (store on public disk so files can be served)
+        $saved = [];
         foreach ($request->file('file_name') as $file) {
-            $path = $file->store('blood_test_results', 'local');
+            $path = Storage::disk('public')->putFile('results', $file);
+
+            Resultat::create([
+                'blood_test_id' => $bloodTest->id,
+                'file_path' => $path,
+            ]);
+
+            $saved[] = $path;
         }
+
+        // Optionally store paths in session to show confirmation or later association
+        session()->flash('saved_files', $saved);
 
         return redirect()->route('medical-visits.blood_test_form')
             ->with('success', 'Bilan sanguin enregistré avec succès');

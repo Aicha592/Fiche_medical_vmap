@@ -376,32 +376,6 @@
             background: #fff !important;
         }
 
-        .modal-backdrop,
-        #visitModal {
-            display: none !important;
-        }
-
-        #recapModal {
-            display: block !important;
-            position: static !important;
-        }
-
-        #recapModal .modal-dialog {
-            max-width: 100% !important;
-            width: 100% !important;
-            margin: 0 !important;
-        }
-
-        #recapModal .modal-content {
-            box-shadow: none !important;
-            border: 0 !important;
-        }
-
-        #recapModal .modal-header,
-        #recapModal .modal-footer {
-            border: 0 !important;
-        }
-
         .no-print {
             display: none !important;
         }
@@ -425,19 +399,33 @@
     </script>
 @endif
 
+@if (session('saved_files'))
+    <div class="mt-3">
+        <h6>Fichiers envoyés :</h6>
+        <div class="d-flex flex-wrap" style="gap:8px">
+            @foreach (session('saved_files') as $path)
+                @php $url = asset('storage/' . $path); $ext = pathinfo($path, PATHINFO_EXTENSION); @endphp
+                <div class="border rounded p-1 bg-white" style="width:120px;text-align:center">
+                    @if (in_array(strtolower($ext), ['jpg','jpeg','png','gif']))
+                        <img src="{{ $url }}" style="max-width:100%;height:80px;object-fit:cover" />
+                    @else
+                        <div style="height:80px;display:flex;align-items:center;justify-content:center;font-weight:700">{{ strtoupper($ext) }}</div>
+                    @endif
+                    <div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ basename($path) }}</div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
 
-<!-- Modal Formulaire Bilan Sanguin -->
-<div class="modal fade" id="visitModal" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
-        <div class="modal-content medical-modal">
 
-            <div class="text-white modal-header medical-header">
-                <h5 class="modal-title">Bilan Sanguin – VISITE MÉDICALE ANNUELLE DU PERSONNEL (VMAP) 2026</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+<div class="medical-modal">
+    <div class="text-white medical-header">
+        <h5 class="modal-title">Bilan Sanguin – VISITE MÉDICALE ANNUELLE DU PERSONNEL (VMAP) 2026</h5>
+    </div>
 
-            <form id="visitForm" method="POST" action="{{ route('medical-visits.store_blood_test') }}" class="needs-validation"
-                novalidate>
+    <form id="visitForm" method="POST" action="{{ route('medical-visits.store_blood_test') }}" class="needs-validation"
+        novalidate enctype="multipart/form-data">
                 @csrf
 
                 <div class="modal-body medical-body">
@@ -475,16 +463,17 @@
                         <!-- II. ANTÉCÉDENTS -->
                         <section class="medical-section">
                             <div class="section-title">
-                                <span class="section-index">VI</span>
+                                <span class="section-index">I</span>
                                 <h5>PHOTOS OU PDF DES RÉSULTATS</h5>
                             </div>
-                            <input type="file" name="file_name[]" class="form-control" accept="image/*,application/pdf" required>
+                            <input type="file" id="filesInput" name="file_name[]" class="form-control" accept="image/*,application/pdf" multiple required>
+                            <div id="filesPreview" class="mt-2 d-flex flex-wrap" style="gap:8px"></div>
                         </section>
 
                         <!-- VI. OBSERVATIONS -->
                         <section class="medical-section">
                             <div class="section-title">
-                                <span class="section-index">VI</span>
+                                <span class="section-index">II</span>
                                 <h5>OBSERVATIONS / RECOMMANDATIONS</h5>
                             </div>
                             <textarea name="observations" class="form-control" rows="2" required></textarea>
@@ -492,14 +481,12 @@
                         </section>
 
                         <div class="mt-4 d-flex justify-content-end">
-                            <button type="button" id="btnShowRecap" class="text-white btn btn-primary-custom">
+                            <button type="submit" class="text-white btn btn-primary-custom">
                                 Enregistrer
                             </button>
                         </div>
                     </div>
             </form>
-    </div>
-
 </div>
 
 <script>
@@ -585,241 +572,88 @@
                         setText('agent_age_display', this.dataset.age || '—');
                         setText('agent_poste_display', this.dataset.poste || '—');
 
-                        // ouvrir modal
-                        new bootstrap.Modal(document.getElementById('visitModal')).show();
+                        document.getElementById('visitForm')?.scrollIntoView({ behavior: 'smooth' });
                     });
                 });
             });
     });
 </script>
 
-
-<!-- // ===== IMC ===== -->
+<!-- File preview + upload handling -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    (function() {
+        const input = document.getElementById('filesInput');
+        if (!input) return;
 
-        function calculerIMC() {
-            const tailleInput = document.getElementById('taille');
-            const poidsInput = document.getElementById('poids');
-            const imcInput = document.getElementById('imc');
+        const preview = document.getElementById('filesPreview');
+        const dt = new DataTransfer();
 
-            if (!tailleInput || !poidsInput || !imcInput) return;
+        function renderPreview() {
+            preview.innerHTML = '';
+            const files = Array.from(dt.files);
 
-            const tailleCm = parseFloat(tailleInput.value);
-            const poidsKg = parseFloat(poidsInput.value);
+            files.forEach((file, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'border rounded p-1 bg-white';
+                wrapper.style.width = '120px';
+                wrapper.style.textAlign = 'center';
 
-            if (!tailleCm || !poidsKg) {
-                imcInput.value = '';
-                return;
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.style.maxWidth = '100%';
+                    img.style.height = '80px';
+                    img.style.objectFit = 'cover';
+                    wrapper.appendChild(img);
+                } else {
+                    const icon = document.createElement('div');
+                    icon.innerText = 'PDF';
+                    icon.style.height = '80px';
+                    icon.style.display = 'flex';
+                    icon.style.alignItems = 'center';
+                    icon.style.justifyContent = 'center';
+                    icon.style.fontWeight = '700';
+                    wrapper.appendChild(icon);
+                }
+
+                const name = document.createElement('div');
+                name.style.fontSize = '12px';
+                name.style.overflow = 'hidden';
+                name.style.textOverflow = 'ellipsis';
+                name.style.whiteSpace = 'nowrap';
+                name.style.width = '100%';
+                name.textContent = file.name;
+                wrapper.appendChild(name);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn btn-sm btn-outline-danger mt-1';
+                removeBtn.style.width = '100%';
+                removeBtn.textContent = 'Retirer';
+                removeBtn.addEventListener('click', function() {
+                    dt.items.remove(idx);
+                    input.files = dt.files;
+                    renderPreview();
+                });
+                wrapper.appendChild(removeBtn);
+
+                preview.appendChild(wrapper);
+            });
+
+            if (files.length === 0) {
+                input.value = '';
             }
-
-            const tailleM = tailleCm / 100;
-            const imc = poidsKg / (tailleM * tailleM);
-
-            imcInput.value = imc.toFixed(2);
         }
 
-        document.addEventListener('input', function(e) {
-            if (e.target.id === 'taille' || e.target.id === 'poids') {
-                calculerIMC();
-            }
+        input.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files || []);
+            files.forEach(file => dt.items.add(file));
+            input.files = dt.files;
+            renderPreview();
         });
 
-    });
-</script>
-
-
-
-<!-- // ===== RECAP AVANT ENREGISTREMENT ===== -->
-<script>
-    document.getElementById('btnShowRecap').addEventListener('click', function() {
-
-        const form = document.getElementById('visitForm');
-        let recapHtml = '';
-
-        const sections = [{
-                title: 'IDENTIFICATION',
-                fields: ['agent_nom', 'agent_matricule', 'agent_sexe', 'agent_age', 'agent_date_naissance',
-                    'agent_date_embauche', 'agent_direction', 'agent_delegation', 'agent_service',
-                    'agent_unite_communale', 'agent_poste', 'agent_anciennete', 'agent_date_passage',
-                    'agent_telephone'
-                ]
-            },
-            {
-                title: 'ANTÉCÉDENTS',
-                nameEndsWith: 'antecedents'
-            },
-            {
-                title: 'EXAMEN CLINIQUE',
-                fields: ['taille', 'poids', 'imc', 'tension']
-            },
-            {
-                title: 'DÉPISTAGE RPS',
-                radios: ['stress', 'sommeil', 'charge_travail', 'soutien']
-            },
-            {
-                title: 'AVIS MÉDICAL',
-                radios: ['avis']
-            },
-            {
-                title: 'OBSERVATIONS',
-                textareas: ['observations']
-            },
-        ];
-
-        const recapBadges = {
-            'IDENTIFICATION': 'I',
-            'ANTÉCÉDENTS': 'II',
-            'EXAMEN CLINIQUE': 'III',
-            'DÉPISTAGE RPS': 'IV',
-            'AVIS MÉDICAL': 'V',
-            'OBSERVATIONS': 'VI'
-        };
-
-        const recapIcons = {
-            'IDENTIFICATION': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z"/></svg>',
-            'ANTÉCÉDENTS': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3H5c-1.1 0-2 .9-2 2v16l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-6 8h-2V9H9V7h2V5h2v2h2v2h-2v2z"/></svg>',
-            'EXAMEN CLINIQUE': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-3H7v-2h3V9h2v3h3v2h-3v3z"/></svg>',
-            'DÉPISTAGE RPS': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm2.07-7.75-.9.92C11.45 10.9 11 11.5 11 13h2v-.5c0-.55.45-1 1-1 1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2H9c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.54-.87 2.88-2.13 3.59z"/></svg>',
-            'AVIS MÉDICAL': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 10l-3-3 1.41-1.41L11 10.17l4.59-4.59L17 7l-6 6z"/></svg>',
-            'OBSERVATIONS': '<svg class="recap-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41L18.37 3.29a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>'
-        };
-
-        const radioLabels = {
-            stress: 'Stress lié au travail',
-            sommeil: 'Troubles du sommeil',
-            charge_travail: 'Charge de travail supportable',
-            soutien: 'Soutien hiérarchique',
-            avis: 'Avis médical'
-        };
-
-        const fieldLabels = {
-            agent_nom: 'Nom et Prénom',
-            agent_matricule: 'Matricule',
-            agent_sexe: 'Sexe',
-            agent_age: 'Âge',
-            agent_date_naissance: 'Date de naissance',
-            agent_date_embauche: "Date d'embauche",
-            agent_direction: 'Direction / Département / Service',
-            agent_delegation: 'Délégation / Région',
-            agent_service: 'Service',
-            agent_unite_communale: 'Unité communale',
-            agent_poste: 'Intitulé du poste occupé',
-            agent_anciennete: 'Ancienneté au poste',
-            agent_date_passage: 'Date de passage',
-            agent_telephone: 'Téléphone',
-            taille: 'Taille (cm)',
-            poids: 'Poids (kg)',
-            imc: 'IMC',
-            tension: 'Tension artérielle',
-            observations: 'Observations / Recommandations'
-        };
-
-        sections.forEach(section => {
-            const badge = recapBadges[section.title] || '•';
-            const icon = recapIcons[section.title] || '';
-            recapHtml += `
-            <div class="recap-section">
-                <div class="recap-title-row">
-                    <span class="recap-badge">${badge}</span>
-                    ${icon}
-                    <h6 class="mb-0 fw-bold">${section.title}</h6>
-                </div>
-                <ul class="mb-0 list-group">
-        `;
-
-            // Champs simples par ID
-            section.fields?.forEach(id => {
-                const el = document.getElementById(id);
-                if (el && el.value) {
-                    const label = fieldLabels[id] || el.previousElementSibling?.innerText || id;
-                    recapHtml +=
-                        `<li class="list-group-item"><strong>${label} :</strong> ${el.value}</li>`;
-                }
-            });
-
-            // Radios
-            section.radios?.forEach(name => {
-                const checked = form.querySelector(`input[name="${name}"]:checked`);
-                if (checked) {
-                    const label = radioLabels[name] || name;
-                    recapHtml +=
-                        `<li class="list-group-item"><strong>${label} :</strong> ${checked.value}</li>`;
-                }
-            });
-
-            // Textarea
-            section.textareas?.forEach(name => {
-                const el = form.querySelector(`textarea[name="${name}"]`);
-                if (el && el.value) {
-                    const label = fieldLabels[name] || name;
-                    recapHtml +=
-                        `<li class="list-group-item"><strong>${label} :</strong> ${el.value}</li>`;
-                }
-            });
-
-            // Checkboxes par suffixe
-            if (section.nameEndsWith) {
-                const checked = [...form.querySelectorAll(
-                        `input[name="${section.nameEndsWith}[]"]:checked`)]
-                    .map(c => c.value);
-                if (checked.length) {
-                    recapHtml += `<li class="list-group-item">${checked.join(', ')}</li>`;
-                }
-            }
-
-            recapHtml += `</ul></div>`;
-        });
-
-        document.getElementById('recapBody').innerHTML = recapHtml;
-
-        new bootstrap.Modal(document.getElementById('recapModal')).show();
-    });
-
-    document.getElementById('printRecap').addEventListener('click', function() {
-        window.print();
-    });
-
-    document.getElementById('downloadPdf').addEventListener('click', function() {
-        const form = document.getElementById('visitForm');
-        const downloadInput = document.getElementById('download_pdf');
-
-        if (!form.checkValidity()) {
-            form.classList.add('was-validated');
-            return;
-        }
-
-        downloadInput.value = '1';
-        const previousTarget = form.target;
-        form.target = '_blank';
-        form.submit();
-
-        form.target = previousTarget || '';
-        downloadInput.value = '0';
-    });
-
-    // document.getElementById('confirmSave').addEventListener('click', function () {
-    //     document.getElementById('visitForm').submit();
-    // });
-</script>
-<script>
-    document.getElementById('confirmSave').addEventListener('click', function() {
-
-        const form = document.getElementById('visitForm');
-
-        // Si le formulaire n'est pas valide -> on arrête
-        if (!form.checkValidity()) {
-            form.classList.add('was-validated');
-            return;
-        }
-
-        // Fermer la modal récap
-        bootstrap.Modal.getInstance(document.getElementById('recapModal')).hide();
-
-
-        // Enregistrer
-        form.submit();
-    });
+        // Keep file preview only; normal form submission will handle upload.
+    })();
 </script>
 
 <script>

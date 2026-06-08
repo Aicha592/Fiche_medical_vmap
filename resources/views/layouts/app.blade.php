@@ -109,6 +109,15 @@
                                 bord</a>
                         </li>
                     @endif
+
+                    @if (auth()->user()->isMedecin() || auth()->user()->isDoctor() || auth()->user()->isAdmin())
+                        <li class="nav-item">
+                            <a class="text-white nav-link" href="{{ route('home') }}">Fiche Medicale</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="text-white nav-link" href="{{ route('medical-visits.blood_test_form') }}">Biologie</a>
+                        </li>
+                    @endif
                     <!-- <li class="nav-item">
                     <a class="text-white nav-link" href="#">Historique</a>
                 </li> -->

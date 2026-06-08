@@ -14,8 +14,8 @@ return new class extends Migration
     {
         Schema::create('resultats', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFort(BloodTest::class)->constrained()->onDelete('cascade');
-            $table->string('file_name');
+            $table->foreignIdFor(BloodTest::class)->constrained()->onDelete('cascade');
+            $table->string('file_path');
             $table->timestamps();
         });
     }
