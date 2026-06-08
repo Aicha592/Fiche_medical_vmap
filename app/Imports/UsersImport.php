@@ -16,7 +16,7 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
     public int $updated = 0;
     public int $skipped = 0;
     public array $errors = [];
-    private array $validRoles = ['admin', 'med-taf', 'rh', 'ch', 'doctor'];
+    private array $validRoles = ['admin', 'med-taf', 'rh', 'ch', 'doctor', 'bio'];
 
     public function collection(Collection $rows): void
     {
