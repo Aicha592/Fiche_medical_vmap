@@ -107,31 +107,97 @@ class MedicalVisitController extends Controller
 
     public function storeBloodTest(Request $request)
     {
+        // $request->validate([
+        //     'file_name' => 'required|array',
+        //     'file_name.*' => 'file|mimes:jpeg,png,pdf|max:2048',
+        // ]);
+
+        // $bloodTest = BloodTest::create([
+        //     'employee_id' => $request->employee_id,
+        //     'observations' => $request->observations,
+        // ]);
+
+        // // Handle file uploads (store on public disk so files can be served)
+        // $saved = [];
+        // foreach ($request->file('file_name') as $file) {
+        //     $path = Storage::disk('public')->putFile('results', $file);
+
+        //     Resultat::create([
+        //         'blood_test_id' => $bloodTest->id,
+        //         'file_path' => $path,
+        //     ]);
+
+        //     $saved[] = $path;
+        // }
+
+        // // Optionally store paths in session to show confirmation or later association
+        // session()->flash('saved_files', $saved);
+
+        //dd($request->employee_id);
+
         $request->validate([
-            'file_name' => 'required|array',
-            'file_name.*' => 'file|mimes:jpeg,png,pdf|max:2048',
+            'employee_id' => 'required|exists:employees,id',
+            'uree' => 'required|numeric',
+            'creat' => 'required|numeric',
+            'asat' => 'required|numeric',
+            'alat' => 'required|numeric',
+            'aghbs' => 'required|in:Positif,Négatif',
+            'chol' => 'required|numeric',
+            'tg' => 'required|numeric',
+            'gaj' => 'required|numeric',
+            'hb' => 'required|numeric',
+            'hct' => 'required|numeric',
+            'gb' => 'required|numeric',
+            'plt' => 'required|numeric',
+        ], [
+            'employee_id.required' => 'Vous devez sélectionner un agent.',
+            'uree.required' => 'Le champ UREE est obligatoire.',
+            'creat.required' => 'Le champ CREAT est obligatoire.',
+            'asat.required' => 'Le champ ASAT est obligatoire.',
+            'alat.required' => 'Le champ ALAT est obligatoire.',
+            'aghbs.required' => 'Le champ AGHBS est obligatoire.',
+            'chol.required' => 'Le champ CHOL TOT est obligatoire.',
+            'tg.required' => 'Le champ TG est obligatoire.',
+            'gaj.required' => 'Le champ GAJ est obligatoire.',
+            'hb.required' => 'Le champ HB est obligatoire.',
+            'hct.required' => 'Le champ HCT est obligatoire.',
+            'gb.required' => 'Le champ GB est obligatoire.',
+            'plt.required' => 'Le champ PLT est obligatoire.',
+            'file_name.required' => 'Veuillez ajouter au moins un fichier de résultat.',
         ]);
 
         $bloodTest = BloodTest::create([
             'employee_id' => $request->employee_id,
-            'observations' => $request->observations,
+            'uree' => $request->uree,
+            'creat' => $request->creat,
+            'asat' => $request->asat,
+            'alat' => $request->alat,
+            'aghbs' => $request->aghbs,
+            'chol' => $request->chol,
+            'tg' => $request->tg,
+            'gaj' => $request->gaj,
+            'hb' => $request->hb,
+            'hct' => $request->hct,
+            'gb' => $request->gb,
+            'plt' => $request->plt,
         ]);
 
-        // Handle file uploads (store on public disk so files can be served)
-        $saved = [];
-        foreach ($request->file('file_name') as $file) {
-            $path = Storage::disk('public')->putFile('results', $file);
+        // $saved = [];
+        // if ($request->hasFile('file_name')) {
+        //     foreach ($request->file('file_name') as $file) {
+        //         $path = Storage::disk('public')->putFile('results', $file);
 
-            Resultat::create([
-                'blood_test_id' => $bloodTest->id,
-                'file_path' => $path,
-            ]);
+        //         $bloodTest->results()->create([
+        //             'file_path' => $path,
+        //         ]);
 
-            $saved[] = $path;
-        }
+        //         $saved[] = $path;
+        //     }
+        // }
 
-        // Optionally store paths in session to show confirmation or later association
-        session()->flash('saved_files', $saved);
+        // if (!empty($saved)) {
+        //     session()->flash('saved_files', $saved);
+        // }
 
         return redirect()->route('medical-visits.blood_test_form')
             ->with('success', 'Bilan sanguin enregistré avec succès');

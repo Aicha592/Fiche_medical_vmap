@@ -8,7 +8,18 @@ class BloodTest extends Model
 {
     protected $fillable = [
         'employee_id',
-        'observations',
+        'uree',
+        'creat',
+        'asat',
+        'alat',
+        'aghbs',
+        'chol',
+        'tg',
+        'gaj',
+        'hb',
+        'hct',
+        'gb',
+        'plt',
     ];
 
     public function employee()

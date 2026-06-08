@@ -15,7 +15,18 @@ return new class extends Migration
         Schema::create('blood_tests', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Employee::class)->constrained()->onDelete('cascade');
-            $table->string('observations')->nullable();
+            $table->decimal('uree', 8, 2)->nullable();
+            $table->decimal('creat', 8, 2)->nullable();
+            $table->decimal('asat', 8, 2)->nullable();
+            $table->decimal('alat', 8, 2)->nullable();
+            $table->string('aghbs')->nullable();
+            $table->decimal('chol', 8, 2)->nullable();
+            $table->decimal('tg', 8, 2)->nullable();
+            $table->decimal('gaj', 8, 2)->nullable();
+            $table->decimal('hb', 8, 2)->nullable();
+            $table->decimal('hct', 8, 2)->nullable();
+            $table->decimal('gb', 8, 2)->nullable();
+            $table->decimal('plt', 8, 2)->nullable();
             $table->timestamps();
         });
     }

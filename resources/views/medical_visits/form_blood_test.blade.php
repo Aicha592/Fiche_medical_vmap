@@ -424,7 +424,7 @@
         <h5 class="modal-title">Bilan Sanguin – VISITE MÉDICALE ANNUELLE DU PERSONNEL (VMAP) 2026</h5>
     </div>
 
-    <form id="visitForm" method="POST" action="{{ route('medical-visits.store_blood_test') }}" class="needs-validation"
+    <form method="POST" action="{{ route('medical-visits.store_blood_test') }}" class="needs-validation"
         novalidate enctype="multipart/form-data">
                 @csrf
 
@@ -464,20 +464,97 @@
                         <section class="medical-section">
                             <div class="section-title">
                                 <span class="section-index">I</span>
-                                <h5>PHOTOS OU PDF DES RÉSULTATS</h5>
+                                <h5>Bilan</h5>
                             </div>
-                            <input type="file" id="filesInput" name="file_name[]" class="form-control" accept="image/*,application/pdf" multiple required>
-                            <div id="filesPreview" class="mt-2 d-flex flex-wrap" style="gap:8px"></div>
+
+                            <div class="row">
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">UREE (g/L)</label>
+                                    <input type="number" step="0.01" name="uree" id="uree"
+                                        class="form-control" required>
+                                </div>
+
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">CREAT (mg/L)</label>
+                                    <input type="number" step="0.1" name="creat" id="creat"
+                                        class="form-control" required>
+                                </div>
+
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">ASAT (UI/L)</label>
+                                    <input type="number" step="0.1" name="asat" id="asat" class="form-control"
+                                        required>
+                                </div>
+
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">ALAT (UI/L)</label>
+                                    <input type="number" step="0.1" name="alat" id="alat" class="form-control"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">AGHBS</label>
+                                    <div class="option-group">
+                                        <label class="option-line"><input class="form-check-input" type="radio"
+                                                name="aghbs" value="Positif"> Positif</label>
+                                        <label class="option-line"><input class="form-check-input" type="radio"
+                                                name="aghbs" value="Négatif"> Négatif</label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">CHOL TOT (g/L)</label>
+                                    <input type="number" step="0.1" name="chol" id="chol"
+                                        class="form-control" required>
+                                </div>
+
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">TG (g/L)</label>
+                                    <input type="number" step="0.1" name="tg" id="tg" class="form-control"
+                                        required>
+                                </div>
+
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">GAJ (g/L)</label>
+                                    <input type="number" step="0.1" name="gaj" id="gaj" class="form-control"
+                                        required>
+                                </div>
+                            </div>
                         </section>
 
-                        <!-- VI. OBSERVATIONS -->
                         <section class="medical-section">
                             <div class="section-title">
                                 <span class="section-index">II</span>
-                                <h5>OBSERVATIONS / RECOMMANDATIONS</h5>
+                                <h5>NFS</h5>
                             </div>
-                            <textarea name="observations" class="form-control" rows="2" required></textarea>
-                            <p class="mt-2 mb-0 note-accent">Interprétation des résultats...</p>
+
+                            <div class="row">
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">HB (g/dl)</label>
+                                    <input type="number" step="0.01" name="hb" id="hb"
+                                        class="form-control" required>
+                                </div>
+
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">HCT (%)</label>
+                                    <input type="number" step="0.1" name="hct" id="hct"
+                                        class="form-control" required>
+                                </div>
+
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">GB (/mm3)</label>
+                                    <input type="number" step="0.1" name="gb" id="gb" class="form-control"
+                                        required>
+                                </div>
+
+                                <div class="mb-3 col-md-3">
+                                    <label class="form-label">PLT (/mm3)</label>
+                                    <input type="number" step="0.1" name="plt" id="plt" class="form-control"
+                                        required>
+                                </div>
+                            </div>
                         </section>
 
                         <div class="mt-4 d-flex justify-content-end">
@@ -489,97 +566,6 @@
             </form>
 </div>
 
-<script>
-    // ===== Recherche agent + ouverture du formulaire =====
-    document.getElementById('searchAgent').addEventListener('input', function() {
-        const query = this.value;
-
-        if (query.length < 2) {
-            document.getElementById('agentsResults').innerHTML = '';
-            return;
-        }
-
-        fetch(`/employees/search?q=${query}`)
-            .then(res => res.json())
-            .then(data => {
-                let html = '';
-                data.forEach(agent => {
-                    html += `
-                        <a href="#" class="list-group-item list-group-item-action"
-                           data-employee-id="${agent.employee_id}"
-                           data-nom="${agent.name}"
-                           data-matricule="${agent.matricule}"
-                           data-sexe="${agent.sexe}"
-                           data-age="${agent.age}"
-                           data-date-naissance="${agent.date_naissance ?? ''}"
-                           data-date-embauche="${agent.date_embauche ?? ''}"
-                           data-direction="${agent.direction}"
-                           data-delegation="${agent.delegation_r ?? ''}"
-                           data-service="${agent.service ?? ''}"
-                           data-unite-communale="${agent.unite_communale ?? ''}"
-                           data-poste="${agent.poste}"
-                           data-anciennete="${agent.anciennete}"
-                           data-telephone="${agent.telephone ?? ''}"
-                           data-date-passage="${agent.date_passage ?? ''}">
-                            ${agent.name} - ${agent.matricule}
-                        </a>
-                    `;
-                });
-                document.getElementById('agentsResults').innerHTML = html;
-
-                // click sur agent
-                document.querySelectorAll('#agentsResults a').forEach(a => {
-                    a.addEventListener('click', function(e) {
-                        e.preventDefault();
-
-                        document.getElementById('agent_employee_id').value = this.dataset
-                            .employeeId;
-                        document.getElementById('agent_nom').value = this.dataset.nom;
-                        document.getElementById('agent_matricule').value = this.dataset
-                            .matricule;
-                        document.getElementById('agent_sexe').value = this.dataset.sexe;
-                        document.getElementById('agent_age').value = this.dataset.age;
-                        document.getElementById('agent_date_naissance').value = this.dataset
-                            .dateNaissance || '';
-                        document.getElementById('agent_date_embauche').value = this.dataset
-                            .dateEmbauche || '';
-                        document.getElementById('agent_direction').value = this.dataset
-                            .direction;
-                        document.getElementById('agent_delegation').value = this.dataset
-                            .delegation || '';
-                        document.getElementById('agent_service').value = this.dataset
-                            .service || '';
-                        document.getElementById('agent_unite_communale').value = this
-                            .dataset.uniteCommunale || '';
-                        document.getElementById('agent_poste').value = this.dataset.poste;
-                        document.getElementById('agent_anciennete').value = this.dataset
-                            .anciennete;
-                        document.getElementById('agent_date_passage').value = this.dataset
-                            .datePassage || '';
-                        document.getElementById('agent_telephone').value = this.dataset
-                            .telephone || '';
-
-                        const setText = (id, value) => {
-                            const el = document.getElementById(id);
-                            if (el) {
-                                el.textContent = value && value !== '' ? value : '—';
-                            }
-                        };
-
-                        setText('agent_nom_display', this.dataset.nom || '—');
-                        setText('agent_matricule_display', this.dataset.matricule || '—');
-                        setText('agent_sexe_display', this.dataset.sexe || '—');
-                        setText('agent_age_display', this.dataset.age || '—');
-                        setText('agent_poste_display', this.dataset.poste || '—');
-
-                        document.getElementById('visitForm')?.scrollIntoView({ behavior: 'smooth' });
-                    });
-                });
-            });
-    });
-</script>
-
-<!-- File preview + upload handling -->
 <script>
     (function() {
         const input = document.getElementById('filesInput');

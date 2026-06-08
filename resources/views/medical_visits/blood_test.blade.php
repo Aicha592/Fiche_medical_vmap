@@ -2,9 +2,26 @@
 
 @section('content')
     <div class="mb-4 text-center medical-hero">
-        <h3>FICHE MÉDICALE – VISITE MÉDICALE ANNUELLE DU PERSONNEL (VMAP 2026)</h3>
+        <h3>BIOLOGIE – VISITE MÉDICALE ANNUELLE DU PERSONNEL (VMAP 2026)</h3>
         <p>Recherchez un agent puis enregistrer les résultats du bilan sanguin.</p>
     </div>
+
+    @if (session('success'))
+    <div class="mt-3 alert alert-success" id="successAlert">
+        {{ session('success') }}
+    </div>
+
+    <script>
+        setTimeout(function() {
+            const alert = document.getElementById('successAlert');
+            if (alert) {
+                alert.style.transition = "opacity 0.5s ease";
+                alert.style.opacity = 0;
+                setTimeout(() => alert.remove(), 500);
+            }
+        }, 5000);
+    </script>
+    @endif
 
 
     <div class="medical-search">
@@ -14,7 +31,9 @@
         <ul class="mt-3 list-group" id="results"></ul>
     </div>
 
-    @include('medical_visits.form_blood_test')
+    <div id="bloodTestContainer" class="d-none">
+        @include('medical_visits.form_blood_test')
+    </div>
 @endsection
 
 
@@ -79,8 +98,13 @@
     setText('agent_age_display', user.age || '—');
     setText('agent_poste_display', user.poste || '—');
 
-    let modal = new bootstrap.Modal(document.getElementById('visitModal'));
-    modal.show();
+    // show the hidden form container and scroll to it
+    const container = document.getElementById('bloodTestContainer');
+    if (container) {
+        container.classList.remove('d-none');
+    }
+
+    document.getElementById('visitForm')?.scrollIntoView({ behavior: 'smooth' });
 }
     </script>
 @endsection
