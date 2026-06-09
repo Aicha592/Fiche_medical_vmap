@@ -15,8 +15,8 @@
         @if ($user->isAdmin() || $user->isCh() || $user->isMedecin())
             <div class="col-md-4">
                 <div class="bo-card bo-kpi">
-                    <div class="bo-muted">Employés</div>
-                    <div class="fs-3 fw-semibold">{{ $stats['employees_count'] }}</div>
+                    <div class="bo-muted">Total visites effectuées</div>
+                    <div class="fs-3 fw-semibold">{{ $stats['total_visits'] }}</div>
                     <div class="mt-2 bo-muted">Visites effectuées / employés</div>
                     <div class="fw-semibold">{{ $stats['total_visits'] }} / {{ $stats['employees_count'] }}</div>
                 </div>
