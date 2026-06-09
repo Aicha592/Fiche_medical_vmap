@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\MedicalVisit;
 use App\Models\MedicalVisitQhse;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -96,7 +97,7 @@ class DashboardController extends Controller
         $stats = [
             // logique index
             'total_visits' => MedicalVisit::count(),
-            'visits_last_7_days' => MedicalVisit::where('created_at', '>=', now()->subDays(7))->count(),
+            'daily_visits' => MedicalVisit::whereDate('created_at', Carbon::today())->count(),
             'qhse_filled' => MedicalVisitQhse::query()
                 ->where(function ($query) {
                     $query->whereNotNull('synthese_risque')

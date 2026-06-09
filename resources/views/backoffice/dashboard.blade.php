@@ -12,28 +12,6 @@
     </div>
 
     <div class="mb-4 row g-3">
-        @if ($user->isMedecin() || $user->isCh())
-            <div class="col-md-4">
-                <div class="bo-card bo-kpi">
-                    <div class="bo-muted">Total visites</div>
-                    <div class="fs-3 fw-semibold">{{ $stats['total_visits'] }}</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="bo-card bo-kpi">
-                    <div class="bo-muted">7 derniers jours</div>
-                    <div class="fs-3 fw-semibold">{{ $stats['visits_last_7_days'] }}</div>
-                </div>
-            </div>
-        @endif
-        @if ($user->isCh())
-            <div class="col-md-4">
-                <div class="bo-card bo-kpi">
-                    <div class="bo-muted">Fiches avec QHSE</div>
-                    <div class="fs-3 fw-semibold">{{ $stats['qhse_filled'] }}</div>
-                </div>
-            </div>
-        @endif
         @if ($user->isAdmin() || $user->isCh() || $user->isMedecin())
             <div class="col-md-4">
                 <div class="bo-card bo-kpi">
@@ -41,6 +19,32 @@
                     <div class="fs-3 fw-semibold">{{ $stats['employees_count'] }}</div>
                     <div class="mt-2 bo-muted">Visites effectuées / employés</div>
                     <div class="fw-semibold">{{ $stats['total_visits'] }} / {{ $stats['employees_count'] }}</div>
+                </div>
+            </div>
+        @endif
+        @if ($user->isMedecin() || $user->isCh() || $user->isAdmin())
+            <div class="col-md-4">
+                <div class="bo-card bo-kpi">
+                    <div class="bo-muted">Total visites journalières</div>
+                    <div class="fs-3 fw-semibold">{{ $stats['daily_visits'] }}</div>
+                    <div class="mt-2 bo-muted">visites journalières / employés</div>
+                    <div class="fw-semibold">
+                        {{ $stats['employees_count'] > 0 ? round(($stats['daily_visits'] / $stats['employees_count']) * 100, 1) : 0 }}%
+                    </div>
+                </div>
+            </div>
+            {{-- <div class="col-md-4">
+                <div class="bo-card bo-kpi">
+                    <div class="bo-muted">Total visites</div>
+                    <div class="fs-3 fw-semibold">{{ $stats['total_visits'] }}</div>
+                </div>
+            </div> --}}
+        @endif
+        @if ($user->isCh())
+            <div class="col-md-4">
+                <div class="bo-card bo-kpi">
+                    <div class="bo-muted">Fiches avec QHSE</div>
+                    <div class="fs-3 fw-semibold">{{ $stats['qhse_filled'] }}</div>
                 </div>
             </div>
         @endif
