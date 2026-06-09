@@ -16,29 +16,31 @@
             <div class="col-md-4">
                 <div class="bo-card bo-kpi">
                     <div class="bo-muted">Total visites effectuées</div>
-                    <div class="fs-3 fw-semibold">{{ $stats['total_visits'] }}</div>
+                    <div class="fs-3 fw-semibold">{{ $stats['total_visits'] - $stats['total_visits_pilot'] }}</div>
                     <div class="mt-2 bo-muted">Visites effectuées / employés</div>
-                    <div class="fw-semibold">{{ $stats['total_visits'] }} / {{ $stats['employees_count'] }}</div>
+                    <div class="fw-semibold">{{ $stats['total_visits'] }} / {{ $stats['employees_count'] - 100 }}</div>
                 </div>
             </div>
-        @endif
-        @if ($user->isMedecin() || $user->isCh() || $user->isAdmin())
+
             <div class="col-md-4">
                 <div class="bo-card bo-kpi">
                     <div class="bo-muted">Total visites journalières</div>
                     <div class="fs-3 fw-semibold">{{ $stats['daily_visits'] }}</div>
                     <div class="mt-2 bo-muted">visites journalières / employés</div>
                     <div class="fw-semibold">
-                        {{ $stats['employees_count'] > 0 ? round(($stats['daily_visits'] / $stats['employees_count']) * 100, 1) : 0 }}%
+                        {{ $stats['employees_count'] > 0 ? round(($stats['daily_visits'] / ($stats['employees_count'] - 100)) * 100, 1) : 0 }}%
                     </div>
                 </div>
             </div>
-            {{-- <div class="col-md-4">
+
+            <div class="col-md-4">
                 <div class="bo-card bo-kpi">
-                    <div class="bo-muted">Total visites</div>
-                    <div class="fs-3 fw-semibold">{{ $stats['total_visits'] }}</div>
+                    <div class="bo-muted">Total visites pilotes</div>
+                    <div class="fs-3 fw-semibold">{{ $stats['total_visits_pilot'] }}</div>
+                    <div class="mt-2 bo-muted">Total visites phase pilote / effectif pilote</div>
+                    <div class="fw-semibold">{{ $stats['total_visits'] }} / 100</div>
                 </div>
-            </div> --}}
+            </div>
         @endif
         @if ($user->isCh())
             <div class="col-md-4">

@@ -98,6 +98,7 @@ class DashboardController extends Controller
             // logique index
             'total_visits' => MedicalVisit::count(),
             'daily_visits' => MedicalVisit::whereDate('created_at', Carbon::today())->count(),
+            'total_visits_pilot' => MedicalVisit::whereDate('created_at', '<=', '2026-06-01')->count(),
             'qhse_filled' => MedicalVisitQhse::query()
                 ->where(function ($query) {
                     $query->whereNotNull('synthese_risque')
