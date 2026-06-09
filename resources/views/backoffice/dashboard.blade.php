@@ -17,7 +17,7 @@
                 <div class="bo-card bo-kpi">
                     <div class="bo-muted">Total visites effectuées</div>
                     <div class="fs-3 fw-semibold">{{ $stats['total_visits'] - $stats['total_visits_pilot'] }}</div>
-                    <div class="mt-2 bo-muted">Visites effectuées / employés</div>
+                    <div class="mt-2 bo-muted">Visites effectuées / effectif lancement</div>
                     <div class="fw-semibold">{{ $stats['total_visits'] - $stats['total_visits_pilot'] }} / {{ $stats['employees_count'] - 100 }}</div>
                 </div>
             </div>
@@ -26,7 +26,7 @@
                 <div class="bo-card bo-kpi">
                     <div class="bo-muted">Total visites journalières</div>
                     <div class="fs-3 fw-semibold">{{ $stats['daily_visits'] }}</div>
-                    <div class="mt-2 bo-muted">visites journalières / employés</div>
+                    <div class="mt-2 bo-muted">visites journalières / effectif lancement</div>
                     <div class="fw-semibold">
                         {{ $stats['employees_count'] > 100 ? round(($stats['daily_visits'] / ($stats['employees_count'] - 100)) * 100, 1) : 0 }}%
                     </div>
