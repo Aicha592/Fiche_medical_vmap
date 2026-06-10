@@ -544,13 +544,13 @@
                                 </div>
 
                                 <div class="mb-3 col-md-3">
-                                    <label class="form-label">GB (/mm3)</label>
+                                    <label class="form-label">GB (g/L(10^9/L))</label>
                                     <input type="number" step="0.1" name="gb" id="gb" class="form-control"
                                         required>
                                 </div>
 
                                 <div class="mb-3 col-md-3">
-                                    <label class="form-label">PLT (/mm3)</label>
+                                    <label class="form-label">PLT (g/L (10^9/L))</label>
                                     <input type="number" step="0.1" name="plt" id="plt" class="form-control"
                                         required>
                                 </div>
