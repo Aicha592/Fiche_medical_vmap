@@ -34,7 +34,7 @@ class DashboardController extends Controller
         // -----------------------------
         // 1) Filtres date (logique index)
         // -----------------------------
-        $selectedDate = $request->string('date_passage')->trim()->value();
+        $selectedDate = $request->string('visit_date')->trim()->value();
         $onlyToday = $request->boolean('today');
         $selectedDelegation = $request->string('delegation_r_filter')->trim()->value();
 
@@ -223,8 +223,20 @@ class DashboardController extends Controller
         // 6) Visits by region + QHSE totals (group by region)
         // --------------------------------------------------------
         $visitsByRegion = Employee::query()
-            ->leftJoin('medical_visits', 'medical_visits.employee_id', '=', 'employees.id')
-            ->leftJoin('qhse_evaluations', 'qhse_evaluations.employee_id', '=', 'employees.id')
+            ->leftJoin('medical_visits', function ($join) use ($selectedDate) {
+                $join->on('medical_visits.employee_id', '=', 'employees.id');
+
+                if ($selectedDate) {
+                    $join->whereDate('medical_visits.created_at', $selectedDate);
+                }
+            })
+            ->leftJoin('qhse_evaluations', function ($join) use ($selectedDate) {
+                $join->on('qhse_evaluations.employee_id', '=', 'employees.id');
+
+                if ($selectedDate) {
+                    $join->whereDate('qhse_evaluations.created_at', $selectedDate);
+                }
+            })
             ->selectRaw('COALESCE(employees.delegation_r, ?) as region', ['Non renseignée'])
             ->selectRaw('count(distinct employees.id) as region_total')
             ->selectRaw('count(distinct medical_visits.id) as done_total')
@@ -236,29 +248,16 @@ class DashboardController extends Controller
         }
 
         $visitsByRegion = $visitsByRegion
-            //->whereDate('employees.date_passage', '<=', now()->toDateString())
             ->groupBy('employees.delegation_r')
             ->orderByRaw('COALESCE(employees.delegation_r, ?)', ['Non renseignée'])
             ->get();
 
-        $visitsByRegionDay = null;
-        if ($selectedDate) {
-            $visitsByRegionDay = Employee::query()
-                ->leftJoin('medical_visits', 'medical_visits.employee_id', '=', 'employees.id')
-                ->leftJoin('qhse_evaluations', 'qhse_evaluations.employee_id', '=', 'employees.id')
-                ->whereDate('employees.date_passage', $selectedDate);
-
-            // Apply delegation filter if selected
-            if ($selectedDelegation) {
-                $visitsByRegionDay->where('employees.delegation_r', $selectedDelegation);
-            }
-
-            $visitsByRegionDay = $visitsByRegionDay
-                ->selectRaw('count(distinct employees.id) as planned_total')
-                ->selectRaw('count(distinct medical_visits.id) as done_total')
-                ->selectRaw('count(distinct qhse_evaluations.id) as qhse_total')
-                ->first();
-        }
+        $visitsByRegionDay = $selectedDate
+            ? (object) [
+                'done_total' => $visitsByRegion->sum('done_total'),
+                'qhse_total' => $visitsByRegion->sum('qhse_total'),
+            ]
+            : null;
 
         return view('backoffice.dashboard', [
             'user' => $user,

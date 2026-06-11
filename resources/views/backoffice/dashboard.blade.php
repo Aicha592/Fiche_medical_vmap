@@ -167,7 +167,7 @@
                 <div class="fw-semibold">Visites médicales effectuées (par région)</div>
                 <form class="gap-2 d-flex flex-nowrap align-items-center" method="GET"
                     action="{{ route('backoffice.dashboard') }}">
-                    <input type="date" name="date_passage" class="form-control w-auto" value="{{ $selectedDate }}">
+                    <input type="date" name="visit_date" class="form-control w-auto" value="{{ $selectedDate }}">
                     <select name="delegation_r_filter" class="form-control w-auto">
                         <option value="">Toutes les régions</option>
                         @foreach ($allDelegations as $delegation)
@@ -184,9 +184,8 @@
             @if ($selectedDate)
                 <div class="py-2 mb-3 alert alert-info">
                     {{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }} :
-                    {{ $visitsByRegionDay->planned_total ?? 0 }} prévue(s),
-                    {{ $visitsByRegionDay->done_total ?? 0 }} médicale(s) effectuée(s),
-                    {{ $visitsByRegionDay->qhse_total ?? 0 }} QHSE effectuée(s)
+                    {{ $visitsByRegionDay->done_total ?? 0 }} visite(s) médicale(s) enregistrée(s),
+                    {{ $visitsByRegionDay->qhse_total ?? 0 }} évaluation(s) QHSE enregistrée(s)
                 </div>
             @endif
             @if ($visitsByRegion->isEmpty())
