@@ -227,8 +227,8 @@ class DashboardController extends Controller
             ->leftJoin('qhse_evaluations', 'qhse_evaluations.employee_id', '=', 'employees.id')
             ->selectRaw('COALESCE(employees.delegation_r, ?) as region', ['Non renseignée'])
             ->selectRaw('count(distinct employees.id) as region_total')
-            ->selectRaw('count(medical_visits.id) as done_total')
-            ->selectRaw('count(qhse_evaluations.id) as qhse_total');
+            ->selectRaw('count(distinct medical_visits.id) as done_total')
+            ->selectRaw('count(distinct qhse_evaluations.id) as qhse_total');
 
         // Apply delegation filter if selected
         if ($selectedDelegation) {
@@ -255,8 +255,8 @@ class DashboardController extends Controller
 
             $visitsByRegionDay = $visitsByRegionDay
                 ->selectRaw('count(distinct employees.id) as planned_total')
-                ->selectRaw('count(medical_visits.id) as done_total')
-                ->selectRaw('count(qhse_evaluations.id) as qhse_total')
+                ->selectRaw('count(distinct medical_visits.id) as done_total')
+                ->selectRaw('count(distinct qhse_evaluations.id) as qhse_total')
                 ->first();
         }
 
