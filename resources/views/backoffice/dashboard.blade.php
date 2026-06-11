@@ -212,6 +212,14 @@
                                 </tr>
                             @endforeach
                         </tbody>
+                        <tfoot class="table-light">
+                            <tr class="fw-semibold">
+                                <td>Total</td>
+                                <td>{{ $visitsByRegion->sum('region_total') }}</td>
+                                <td>{{ $visitsByRegion->sum('done_total') }}</td>
+                                <td>{{ $visitsByRegion->sum('qhse_total') }}</td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             @endif
