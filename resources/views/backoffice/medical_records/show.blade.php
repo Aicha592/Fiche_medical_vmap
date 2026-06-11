@@ -8,7 +8,7 @@
         </div>
         <div class="gap-2 d-flex">
             <a class="btn btn-outline-dark" href="{{ route('backoffice.medical-records.index') }}">Retour</a>
-            @if ($user->isDoctor())
+            @if ($user->isMedecin() || $user->isAdmin())
                 <a class="btn btn-bo" href="{{ route('medical-visits.pdf', $visit) }}" target="_blank">Télécharger PDF</a>
             @endif
         </div>
@@ -76,7 +76,7 @@
         </div>
         <div class="col-lg-7">
             <ul class="mb-3 nav nav-tabs" role="tablist">
-                @if ($user->role === 'med-taf')
+                @if ($user->role === 'med-taf' || $user->role === 'admin')
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="medical-tab" data-bs-toggle="tab" data-bs-target="#medical-pane"
                             type="button" role="tab" aria-controls="medical-pane" aria-selected="true">
@@ -98,7 +98,7 @@
             @endphp
 
             <div class="tab-content">
-                @if ($user->role === 'med-taf')
+                @if ($user->role === 'med-taf' || $user->role === 'admin')
                     <div class="tab-pane fade show active" id="medical-pane" role="tabpanel" aria-labelledby="medical-tab">
                         <div class="mb-4 bo-card">
                             <div class="mb-3 fw-semibold">Résumé médical</div>

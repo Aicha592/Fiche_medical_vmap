@@ -56,6 +56,11 @@ class Employee extends Model
         return $this->hasMany(MedicalVisit::class, 'employee_id', 'id');
     }
 
+    public function bloodTests()
+    {
+        return $this->hasMany(BloodTest::class, 'employee_id', 'id')->latest();
+    }
+
     public function qhse()
     {
         return $this->hasOne(MedicalVisitQhse::class, 'employee_id', 'id')->withDefault();

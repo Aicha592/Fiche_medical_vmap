@@ -99,6 +99,25 @@
         .muted {
             color: var(--ink-soft);
         }
+
+        .biology-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8px;
+        }
+
+        .biology-table th,
+        .biology-table td {
+            border: 1px solid rgba(70, 112, 73, 0.25);
+            padding: 5px 3px;
+            text-align: center;
+        }
+
+        .biology-table th {
+            background: #eef3df;
+            color: var(--green-dark);
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -185,6 +204,52 @@
             <tr><td class="label">Avis</td><td class="value"><span class="pill">{{ $visit->avis ?? '—' }}</span></td></tr>
             <tr><td class="label">Observations</td><td class="value">{!! $visit->observations ? nl2br(e($visit->observations)) : '—' !!}</td></tr>
         </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Bilans biologiques</div>
+        @if ($bloodTests->isNotEmpty())
+            <table class="biology-table">
+                <thead>
+                    <tr>
+                        <th>Date d'enregistrement</th>
+                        <th>Urée<br>(g/L)</th>
+                        <th>Créat.<br>(mg/L)</th>
+                        <th>ASAT<br>(UI/L)</th>
+                        <th>ALAT<br>(UI/L)</th>
+                        <th>AGHBS</th>
+                        <th>Chol.<br>(g/L)</th>
+                        <th>TG<br>(g/L)</th>
+                        <th>GAJ<br>(g/L)</th>
+                        <th>HB<br>(g/dl)</th>
+                        <th>HCT<br>(%)</th>
+                        <th>GB<br>(10^9/L)</th>
+                        <th>PLT<br>(10^9/L)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($bloodTests as $bloodTest)
+                        <tr>
+                            <td>{{ $bloodTest->created_at->format('d/m/Y H:i') }}</td>
+                            <td>{{ $bloodTest->uree ?? '—' }}</td>
+                            <td>{{ $bloodTest->creat ?? '—' }}</td>
+                            <td>{{ $bloodTest->asat ?? '—' }}</td>
+                            <td>{{ $bloodTest->alat ?? '—' }}</td>
+                            <td>{{ $bloodTest->aghbs ?? '—' }}</td>
+                            <td>{{ $bloodTest->chol ?? '—' }}</td>
+                            <td>{{ $bloodTest->tg ?? '—' }}</td>
+                            <td>{{ $bloodTest->gaj ?? '—' }}</td>
+                            <td>{{ $bloodTest->hb ?? '—' }}</td>
+                            <td>{{ $bloodTest->hct ?? '—' }}</td>
+                            <td>{{ $bloodTest->gb ?? '—' }}</td>
+                            <td>{{ $bloodTest->plt ?? '—' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <span class="muted">Aucun bilan biologique enregistré pour cet employé.</span>
+        @endif
     </div>
 
     <div class="section">

@@ -9,6 +9,7 @@ use App\Models\Resultat;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class MedicalVisitController extends Controller
 {
@@ -205,31 +206,47 @@ class MedicalVisitController extends Controller
 
     private function downloadPdf(MedicalVisit $medicalVisit)
     {
-        $medicalVisit->load('employee', 'employee.qhse', 'createdBy.employee');
+        $medicalVisit->load('employee', 'employee.qhse', 'employee.bloodTests', 'createdBy');
 
         if ($medicalVisit->pdf_path && Storage::disk('local')->exists($medicalVisit->pdf_path)) {
-            $filename = 'fiche-medicale-' . $medicalVisit->id . '.pdf';
+            $filename = $this->pdfFilename($medicalVisit);
             return Storage::disk('local')->download($medicalVisit->pdf_path, $filename);
         }
 
         $pdf = Pdf::loadView('medical_visits.pdf', [
             'visit' => $medicalVisit,
             'employee' => $medicalVisit->employee,
-        ])->setPaper('a4', 'portrait');
+            'bloodTests' => $medicalVisit->employee?->bloodTests ?? collect(),
+        ])->setPaper('a4', 'landscape');
 
-        $filename = 'fiche-medicale-' . $medicalVisit->id . '.pdf';
+        $filename = $this->pdfFilename($medicalVisit);
 
         return $pdf->download($filename);
     }
 
+    private function pdfFilename(MedicalVisit $medicalVisit): string
+    {
+        $employee = $medicalVisit->employee;
+        $identity = Str::upper(trim(implode(' ', array_filter([
+            $employee?->prenom,
+            $employee?->nom,
+            $employee?->matricule,
+        ]))));
+
+        $identitySlug = Str::upper(Str::slug($identity, '-'));
+
+        return 'Fiche-medicale-' . ($identitySlug ?: $medicalVisit->id) . '.pdf';
+    }
+
     private function storePdf(MedicalVisit $medicalVisit): void
     {
-        $medicalVisit->load('employee', 'employee.qhse', 'createdBy.employee');
+        $medicalVisit->load('employee', 'employee.qhse', 'employee.bloodTests', 'createdBy');
 
         $pdf = Pdf::loadView('medical_visits.pdf', [
             'visit' => $medicalVisit,
             'employee' => $medicalVisit->employee,
-        ])->setPaper('a4', 'portrait');
+            'bloodTests' => $medicalVisit->employee?->bloodTests ?? collect(),
+        ])->setPaper('a4', 'landscape');
 
         $path = 'medical_visits/fiche-medicale-' . $medicalVisit->id . '.pdf';
         Storage::disk('local')->put($path, $pdf->output());

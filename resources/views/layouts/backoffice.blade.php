@@ -189,7 +189,7 @@
                     href="{{ route('backoffice.dashboard') }}">
                     Tableau de bord
                 </a>
-                @if (auth()->user()->isMedecin())
+                @if (auth()->user()->isMedecin() || auth()->user()->isAdmin())
                     <a class="nav-link {{ request()->routeIs('backoffice.medical-records.*') ? 'active' : '' }}"
                         href="{{ route('backoffice.medical-records.index') }}">
                         Fiches médicales

@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Backoffice;
 
 use App\Exports\Backoffice\MedicalRecordsWorkbookExport;
 use App\Http\Controllers\Controller;
+use App\Models\BloodTest;
 use App\Models\MedicalVisit;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MedicalRecordController extends Controller
@@ -37,6 +39,7 @@ class MedicalRecordController extends Controller
             ->from("{$medicalTable} as medical_visits")
             ->with([
                 'employee',
+                'employee.bloodTests',
                 'employee.qhse' => function ($builder) use ($qhseTable) {
                     $builder->from("{$qhseTable} as medical_visit_qhses");
                 },
@@ -52,11 +55,17 @@ class MedicalRecordController extends Controller
         }
 
         $visits = $query->paginate(15)->withQueryString();
+        $bloodTestsByEmployee = BloodTest::query()
+            ->whereIn('employee_id', $visits->getCollection()->pluck('employee_id')->filter()->unique())
+            ->latest()
+            ->get()
+            ->groupBy('employee_id');
 
         return view('backoffice.medical_records.index', [
             'user' => $user,
             'visits' => $visits,
             'search' => $search,
+            'bloodTestsByEmployee' => $bloodTestsByEmployee,
         ]);
     }
 
@@ -90,6 +99,7 @@ class MedicalRecordController extends Controller
             ->from("{$medicalTable} as medical_visits")
             ->with([
                 'employee',
+                'employee.bloodTests',
                 'employee.qhse' => function ($builder) use ($qhseTable) {
                     $builder->from("{$qhseTable} as medical_visit_qhses");
                 },
@@ -105,13 +115,15 @@ class MedicalRecordController extends Controller
         }
 
         $visits = $query->get();
-        $canExportMedicalSheet = (bool) $user?->isMedecin();
+        $canExportMedicalSheet = (bool) $user?->isMedecin() || $user?->isAdmin();
         $medicalRows = $canExportMedicalSheet
             ? $visits->map(fn($visit) => $this->medicalRow($visit))->all()
             : [];
         $qhseRows = $visits->map(fn($visit) => $this->qhseRow($visit))->all();
+        $generatedAt = now();
+        $generatedBy = $user?->name ?: $user?->email ?: 'Utilisateur VMAP';
 
-        $filename = 'fiches-medicales-' . now()->format('Ymd-His') . '.xlsx';
+        $filename = 'fiches-medicales-' . $generatedAt->format('Ymd-His') . '.xlsx';
 
         return Excel::download(
             new MedicalRecordsWorkbookExport(
@@ -119,7 +131,12 @@ class MedicalRecordController extends Controller
                 $medicalRows,
                 $this->qhseHeaders(),
                 $qhseRows,
-                $canExportMedicalSheet
+                $canExportMedicalSheet,
+                [
+                    'reference' => (string) Str::uuid(),
+                    'generated_at' => $generatedAt->toIso8601String(),
+                    'generated_by' => $generatedBy,
+                ]
             ),
             $filename
         );
@@ -150,7 +167,20 @@ class MedicalRecordController extends Controller
             'SOUTIEN',
             'AVIS',
             'OBSERVATIONS',
-            'DATE DE PASSAGE',
+            'DATE DE VISITE',
+            'DATE DERNIER BILAN BIOLOGIQUE',
+            'UREE (G/L)',
+            'CREAT (MG/L)',
+            'ASAT (UI/L)',
+            'ALAT (UI/L)',
+            'AGHBS',
+            'CHOL TOT (G/L)',
+            'TG (G/L)',
+            'GAJ (G/L)',
+            'HB (G/DL)',
+            'HCT (%)',
+            'GB (10^9/L)',
+            'PLT (10^9/L)',
         ];
     }
 
@@ -186,7 +216,7 @@ class MedicalRecordController extends Controller
             'SYNTHESE RISQUE',
             'SYNTHESE FACTEURS',
             'SYNTHESE ACTIONS',
-            'DATE DE PASSAGE',
+            'DATE DE VISITE',
         ];
     }
 
@@ -209,6 +239,7 @@ class MedicalRecordController extends Controller
     private function medicalRow(MedicalVisit $visit): array
     {
         $employee = $visit->employee;
+        $bloodTest = $employee?->bloodTests->first();
 
         return array_merge(
             $this->baseEmployeeData($employee),
@@ -225,7 +256,20 @@ class MedicalRecordController extends Controller
                 $this->normalizeCsvValue($visit->soutien),
                 $this->normalizeCsvValue($visit->avis),
                 $this->normalizeCsvValue($visit->observations),
-                $this->formatDateValue($employee?->date_passage),
+                $this->formatDateValue($visit->created_at),
+                $this->formatDateTimeValue($bloodTest?->created_at),
+                $this->normalizeCsvValue($bloodTest?->uree),
+                $this->normalizeCsvValue($bloodTest?->creat),
+                $this->normalizeCsvValue($bloodTest?->asat),
+                $this->normalizeCsvValue($bloodTest?->alat),
+                $this->normalizeCsvValue($bloodTest?->aghbs),
+                $this->normalizeCsvValue($bloodTest?->chol),
+                $this->normalizeCsvValue($bloodTest?->tg),
+                $this->normalizeCsvValue($bloodTest?->gaj),
+                $this->normalizeCsvValue($bloodTest?->hb),
+                $this->normalizeCsvValue($bloodTest?->hct),
+                $this->normalizeCsvValue($bloodTest?->gb),
+                $this->normalizeCsvValue($bloodTest?->plt),
             ]
         );
     }
@@ -257,7 +301,7 @@ class MedicalRecordController extends Controller
                 $this->normalizeCsvValue($qhse?->synthese_risque),
                 $this->normalizeCsvValue($qhse?->synthese_facteurs),
                 $this->normalizeCsvValue($qhse?->synthese_actions),
-                $this->formatDateValue($employee?->date_passage),
+                $this->formatDateValue($visit->created_at),
             ]
         );
     }
@@ -373,6 +417,19 @@ class MedicalRecordController extends Controller
 
         try {
             return \Illuminate\Support\Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable $exception) {
+            return $this->normalizeCsvValue($value);
+        }
+    }
+
+    private function formatDateTimeValue($value): string
+    {
+        if (empty($value)) {
+            return '';
+        }
+
+        try {
+            return \Illuminate\Support\Carbon::parse($value)->format('Y-m-d H:i');
         } catch (\Throwable $exception) {
             return $this->normalizeCsvValue($value);
         }
