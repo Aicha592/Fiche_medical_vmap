@@ -53,7 +53,73 @@
     </div>
 
     @if ($user->isAdmin() || $user->isCh() || $user->isMedecin())
-        <div class="mb-2 row g-3">
+        <div class="mt-4 bo-card">
+            <div class="mb-3 d-flex align-items-center justify-content-between" style="flex-wrap: wrap; gap: 1rem;">
+                <div class="fw-semibold">Visites médicales effectuées (par région)</div>
+                <form class="gap-2 d-flex flex-nowrap align-items-center" method="GET"
+                    action="{{ route('backoffice.dashboard') }}">
+                    <input type="date" name="visit_date" class="form-control w-auto" value="{{ $selectedDate }}">
+                    <select name="delegation_r_filter" class="form-control w-auto">
+                        <option value="">Toutes les régions</option>
+                        @foreach ($allDelegations as $delegation)
+                            <option value="{{ $delegation }}" {{ $selectedDelegation === $delegation ? 'selected' : '' }}>
+                                {{ $delegation }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <button class="btn btn-outline-dark btn-sm" type="submit">Filtrer</button>
+                    <button class="btn btn-outline-dark btn-sm" type="submit" name="today"
+                        value="1">Aujourd’hui</button>
+                    <a class="btn btn-outline-secondary btn-sm text-nowrap"
+                        href="{{ route('backoffice.dashboard') }}">Effacer les filtres</a>
+                </form>
+            </div>
+            @if ($selectedDate)
+                <div class="py-2 mb-3 alert alert-info">
+                    {{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }} :
+                    {{ $visitsByRegionDay->done_total ?? 0 }} visite(s) médicale(s) enregistrée(s),
+                    {{ $visitsByRegionDay->qhse_total ?? 0 }} évaluation(s) QHSE enregistrée(s)
+                </div>
+            @endif
+            @if ($visitsByRegion->isEmpty())
+                <div class="bo-muted">Aucune région renseignée.</div>
+            @else
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Région</th>
+                                <th>Effectif total</th>
+                                <th>Nombre de visites médicales effectuées</th>
+                                <th>Nombre de visites QHSE effectuées</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($visitsByRegion as $row)
+                                <tr>
+                                    <td>{{ $row->region }}</td>
+                                    <td>{{ $row->region_total }}</td>
+                                    <td>{{ $row->done_total }}</td>
+                                    <td>{{ $row->qhse_total }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr class="fw-semibold">
+                                <td>Total</td>
+                                <td>{{ $visitsByRegion->sum('region_total') }}</td>
+                                <td>{{ $visitsByRegion->sum('done_total') }}</td>
+                                <td>{{ $visitsByRegion->sum('qhse_total') }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            @endif
+        </div>
+    @endif
+
+    @if ($user->isAdmin() || $user->isCh() || $user->isMedecin())
+        <div class="mt-2 mb-2 row g-3">
             <div class="col-md-3">
                 <div class="bo-card bo-kpi" style="border-left-color: #356a45;">
                     <div class="bo-muted">Couverture médicale</div>
@@ -158,70 +224,6 @@
                     @endforelse
                 </div>
             </div>
-        </div>
-    @endif
-
-    @if ($user->isAdmin() || $user->isCh() || $user->isMedecin())
-        <div class="mt-4 bo-card">
-            <div class="mb-3 d-flex align-items-center justify-content-between" style="flex-wrap: wrap; gap: 1rem;">
-                <div class="fw-semibold">Visites médicales effectuées (par région)</div>
-                <form class="gap-2 d-flex flex-nowrap align-items-center" method="GET"
-                    action="{{ route('backoffice.dashboard') }}">
-                    <input type="date" name="visit_date" class="form-control w-auto" value="{{ $selectedDate }}">
-                    <select name="delegation_r_filter" class="form-control w-auto">
-                        <option value="">Toutes les régions</option>
-                        @foreach ($allDelegations as $delegation)
-                            <option value="{{ $delegation }}" {{ $selectedDelegation === $delegation ? 'selected' : '' }}>
-                                {{ $delegation }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <button class="btn btn-outline-dark btn-sm" type="submit">Filtrer</button>
-                    <button class="btn btn-outline-dark btn-sm" type="submit" name="today"
-                        value="1">Aujourd’hui</button>
-                </form>
-            </div>
-            @if ($selectedDate)
-                <div class="py-2 mb-3 alert alert-info">
-                    {{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }} :
-                    {{ $visitsByRegionDay->done_total ?? 0 }} visite(s) médicale(s) enregistrée(s),
-                    {{ $visitsByRegionDay->qhse_total ?? 0 }} évaluation(s) QHSE enregistrée(s)
-                </div>
-            @endif
-            @if ($visitsByRegion->isEmpty())
-                <div class="bo-muted">Aucune région renseignée.</div>
-            @else
-                <div class="table-responsive">
-                    <table class="table mb-0 align-middle">
-                        <thead>
-                            <tr>
-                                <th>Région</th>
-                                <th>Effectif total</th>
-                                <th>Nombre de visites médicales effectuées</th>
-                                <th>Nombre de visites QHSE effectuées</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($visitsByRegion as $row)
-                                <tr>
-                                    <td>{{ $row->region }}</td>
-                                    <td>{{ $row->region_total }}</td>
-                                    <td>{{ $row->done_total }}</td>
-                                    <td>{{ $row->qhse_total }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot class="table-light">
-                            <tr class="fw-semibold">
-                                <td>Total</td>
-                                <td>{{ $visitsByRegion->sum('region_total') }}</td>
-                                <td>{{ $visitsByRegion->sum('done_total') }}</td>
-                                <td>{{ $visitsByRegion->sum('qhse_total') }}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            @endif
         </div>
     @endif
 
