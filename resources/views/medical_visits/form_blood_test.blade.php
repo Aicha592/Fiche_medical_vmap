@@ -425,7 +425,7 @@
     </div>
 
     <form method="POST" action="{{ route('medical-visits.store_blood_test') }}" class="needs-validation"
-        novalidate enctype="multipart/form-data">
+        id="bloodTestForm" novalidate enctype="multipart/form-data">
                 @csrf
 
                 <div class="modal-body medical-body">
@@ -460,7 +460,7 @@
                             <input type="text" id="agent_telephone" readonly>
                         </div>
 
-                        <!-- II. ANTÉCÉDENTS -->
+                        <!-- I. BILAN -->
                         <section class="medical-section">
                             <div class="section-title">
                                 <span class="section-index">I</span>
@@ -470,25 +470,25 @@
                             <div class="row">
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">UREE (g/L)</label>
-                                    <input type="number" step="0.01" name="uree" id="uree"
+                                    <input type="number" step="0.00001" name="uree" id="uree"
                                         class="form-control" required>
                                 </div>
 
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">CREAT (mg/L)</label>
-                                    <input type="number" step="0.1" name="creat" id="creat"
+                                    <input type="number" step="0.00001" name="creat" id="creat"
                                         class="form-control" required>
                                 </div>
 
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">ASAT (UI/L)</label>
-                                    <input type="number" step="0.1" name="asat" id="asat" class="form-control"
+                                    <input type="number" step="0.00001" name="asat" id="asat" class="form-control"
                                         required>
                                 </div>
 
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">ALAT (UI/L)</label>
-                                    <input type="number" step="0.1" name="alat" id="alat" class="form-control"
+                                    <input type="number" step="0.00001" name="alat" id="alat" class="form-control"
                                         required>
                                 </div>
                             </div>
@@ -498,7 +498,7 @@
                                     <label class="form-label">AGHBS</label>
                                     <div class="option-group">
                                         <label class="option-line"><input class="form-check-input" type="radio"
-                                                name="aghbs" value="Positif"> Positif</label>
+                                                name="aghbs" value="Positif" required> Positif</label>
                                         <label class="option-line"><input class="form-check-input" type="radio"
                                                 name="aghbs" value="Négatif"> Négatif</label>
                                     </div>
@@ -506,19 +506,19 @@
 
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">CHOL TOT (g/L)</label>
-                                    <input type="number" step="0.1" name="chol" id="chol"
+                                    <input type="number" step="0.00001" name="chol" id="chol"
                                         class="form-control" required>
                                 </div>
 
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">TG (g/L)</label>
-                                    <input type="number" step="0.1" name="tg" id="tg" class="form-control"
+                                    <input type="number" step="0.00001" name="tg" id="tg" class="form-control"
                                         required>
                                 </div>
 
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">GAJ (g/L)</label>
-                                    <input type="number" step="0.1" name="gaj" id="gaj" class="form-control"
+                                    <input type="number" step="0.00001" name="gaj" id="gaj" class="form-control"
                                         required>
                                 </div>
                             </div>
@@ -533,37 +533,59 @@
                             <div class="row">
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">HB (g/dl)</label>
-                                    <input type="number" step="0.01" name="hb" id="hb"
+                                    <input type="number" step="0.00001" name="hb" id="hb"
                                         class="form-control" required>
                                 </div>
 
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">HCT (%)</label>
-                                    <input type="number" step="0.1" name="hct" id="hct"
+                                    <input type="number" step="0.00001" name="hct" id="hct"
                                         class="form-control" required>
                                 </div>
 
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">GB (g/L(10^9/L))</label>
-                                    <input type="number" step="0.1" name="gb" id="gb" class="form-control"
+                                    <input type="number" step="0.00001" name="gb" id="gb" class="form-control"
                                         required>
                                 </div>
 
                                 <div class="mb-3 col-md-3">
                                     <label class="form-label">PLT (g/L (10^9/L))</label>
-                                    <input type="number" step="0.1" name="plt" id="plt" class="form-control"
+                                    <input type="number" step="0.00001" name="plt" id="plt" class="form-control"
                                         required>
                                 </div>
                             </div>
                         </section>
 
-                        <div class="mt-4 d-flex justify-content-end">
-                            <button type="submit" class="text-white btn btn-primary-custom">
-                                Enregistrer
+                        <div class="gap-2 mt-4 d-flex justify-content-end">
+                            <button type="button" class="btn btn-recap-custom" id="btnShowBloodRecap">
+                                Valider et voir le récapitulatif
                             </button>
                         </div>
                     </div>
             </form>
+</div>
+
+<div class="modal fade" id="bloodRecapModal" tabindex="-1" aria-labelledby="bloodRecapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="text-white modal-header bg-recap-custom">
+                <h5 class="modal-title recap-title" id="bloodRecapModalLabel">
+                    Récapitulatif du bilan sanguin
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body" id="recapBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary-custom" data-bs-dismiss="modal">
+                    Modifier
+                </button>
+                <button type="button" class="btn btn-recap-custom" id="confirmBloodTestSave">
+                    Confirmer et enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -646,22 +668,118 @@
     (() => {
         'use strict';
 
-        const forms = document.querySelectorAll('.needs-validation');
+        const form = document.getElementById('bloodTestForm');
+        const recapButton = document.getElementById('btnShowBloodRecap');
+        const confirmButton = document.getElementById('confirmBloodTestSave');
+        const recapModalElement = document.getElementById('bloodRecapModal');
+        let recapModal;
 
-        Array.from(forms).forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
+        const fieldLabels = {
+            agent_nom: 'Nom et prénom',
+            agent_matricule: 'Matricule',
+            agent_sexe: 'Sexe',
+            agent_age: 'Âge',
+            agent_direction: 'Direction',
+            agent_delegation: 'Délégation / Région',
+            agent_service: 'Service',
+            agent_unite_communale: 'Unité communale',
+            agent_poste: 'Poste',
+            agent_anciennete: 'Ancienneté',
+            uree: 'URÉE (g/L)',
+            creat: 'CRÉAT (mg/L)',
+            asat: 'ASAT (UI/L)',
+            alat: 'ALAT (UI/L)',
+            aghbs: 'AGHBS',
+            chol: 'CHOL TOT (g/L)',
+            tg: 'TG (g/L)',
+            gaj: 'GAJ (g/L)',
+            hb: 'HB (g/dl)',
+            hct: 'HCT (%)',
+            gb: 'GB (g/L (10^9/L))',
+            plt: 'PLT (g/L (10^9/L))'
+        };
+
+        const sections = [
+            {
+                index: 'I',
+                title: 'Identification de l’agent',
+                fields: ['agent_nom', 'agent_matricule', 'agent_sexe', 'agent_age', 'agent_direction',
+                    'agent_delegation', 'agent_service', 'agent_unite_communale', 'agent_poste',
+                    'agent_anciennete'
+                ]
+            },
+            {
+                index: 'II',
+                title: 'Bilan',
+                fields: ['uree', 'creat', 'asat', 'alat', 'aghbs', 'chol', 'tg', 'gaj']
+            },
+            {
+                index: 'III',
+                title: 'NFS',
+                fields: ['hb', 'hct', 'gb', 'plt']
+            }
+        ];
+
+        function escapeHtml(value) {
+            const element = document.createElement('div');
+            element.textContent = value;
+            return element.innerHTML;
+        }
+
+        function fieldValue(name) {
+            const radio = form.querySelector(`input[type="radio"][name="${name}"]:checked`);
+            if (radio) {
+                return radio.value;
+            }
+
+            return document.getElementById(name)?.value || '';
+        }
+
+        function buildRecap() {
+            const recapHtml = sections.map(section => {
+                const items = section.fields.map(field => {
+                    const value = fieldValue(field) || 'Non renseigné';
+
+                    return `<li class="list-group-item d-flex justify-content-between gap-3">
+                        <strong>${escapeHtml(fieldLabels[field] || field)}</strong>
+                        <span class="text-end">${escapeHtml(value)}</span>
+                    </li>`;
+                }).join('');
+
+                return `<section class="recap-section">
+                    <div class="recap-title-row">
+                        <span class="recap-badge">${section.index}</span>
+                        <h6 class="mb-0">${escapeHtml(section.title)}</h6>
+                    </div>
+                    <ul class="mb-0 list-group">${items}</ul>
+                </section>`;
+            }).join('');
+
+            document.getElementById('recapBody').innerHTML = recapHtml;
+        }
+
+        recapButton.addEventListener('click', function() {
+            form.classList.add('was-validated');
+
+            if (!form.checkValidity()) {
+                form.querySelector(':invalid')?.focus();
+                return;
+            }
+
+            buildRecap();
+            recapModal = bootstrap.Modal.getOrCreateInstance(recapModalElement);
+            recapModal.show();
+        });
+
+        confirmButton.addEventListener('click', function() {
+            if (!form.checkValidity()) {
+                bootstrap.Modal.getInstance(recapModalElement)?.hide();
                 form.classList.add('was-validated');
-            }, false);
+                return;
+            }
+
+            confirmButton.disabled = true;
+            form.submit();
         });
     })();
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-
-    });
 </script>

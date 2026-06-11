@@ -163,10 +163,19 @@
 
     @if ($user->isAdmin() || $user->isCh() || $user->isMedecin())
         <div class="mt-4 bo-card">
-            <div class="mb-3 d-flex align-items-center justify-content-between">
-                <div class="fw-semibold">Visites médicales effectuées (par date de passage)</div>
-                <form class="gap-2 d-flex" method="GET" action="{{ route('backoffice.dashboard') }}">
-                    <input type="date" name="date_passage" class="form-control" value="{{ $selectedDate }}">
+            <div class="mb-3 d-flex align-items-center justify-content-between" style="flex-wrap: wrap; gap: 1rem;">
+                <div class="fw-semibold">Visites médicales effectuées (par région)</div>
+                <form class="gap-2 d-flex flex-nowrap align-items-center" method="GET"
+                    action="{{ route('backoffice.dashboard') }}">
+                    <input type="date" name="date_passage" class="form-control w-auto" value="{{ $selectedDate }}">
+                    <select name="delegation_r_filter" class="form-control w-auto">
+                        <option value="">Toutes les régions</option>
+                        @foreach ($allDelegations as $delegation)
+                            <option value="{{ $delegation }}" {{ $selectedDelegation === $delegation ? 'selected' : '' }}>
+                                {{ $delegation }}
+                            </option>
+                        @endforeach
+                    </select>
                     <button class="btn btn-outline-dark btn-sm" type="submit">Filtrer</button>
                     <button class="btn btn-outline-dark btn-sm" type="submit" name="today"
                         value="1">Aujourd’hui</button>
@@ -175,29 +184,29 @@
             @if ($selectedDate)
                 <div class="py-2 mb-3 alert alert-info">
                     {{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }} :
-                    {{ $visitsByPassageDay->planned_total ?? 0 }} prévue(s),
-                    {{ $visitsByPassageDay->done_total ?? 0 }} médicale(s) effectuée(s),
-                    {{ $visitsByPassageDay->qhse_total ?? 0 }} QHSE effectuée(s)
+                    {{ $visitsByRegionDay->planned_total ?? 0 }} prévue(s),
+                    {{ $visitsByRegionDay->done_total ?? 0 }} médicale(s) effectuée(s),
+                    {{ $visitsByRegionDay->qhse_total ?? 0 }} QHSE effectuée(s)
                 </div>
             @endif
-            @if ($visitsByPassage->isEmpty())
-                <div class="bo-muted">Aucune date de passage renseignée.</div>
+            @if ($visitsByRegion->isEmpty())
+                <div class="bo-muted">Aucune région renseignée.</div>
             @else
                 <div class="table-responsive">
                     <table class="table mb-0 align-middle">
                         <thead>
                             <tr>
-                                <th>Date de passage</th>
-                                <th>Nombre de visites prévues</th>
+                                <th>Région</th>
+                                <th>Effectif total</th>
                                 <th>Nombre de visites médicales effectuées</th>
                                 <th>Nombre de visites QHSE effectuées</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($visitsByPassage as $row)
+                            @foreach ($visitsByRegion as $row)
                                 <tr>
-                                    <td>{{ \Carbon\Carbon::parse($row->date_passage)->format('d/m/Y') }}</td>
-                                    <td>{{ $row->planned_total }}</td>
+                                    <td>{{ $row->region }}</td>
+                                    <td>{{ $row->region_total }}</td>
                                     <td>{{ $row->done_total }}</td>
                                     <td>{{ $row->qhse_total }}</td>
                                 </tr>

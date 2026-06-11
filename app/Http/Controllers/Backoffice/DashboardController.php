@@ -36,10 +36,17 @@ class DashboardController extends Controller
         // -----------------------------
         $selectedDate = $request->string('date_passage')->trim()->value();
         $onlyToday = $request->boolean('today');
+        $selectedDelegation = $request->string('delegation_r_filter')->trim()->value();
 
         if ($onlyToday) {
             $selectedDate = now()->toDateString();
         }
+
+        // Get all unique delegations for dropdown
+        $allDelegations = Employee::whereNotNull('delegation_r')
+            ->distinct('delegation_r')
+            ->orderBy('delegation_r')
+            ->pluck('delegation_r');
 
         // ----------------------------------------------------
         // 2) Base "dernière visite par employé" (logique index1)
@@ -213,30 +220,43 @@ class DashboardController extends Controller
             ->get();
 
         // --------------------------------------------------------
-        // 6) Visits by passage + QHSE totals (logique index conservée)
+        // 6) Visits by region + QHSE totals (group by region)
         // --------------------------------------------------------
-        $visitsByPassage = Employee::query()
+        $visitsByRegion = Employee::query()
             ->leftJoin('medical_visits', 'medical_visits.employee_id', '=', 'employees.id')
-            ->leftJoin('medical_visit_qhses', 'medical_visit_qhses.employee_id', '=', 'employees.id')
-            ->selectRaw('employees.date_passage as date_passage')
-            ->selectRaw('count(distinct employees.id) as planned_total')
+            ->leftJoin('qhse_evaluations', 'qhse_evaluations.employee_id', '=', 'employees.id')
+            ->selectRaw('COALESCE(employees.delegation_r, ?) as region', ['Non renseignée'])
+            ->selectRaw('count(distinct employees.id) as region_total')
             ->selectRaw('count(medical_visits.id) as done_total')
-            ->selectRaw('count(distinct case when medical_visit_qhses.synthese_risque is not null or medical_visit_qhses.observations_qhse is not null or medical_visit_qhses.synthese_actions is not null then employees.id end) as qhse_total')
-            ->whereNotNull('employees.date_passage')
-            ->whereDate('employees.date_passage', '<=', now()->toDateString())
-            ->groupBy('employees.date_passage')
-            ->orderBy('employees.date_passage')
+            ->selectRaw('count(qhse_evaluations.id) as qhse_total');
+
+        // Apply delegation filter if selected
+        if ($selectedDelegation) {
+            $visitsByRegion->where('employees.delegation_r', $selectedDelegation);
+        }
+
+        $visitsByRegion = $visitsByRegion
+            //->whereDate('employees.date_passage', '<=', now()->toDateString())
+            ->groupBy('employees.delegation_r')
+            ->orderByRaw('COALESCE(employees.delegation_r, ?)', ['Non renseignée'])
             ->get();
 
-        $visitsByPassageDay = null;
+        $visitsByRegionDay = null;
         if ($selectedDate) {
-            $visitsByPassageDay = Employee::query()
+            $visitsByRegionDay = Employee::query()
                 ->leftJoin('medical_visits', 'medical_visits.employee_id', '=', 'employees.id')
-                ->leftJoin('medical_visit_qhses', 'medical_visit_qhses.employee_id', '=', 'employees.id')
-                ->whereDate('employees.date_passage', $selectedDate)
+                ->leftJoin('qhse_evaluations', 'qhse_evaluations.employee_id', '=', 'employees.id')
+                ->whereDate('employees.date_passage', $selectedDate);
+
+            // Apply delegation filter if selected
+            if ($selectedDelegation) {
+                $visitsByRegionDay->where('employees.delegation_r', $selectedDelegation);
+            }
+
+            $visitsByRegionDay = $visitsByRegionDay
                 ->selectRaw('count(distinct employees.id) as planned_total')
                 ->selectRaw('count(medical_visits.id) as done_total')
-                ->selectRaw('count(distinct case when medical_visit_qhses.synthese_risque is not null or medical_visit_qhses.observations_qhse is not null or medical_visit_qhses.synthese_actions is not null then employees.id end) as qhse_total')
+                ->selectRaw('count(qhse_evaluations.id) as qhse_total')
                 ->first();
         }
 
@@ -244,10 +264,12 @@ class DashboardController extends Controller
             'user' => $user,
             'stats' => $stats,
             'recentVisits' => $recentVisits,
-            'visitsByPassage' => $visitsByPassage,
+            'visitsByRegion' => $visitsByRegion,
             'selectedDate' => $selectedDate,
-            'visitsByPassageDay' => $visitsByPassageDay,
+            'visitsByRegionDay' => $visitsByRegionDay,
             'onlyToday' => $onlyToday,
+            'selectedDelegation' => $selectedDelegation,
+            'allDelegations' => $allDelegations,
 
             // ajouts index1
             'avisChart' => $avisChart,
