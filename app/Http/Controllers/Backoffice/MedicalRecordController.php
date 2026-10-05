@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Backoffice;
 
-use App\Exports\Backoffice\MedicalRecordsWorkbookExport;
 use App\Http\Controllers\Controller;
 use App\Models\BloodTest;
+use App\Models\Employee;
 use App\Models\MedicalVisit;
+use App\Support\StreamingXlsxWriter;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use Maatwebsite\Excel\Facades\Excel;
 
 class MedicalRecordController extends Controller
 {
@@ -91,55 +92,84 @@ class MedicalRecordController extends Controller
 
     public function export(Request $request)
     {
+        $request->validate(['format' => 'nullable|in:medical,dch']);
+        // Keep the PHP time limit from interrupting a large disk-based export.
+        set_time_limit(0);
+        DB::connection()->disableQueryLog();
         $user = $request->user();
         $search = $request->string('q')->trim()->value();
         [$medicalTable, $qhseTable] = $this->resolveTables();
+        $format = $request->input('format', 'medical');
+        $canExportMedicalSheet = (bool) ($user?->isMedecin() || $user?->isAdmin());
+        $sheets = [];
 
-        $query = MedicalVisit::query()
-            ->from("{$medicalTable} as medical_visits")
-            ->with([
-                'employee',
-                'employee.bloodTests',
-                'employee.qhse' => function ($builder) use ($qhseTable) {
-                    $builder->from("{$qhseTable} as medical_visit_qhses");
-                },
-            ])
-            ->latest('medical_visits.created_at');
-
-        if ($search !== '') {
-            $query->whereHas('employee', function ($builder) use ($search) {
-                $builder->where('nom', 'like', "%{$search}%")
-                    ->orWhere('prenom', 'like', "%{$search}%")
-                    ->orWhere('matricule', 'like', "%{$search}%");
-            });
+        if ($format === 'dch') {
+            $employees = Employee::query()->select('employees.*')
+                ->selectSub(DB::table($medicalTable)->selectRaw('MAX(created_at)')
+                    ->whereColumn('employee_id', 'employees.id'), 'last_visit_at')
+                ->selectSub(DB::table($medicalTable)->selectRaw('COUNT(*)')
+                    ->whereColumn('employee_id', 'employees.id'), 'visit_count');
+            if ($search !== '') {
+                $employees->where(function ($builder) use ($search) {
+                    $builder->where('nom', 'like', "%{$search}%")
+                        ->orWhere('prenom', 'like', "%{$search}%")
+                        ->orWhere('matricule', 'like', "%{$search}%");
+                });
+            }
+            $sheets[] = [
+                'title' => 'DCH',
+                'headers' => ['MATRICULE', 'AGENT', 'AGE', 'SEXE', 'EMPLOI OCCUPE', 'DIRECTION',
+                    'DELEGATION REGIONALE', 'DELEGATION DEPARTEMENTALE / SERVICE', 'UNITE COMMUNALE',
+                    'VISITE MEDICALE', 'DATE VISITE'],
+                'rows' => $employees->lazyById(500)->map(fn ($employee) => [
+                    $this->normalizeCsvValue($employee->matricule),
+                    $this->employeeFullName($employee),
+                    $this->normalizeCsvValue($employee->age),
+                    $this->normalizeCsvValue($employee->sexe),
+                    $this->normalizeCsvValue($employee->emploi_occupe),
+                    $this->normalizeCsvValue($employee->direction),
+                    $this->normalizeCsvValue($employee->delegation_r),
+                    $this->normalizeCsvValue($employee->service),
+                    $this->normalizeCsvValue($employee->unite_communale),
+                    $employee->visit_count > 0 ? 'OUI' : 'NON',
+                    $this->formatDateValue($employee->last_visit_at),
+                ]),
+            ];
+        } else {
+            $query = MedicalVisit::query()->from("{$medicalTable} as medical_visits")
+                ->select('medical_visits.*');
+            if ($search !== '') {
+                $query->whereHas('employee', function ($builder) use ($search) {
+                    $builder->where('nom', 'like', "%{$search}%")
+                        ->orWhere('prenom', 'like', "%{$search}%")
+                        ->orWhere('matricule', 'like', "%{$search}%");
+                });
+            }
+            if ($canExportMedicalSheet) {
+                $medicalQuery = (clone $query)->with(['employee', 'employee.bloodTests' => fn ($builder) => $builder->limit(1)]);
+                $sheets[] = ['title' => 'Donnees medicales', 'headers' => $this->medicalHeaders(),
+                    'rows' => $medicalQuery->orderByDesc('medical_visits.created_at')->orderByDesc('medical_visits.id')
+                        ->lazy(500)->map(fn ($visit) => $this->medicalRow($visit))];
+            }
+            $qhseQuery = (clone $query)->with(['employee', 'employee.qhse' => function ($builder) use ($qhseTable) {
+                $builder->from("{$qhseTable} as medical_visit_qhses");
+            }]);
+            $sheets[] = ['title' => 'Donnees QHSE', 'headers' => $this->qhseHeaders(),
+                'rows' => $qhseQuery->orderByDesc('medical_visits.created_at')->orderByDesc('medical_visits.id')
+                    ->lazy(500)->map(fn ($visit) => $this->qhseRow($visit))];
         }
 
-        $visits = $query->get();
-        $canExportMedicalSheet = (bool) $user?->isMedecin() || $user?->isAdmin();
-        $medicalRows = $canExportMedicalSheet
-            ? $visits->map(fn($visit) => $this->medicalRow($visit))->all()
-            : [];
-        $qhseRows = $visits->map(fn($visit) => $this->qhseRow($visit))->all();
         $generatedAt = now();
-        $generatedBy = $user?->name ?: $user?->email ?: 'Utilisateur VMAP';
+        $path = (new StreamingXlsxWriter)->write($sheets, [
+            'reference' => (string) Str::uuid(),
+            'generated_at' => $generatedAt->toIso8601String(),
+            'generated_by' => $user?->name ?: $user?->email ?: 'Utilisateur VMAP',
+        ]);
+        $filename = ($format === 'dch' ? 'dch-' : 'fiches-medicales-').$generatedAt->format('Ymd-His').'.xlsx';
 
-        $filename = 'fiches-medicales-' . $generatedAt->format('Ymd-His') . '.xlsx';
-
-        return Excel::download(
-            new MedicalRecordsWorkbookExport(
-                $canExportMedicalSheet ? $this->medicalHeaders() : [],
-                $medicalRows,
-                $this->qhseHeaders(),
-                $qhseRows,
-                $canExportMedicalSheet,
-                [
-                    'reference' => (string) Str::uuid(),
-                    'generated_at' => $generatedAt->toIso8601String(),
-                    'generated_by' => $generatedBy,
-                ]
-            ),
-            $filename
-        );
+        return response()->download($path, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
     }
 
     private function medicalHeaders(): array
@@ -308,11 +338,11 @@ class MedicalRecordController extends Controller
 
     private function employeeFullName($employee): string
     {
-        if (!$employee) {
+        if (! $employee) {
             return '';
         }
 
-        return trim(($employee->prenom ?? '') . ' ' . ($employee->nom ?? ''));
+        return trim(($employee->prenom ?? '').' '.($employee->nom ?? ''));
     }
 
     private function employeeAge($dateNaissance): string
@@ -345,6 +375,7 @@ class MedicalRecordController extends Controller
     {
         if (is_array($value)) {
             $parts = $this->flattenValues($value);
+
             return implode(' - ', $parts);
         }
 
@@ -356,6 +387,7 @@ class MedicalRecordController extends Controller
             }
 
             $parts = $this->flattenValues((array) $value);
+
             return implode(' - ', $parts);
         }
 
@@ -369,7 +401,7 @@ class MedicalRecordController extends Controller
             return '';
         }
 
-        if (!preg_match('//u', $text)) {
+        if (! preg_match('//u', $text)) {
             if (function_exists('mb_convert_encoding')) {
                 $text = mb_convert_encoding($text, 'UTF-8', 'auto');
             } elseif (function_exists('iconv')) {
@@ -388,11 +420,13 @@ class MedicalRecordController extends Controller
         foreach ($values as $value) {
             if (is_array($value)) {
                 $flat = array_merge($flat, $this->flattenValues($value));
+
                 continue;
             }
 
             if (is_object($value)) {
                 $flat = array_merge($flat, $this->flattenValues((array) $value));
+
                 continue;
             }
 
@@ -416,7 +450,7 @@ class MedicalRecordController extends Controller
         }
 
         try {
-            return \Illuminate\Support\Carbon::parse($value)->format('Y-m-d');
+            return \Illuminate\Support\Carbon::parse($value)->format('d/m/Y');
         } catch (\Throwable $exception) {
             return $this->normalizeCsvValue($value);
         }

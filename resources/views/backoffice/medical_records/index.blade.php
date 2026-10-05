@@ -34,9 +34,26 @@
             </div>
         </div>
         <div class="gap-2 d-flex">
-            <a class="btn btn-outline-dark" href="{{ route('backoffice.medical-records.export', ['q' => $search]) }}">
-                Export Excel
-            </a>
+            <div class="dropdown">
+                <button class="btn btn-outline-dark dropdown-toggle text-nowrap" type="button"
+                    id="exportExcelDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Exporter Excel
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportExcelDropdown">
+                    <li>
+                        <a class="dropdown-item"
+                            href="{{ route('backoffice.medical-records.export', ['q' => $search, 'format' => 'medical']) }}">
+                            Fiche médicale
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item"
+                            href="{{ route('backoffice.medical-records.export', ['q' => $search, 'format' => 'dch']) }}">
+                            DCH
+                        </a>
+                    </li>
+                </ul>
+            </div>
             <form class="gap-2 d-flex" method="GET" action="{{ route('backoffice.medical-records.index') }}">
                 <input class="form-control" type="search" name="q" value="{{ $search }}"
                     placeholder="Nom, prénom, matricule">
