@@ -7,6 +7,7 @@
             <div class="bo-muted">Gestion des comptes et des rôles.</div>
         </div>
         <div class="gap-2 d-flex">
+            <a class="btn btn-outline-dark" href="{{ route('backoffice.users.otps') }}">Codes OTP</a>
             <a class="btn btn-bo" href="{{ route('backoffice.users.create') }}">Nouvel utilisateur</a>
             <a class="btn btn-outline-primary" href="{{ route('backoffice.users.import') }}">
                 <i class="bi bi-upload"></i> Importer

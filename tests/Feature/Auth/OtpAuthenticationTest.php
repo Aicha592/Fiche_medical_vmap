@@ -61,6 +61,22 @@ class OtpAuthenticationTest extends TestCase
         $otp->update(['expires_at' => now()]);
         $this->withSession(['user_id' => $user->id])->post('/otp', ['otp' => '123456'])->assertSessionHasErrors('otp');
         $this->assertGuest();
+        $this->assertDatabaseMissing('otps', ['id' => $otp->id]);
+    }
+
+    public function test_cleanup_deletes_only_expired_codes_without_user_interaction(): void
+    {
+        $this->freezeTime();
+        $user = $this->pendingUser();
+        foreach ([now()->subMinute(), now(), now()->addMinute()] as $expiration) {
+            Otp::create(['user_id' => $user->id, 'code' => '123456', 'expires_at' => $expiration]);
+        }
+        $validOtp = Otp::latest('id')->first();
+
+        $this->artisan('otps:clear-expired')->assertSuccessful();
+
+        $this->assertDatabaseCount('otps', 1);
+        $this->assertDatabaseHas('otps', ['id' => $validOtp->id]);
     }
 
     public function test_resend_replaces_the_code_and_enforces_cooldown(): void

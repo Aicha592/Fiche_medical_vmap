@@ -6,6 +6,7 @@ use App\Exports\UsersTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\UsersImport;
 use App\Models\User;
+use App\Models\Otp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
@@ -46,6 +47,15 @@ class UserAdminController extends Controller
             'search' => $search,
             'roles' => $this->roles(),
         ]);
+    }
+
+    public function otps()
+    {
+        $otps = Otp::with('user')->where('expires_at', '>', now())
+            ->latest('updated_at')->orderByDesc('id')->paginate(15);
+
+        return response()->view('backoffice.users.otps', compact('otps'))
+            ->header('Cache-Control', 'no-store, private');
     }
 
     public function create()

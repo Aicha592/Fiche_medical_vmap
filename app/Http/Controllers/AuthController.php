@@ -107,6 +107,10 @@ class AuthController extends Controller
         $otp = Otp::where('user_id', $userId)->latest('id')->first();
 
         if (!$otp || $otp->isExpired()) {
+            if ($otp) {
+                Otp::whereKey($otp->id)->where('expires_at', '<=', now())->delete();
+            }
+
             return back()->withErrors([
                 'otp' => 'Code expiré, veuillez demander un nouveau code'
             ]);

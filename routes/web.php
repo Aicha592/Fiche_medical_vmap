@@ -94,6 +94,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/fiches/export', [MedicalRecordController::class, 'export'])->name('medical-records.export');
         Route::get('/fiches/{medicalVisit}', [MedicalRecordController::class, 'show'])->name('medical-records.show');
         Route::get('/utilisateurs', [UserAdminController::class, 'index'])->name('users.index');
+        Route::get('/utilisateurs/otps', [UserAdminController::class, 'otps'])->name('users.otps');
         Route::get('/utilisateurs/nouveau', [UserAdminController::class, 'create'])->name('users.create');
         Route::post('/utilisateurs', [UserAdminController::class, 'store'])->name('users.store');
         Route::get('/utilisateurs/{user}/modifier', [UserAdminController::class, 'edit'])->name('users.edit');
