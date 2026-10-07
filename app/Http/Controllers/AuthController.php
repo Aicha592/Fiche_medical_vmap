@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Otp;
 use App\Services\OrangeSmsService;
 use Log;
 
@@ -44,11 +45,15 @@ class AuthController extends Controller
         }
 
         // Générer le code OTP
-        $otpCode = rand(100000, 999999);
+        $otpCode = (string) random_int(100000, 999999);
+        Otp::updateOrCreate(
+            ['user_id' => $user->id],
+            ['code' => $otpCode, 'expires_at' => now()->addMinutes(5)]
+        );
 
-        // Stocker OTP et info utilisateur dans session
+        // Garder uniquement le contexte utilisateur en session
+        session()->forget(['otp', 'otp_resent_at']);
         session([
-            'otp' => $otpCode,
             'user_id' => $user->id,
             'phone' => $user->telephone,
         ]);
@@ -91,26 +96,44 @@ class AuthController extends Controller
             'otp' => 'required|digits:6',
         ]);
 
-        $otpSession = session('otp');
         $userId = session('user_id');
 
-        if (!$otpSession || !$userId) {
+        if (!$userId) {
             return redirect()->route('login')->withErrors([
                 'session' => 'Session expirée, veuillez vous reconnecter'
             ]);
         }
 
-        if ($request->otp != $otpSession) {
+        $otp = Otp::where('user_id', $userId)->latest('id')->first();
+
+        if (!$otp || $otp->isExpired()) {
+            return back()->withErrors([
+                'otp' => 'Code expiré, veuillez demander un nouveau code'
+            ]);
+        }
+
+        if (!hash_equals($otp->code, (string) $request->otp)) {
             return back()->withErrors([
                 'otp' => 'Code incorrect'
             ]);
         }
 
+        // Consommer le code une seule fois.
+        $consumed = Otp::whereKey($otp->id)
+            ->where('code', $otp->code)
+            ->where('expires_at', '>', now())
+            ->delete();
+
+        if (!$consumed) {
+            return back()->withErrors(['otp' => 'Code expiré ou déjà utilisé']);
+        }
+
         // Connexion de l'utilisateur
         Auth::loginUsingId($userId);
+        $request->session()->regenerate();
 
         // Nettoyer la session
-        session()->forget(['otp', 'user_id', 'phone']);
+        session()->forget(['otp', 'user_id', 'phone', 'otp_resent_at']);
 
         $user = Auth::user();
 
@@ -156,14 +179,14 @@ class AuthController extends Controller
 
         $cooldownSeconds = 60;
         $lastSentAt = session('otp_resent_at');
-        if ($lastSentAt && now()->diffInSeconds($lastSentAt) < $cooldownSeconds) {
-            $remaining = $cooldownSeconds - now()->diffInSeconds($lastSentAt);
+        if ($lastSentAt && now()->diffInSeconds($lastSentAt, true) < $cooldownSeconds) {
+            $remaining = $cooldownSeconds - now()->diffInSeconds($lastSentAt, true);
             return back()->with('error', "Veuillez patienter {$remaining}s avant de renvoyer un code.");
         }
 
         $user = User::find($userId);
         if (!$user) {
-            session()->forget(['otp', 'user_id', 'phone']);
+            session()->forget(['otp', 'user_id', 'phone', 'otp_resent_at']);
             return redirect()->route('login')->withErrors([
                 'session' => 'Utilisateur introuvable, veuillez vous reconnecter'
             ]);
@@ -171,8 +194,11 @@ class AuthController extends Controller
 
         // Supprimer l'ancien code et générer un nouveau
         session()->forget('otp');
-        $otpCode = rand(100000, 999999);
-        session(['otp' => $otpCode]);
+        $otpCode = (string) random_int(100000, 999999);
+        Otp::updateOrCreate(
+            ['user_id' => $user->id],
+            ['code' => $otpCode, 'expires_at' => now()->addMinutes(5)]
+        );
 
         try {
             $this->sms->sendSms(

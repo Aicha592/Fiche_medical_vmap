@@ -24,7 +24,7 @@ class Otp extends Model
     // Vérifie si le code est expiré
     public function isExpired(): bool
     {
-        return now()->greaterThan($this->expires_at);
+        return now()->greaterThanOrEqualTo($this->expires_at);
     }
 
     // Relation inverse vers User
