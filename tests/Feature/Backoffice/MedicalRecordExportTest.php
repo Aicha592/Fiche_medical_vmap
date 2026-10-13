@@ -36,12 +36,29 @@ class MedicalRecordExportTest extends TestCase
             $rows = $book->getSheet(0)->toArray();
             $this->assertCount(3, $rows);
             $this->assertSame(['MATRICULE', 'AGENT', 'AGE', 'SEXE', 'EMPLOI OCCUPE', 'DIRECTION', 'DELEGATION REGIONALE', 'DELEGATION DEPARTEMENTALE / SERVICE', 'UNITE COMMUNALE', 'VISITE MEDICALE', 'DATE VISITE'], $rows[0]);
+            foreach (range('A', 'K') as $column) {
+                $sheet = $book->getSheet(0);
+                $this->assertEquals(24, $sheet->getColumnDimension($column)->getWidth());
+                $this->assertSame('FF356A45', $sheet->getStyle($column.'1')->getFill()->getStartColor()->getARGB());
+                $this->assertSame('FFE2F0D9', $sheet->getStyle($column.'2')->getFill()->getStartColor()->getARGB());
+                $this->assertSame('FFFFFFFF', $sheet->getStyle($column.'3')->getFill()->getStartColor()->getARGB());
+            }
+            $this->assertGreaterThan(24, $book->getSheet(0)->getRowDimension(1)->getRowHeight());
+            $this->assertTrue($book->getSheet(0)->getStyle('B2')->getAlignment()->getWrapText());
+            $this->assertSame('center', $book->getSheet(0)->getStyle('J2')->getAlignment()->getHorizontal());
             $this->assertSame('00123', $rows[1][0]);
             $this->assertSame('Aïssatou Ndiaye', $rows[1][1]);
             $this->assertSame('✓', $rows[1][9]);
             $this->assertSame('01/02/2026', $rows[1][10]);
+            $this->assertSame('n', $book->getSheet(0)->getCell('K2')->getDataType());
+            $this->assertSame('2026-02-01', \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($book->getSheet(0)->getCell('K2')->getValue())->format('Y-m-d'));
+            foreach (range('A', 'K') as $column) {
+                foreach ([1, 2, 3] as $row) {
+                    $this->assertSame('center', $book->getSheet(0)->getStyle($column.$row)->getAlignment()->getVertical());
+                }
+            }
             $this->assertSame('✗', $rows[2][9]);
-            $this->assertSame('', $rows[2][10]);
+            $this->assertNull($rows[2][10]);
             $this->assertSame('FF008000', $book->getSheet(0)->getStyle('J2')->getFont()->getColor()->getARGB());
             $this->assertSame('FFFF0000', $book->getSheet(0)->getStyle('J3')->getFont()->getColor()->getARGB());
             $this->assertSame('hidden', $book->getSheet(1)->getSheetState());

@@ -119,6 +119,10 @@ class MedicalRecordController extends Controller
             $sheets[] = [
                 'title' => 'DCH',
                 'status_columns' => [9],
+                'centered_columns' => [0, 2, 3, 5, 9, 10],
+                'auto_row_height' => true,
+                'banded_rows' => true,
+                'date_columns' => [10 => 'd/m/Y'],
                 'headers' => ['MATRICULE', 'AGENT', 'AGE', 'SEXE', 'EMPLOI OCCUPE', 'DIRECTION',
                     'DELEGATION REGIONALE', 'DELEGATION DEPARTEMENTALE / SERVICE', 'UNITE COMMUNALE',
                     'VISITE MEDICALE', 'DATE VISITE'],

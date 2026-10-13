@@ -17,7 +17,7 @@ class LargeXlsxExportTest extends TestCase
             }
         })();
         $path = (new StreamingXlsxWriter)->write([
-            ['title' => 'DCH', 'headers' => array_fill(0, 11, 'COLONNE'), 'rows' => $rows],
+            ['title' => 'DCH', 'auto_row_height' => true, 'headers' => array_fill(0, 11, 'COLONNE'), 'rows' => $rows],
         ]);
         try {
             $this->assertLessThan(32 * 1024 * 1024, memory_get_usage(true) - $baseline);
