@@ -27,7 +27,7 @@ class StreamingXlsxWriter
             foreach ($sheets as $index => $sheet) {
                 $xmlPath = tempnam(sys_get_temp_dir(), 'vmap-sheet-');
                 $temporary[] = $xmlPath;
-                $counts[$sheet['title']] = $this->worksheet($xmlPath, $sheet['headers'], $sheet['rows'], $hash);
+                $counts[$sheet['title']] = $this->worksheet($xmlPath, $sheet['headers'], $sheet['rows'], $hash, $sheet['status_columns'] ?? []);
                 $zip->addFile($xmlPath, 'xl/worksheets/sheet'.($index + 1).'.xml');
             }
             $authRows = [
@@ -60,7 +60,7 @@ class StreamingXlsxWriter
             $zip->addFromString('_rels/.rels', '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
             $zip->addFromString('xl/workbook.xml', $workbook.'</sheets></workbook>');
             $zip->addFromString('xl/_rels/workbook.xml.rels', $rels.'<Relationship Id="styles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
-            $zip->addFromString('xl/styles.xml', '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="12"/><name val="Arial"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="12"/><name val="Arial"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF356A45"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="49" fontId="1" fillId="2" borderId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf></cellXfs></styleSheet>');
+            $zip->addFromString('xl/styles.xml', '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="12"/><name val="Arial"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="12"/><name val="Arial"/></font><font><b/><color rgb="FF008000"/><sz val="14"/><name val="DejaVu Sans"/></font><font><b/><color rgb="FFFF0000"/><sz val="14"/><name val="DejaVu Sans"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF356A45"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="4"><xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="49" fontId="1" fillId="2" borderId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf><xf numFmtId="49" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="49" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf></cellXfs></styleSheet>');
             if (! $zip->close()) {
                 throw new RuntimeException('Impossible de finaliser le fichier Excel.');
             }
@@ -81,7 +81,7 @@ class StreamingXlsxWriter
         }
     }
 
-    private function worksheet(string $path, array $headers, iterable $rows, $hash = null): int
+    private function worksheet(string $path, array $headers, iterable $rows, $hash = null, array $statusColumns = []): int
     {
         $xml = new XMLWriter;
         if (! $xml->openUri($path)) {
@@ -103,7 +103,7 @@ class StreamingXlsxWriter
             if ($hash) {
                 hash_update($hash, json_encode($row, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
             }
-            $this->row($xml, ++$number, $row, false);
+            $this->row($xml, ++$number, $row, false, $statusColumns);
             $count++;
             if ($count % 500 === 0) {
                 $xml->flush();
@@ -120,7 +120,7 @@ class StreamingXlsxWriter
         return $count;
     }
 
-    private function row(XMLWriter $xml, int $number, array $values, bool $heading): void
+    private function row(XMLWriter $xml, int $number, array $values, bool $heading, array $statusColumns = []): void
     {
         $xml->startElement('row');
         $xml->writeAttribute('r', (string) $number);
@@ -128,7 +128,15 @@ class StreamingXlsxWriter
             $xml->startElement('c');
             $xml->writeAttribute('r', $this->column($index + 1).$number);
             $xml->writeAttribute('t', 'inlineStr');
-            $xml->writeAttribute('s', $heading ? '1' : '0');
+            $style = $heading ? '1' : '0';
+            if (! $heading && in_array($index, $statusColumns, true)) {
+                $style = match ($value) {
+                    '✓' => '2',
+                    '✗' => '3',
+                    default => '0',
+                };
+            }
+            $xml->writeAttribute('s', $style);
             $xml->startElement('is');
             $xml->startElement('t');
             $xml->writeAttribute('xml:space', 'preserve');

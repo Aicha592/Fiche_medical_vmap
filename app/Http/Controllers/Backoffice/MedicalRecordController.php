@@ -118,6 +118,7 @@ class MedicalRecordController extends Controller
             }
             $sheets[] = [
                 'title' => 'DCH',
+                'status_columns' => [9],
                 'headers' => ['MATRICULE', 'AGENT', 'AGE', 'SEXE', 'EMPLOI OCCUPE', 'DIRECTION',
                     'DELEGATION REGIONALE', 'DELEGATION DEPARTEMENTALE / SERVICE', 'UNITE COMMUNALE',
                     'VISITE MEDICALE', 'DATE VISITE'],
@@ -131,7 +132,7 @@ class MedicalRecordController extends Controller
                     $this->normalizeCsvValue($employee->delegation_r),
                     $this->normalizeCsvValue($employee->service),
                     $this->normalizeCsvValue($employee->unite_communale),
-                    $employee->visit_count > 0 ? 'OUI' : 'NON',
+                    $employee->visit_count > 0 ? '✓' : '✗',
                     $this->formatDateValue($employee->last_visit_at),
                 ]),
             ];

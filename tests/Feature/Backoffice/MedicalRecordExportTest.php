@@ -38,10 +38,12 @@ class MedicalRecordExportTest extends TestCase
             $this->assertSame(['MATRICULE', 'AGENT', 'AGE', 'SEXE', 'EMPLOI OCCUPE', 'DIRECTION', 'DELEGATION REGIONALE', 'DELEGATION DEPARTEMENTALE / SERVICE', 'UNITE COMMUNALE', 'VISITE MEDICALE', 'DATE VISITE'], $rows[0]);
             $this->assertSame('00123', $rows[1][0]);
             $this->assertSame('Aïssatou Ndiaye', $rows[1][1]);
-            $this->assertSame('OUI', $rows[1][9]);
+            $this->assertSame('✓', $rows[1][9]);
             $this->assertSame('01/02/2026', $rows[1][10]);
-            $this->assertSame('NON', $rows[2][9]);
+            $this->assertSame('✗', $rows[2][9]);
             $this->assertSame('', $rows[2][10]);
+            $this->assertSame('FF008000', $book->getSheet(0)->getStyle('J2')->getFont()->getColor()->getARGB());
+            $this->assertSame('FFFF0000', $book->getSheet(0)->getStyle('J3')->getFont()->getColor()->getARGB());
             $this->assertSame('hidden', $book->getSheet(1)->getSheetState());
             $book->disconnectWorksheets();
         } finally {
@@ -83,7 +85,7 @@ class MedicalRecordExportTest extends TestCase
         try {
             $book = IOFactory::load($path);
             $this->assertSame('00999', $book->getSheet(0)->getCell('A2')->getFormattedValue());
-            $this->assertSame('NON', $book->getSheet(0)->getCell('J2')->getFormattedValue());
+            $this->assertSame('✗', $book->getSheet(0)->getCell('J2')->getFormattedValue());
             $book->disconnectWorksheets();
         } finally {
             unlink($path);
