@@ -108,7 +108,13 @@ class MedicalRecordController extends Controller
                 ->selectSub(DB::table($medicalTable)->selectRaw('MAX(created_at)')
                     ->whereColumn('employee_id', 'employees.id'), 'last_visit_at')
                 ->selectSub(DB::table($medicalTable)->selectRaw('COUNT(*)')
-                    ->whereColumn('employee_id', 'employees.id'), 'visit_count');
+                    ->whereColumn('employee_id', 'employees.id'), 'visit_count')
+                ->selectSub(DB::table("{$medicalTable} as latest_visit")
+                    ->leftJoin('users', 'users.id', '=', 'latest_visit.created_by_user_id')
+                    ->select('users.name')
+                    ->whereColumn('latest_visit.employee_id', 'employees.id')
+                    ->orderByDesc('latest_visit.created_at')->orderByDesc('latest_visit.id')
+                    ->limit(1), 'visit_user_name');
             if ($search !== '') {
                 $employees->where(function ($builder) use ($search) {
                     $builder->where('nom', 'like', "%{$search}%")
@@ -125,7 +131,7 @@ class MedicalRecordController extends Controller
                 'date_columns' => [10 => 'd/m/Y'],
                 'headers' => ['MATRICULE', 'AGENT', 'AGE', 'SEXE', 'EMPLOI OCCUPE', 'DIRECTION',
                     'DELEGATION REGIONALE', 'DELEGATION DEPARTEMENTALE / SERVICE', 'UNITE COMMUNALE',
-                    'VISITE MEDICALE', 'DATE VISITE'],
+                    'VISITE MEDICALE', 'DATE VISITE', 'VISITE EFFECTUEE PAR'],
                 'rows' => $employees->lazyById(500)->map(fn ($employee) => [
                     $this->normalizeCsvValue($employee->matricule),
                     $this->employeeFullName($employee),
@@ -138,6 +144,7 @@ class MedicalRecordController extends Controller
                     $this->normalizeCsvValue($employee->unite_communale),
                     $employee->visit_count > 0 ? '✓' : '✗',
                     $this->formatDateValue($employee->last_visit_at),
+                    $this->normalizeCsvValue($employee->visit_user_name),
                 ]),
             ];
         } else {
