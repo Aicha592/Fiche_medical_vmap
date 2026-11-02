@@ -3,6 +3,7 @@
 namespace Tests\Feature\Backoffice;
 
 use App\Models\Employee;
+use App\Models\BloodTest;
 use App\Models\MedicalVisit;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -89,6 +90,61 @@ class MedicalRecordExportTest extends TestCase
         } finally {
             unlink($path);
         }
+    }
+
+    public function test_dch_with_record_appends_latest_medical_and_lab_data(): void
+    {
+        $this->travelTo(\Illuminate\Support\Carbon::parse('2026-11-02'));
+        $admin = $this->user('admin');
+        $employee = Employee::create(['user_id' => $admin->id, 'matricule' => 'ABC-15-00123', 'date_embauche' => '2020-01-01', 'nom' => 'Agent', 'prenom' => 'Test']);
+        $withoutVisit = Employee::create(['user_id' => $this->user('rh')->id, 'matricule' => 'ABC-00-00456', 'nom' => 'Sans visite', 'prenom' => 'Agent']);
+        Employee::create(['user_id' => $this->user('rh')->id, 'matricule' => '00789', 'nom' => 'Sans données', 'prenom' => 'Agent']);
+        MedicalVisit::forceCreate(['employee_id' => $employee->id, 'observations' => 'Ancienne fiche', 'created_at' => '2026-01-01']);
+        MedicalVisit::forceCreate(['employee_id' => $employee->id, 'created_by_user_id' => $admin->id,
+            'observations' => 'Dernière fiche', 'taille' => '175', 'created_at' => '2026-02-01']);
+        BloodTest::forceCreate(['employee_id' => $employee->id, 'uree' => '0.2', 'created_at' => '2026-01-01']);
+        BloodTest::forceCreate(['employee_id' => $employee->id, 'uree' => '0.4', 'plt' => '250', 'created_at' => '2026-02-01']);
+        BloodTest::forceCreate(['employee_id' => $withoutVisit->id, 'uree' => '0.3', 'created_at' => '2026-02-01']);
+
+        $response = $this->actingAs($admin)->get(route('backoffice.medical-records.export', ['format' => 'dch_with_record']));
+        $response->assertOk();
+        $path = $response->baseResponse->getFile()->getPathname();
+        try {
+            $book = IOFactory::load($path);
+            $sheet = $book->getSheet(0);
+            $rows = $sheet->toArray();
+            $this->assertSame('DCH avec fiche', $sheet->getTitle());
+            $this->assertCount(4, $rows);
+            $this->assertCount(38, $rows[0]);
+            $first = array_combine($rows[0], $rows[1]);
+            $second = array_combine($rows[0], $rows[2]);
+            $third = array_combine($rows[0], $rows[3]);
+            $this->assertSame('ABC-15-00123', $first['MATRICULE']);
+            $this->assertSame('11', $first['ANCIENNETE (ANS)']);
+            $this->assertSame('26', $second['ANCIENNETE (ANS)']);
+            $this->assertSame('', $third['ANCIENNETE (ANS)']);
+            $this->assertSame('01/02/2026', $first['DATE VISITE']);
+            $this->assertSame($admin->name, $first['VISITE EFFECTUEE PAR']);
+            $this->assertSame('Dernière fiche', $first['OBSERVATIONS']);
+            $this->assertSame('175', $first['TAILLE']);
+            $this->assertSame('0.4', $first['UREE (G/L)']);
+            $this->assertSame('250', $first['PLT (10^9/L)']);
+            $this->assertSame('✗', $second['VISITE MEDICALE']);
+            $this->assertSame('', $second['OBSERVATIONS']);
+            $this->assertSame('0.3', $second['UREE (G/L)']);
+            $this->assertSame('', $third['UREE (G/L)']);
+            $this->assertSame('FF356A45', $sheet->getStyle('AL1')->getFill()->getStartColor()->getARGB());
+            $book->disconnectWorksheets();
+        } finally {
+            unlink($path);
+        }
+    }
+
+    public function test_dch_with_record_requires_medical_access(): void
+    {
+        $this->actingAs($this->user('ch'))
+            ->get(route('backoffice.medical-records.export', ['format' => 'dch_with_record']))
+            ->assertForbidden();
     }
 
     public function test_medical_export_preserves_sheets_and_restricts_clinical_data(): void

@@ -52,6 +52,14 @@
                             DCH
                         </a>
                     </li>
+                    @if ($user->isMedecin() || $user->isAdmin())
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('backoffice.medical-records.export', ['q' => $search, 'format' => 'dch_with_record']) }}">
+                                DCH avec fiche
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </div>
             <form class="gap-2 d-flex" method="GET" action="{{ route('backoffice.medical-records.index') }}">

@@ -92,7 +92,7 @@ class MedicalRecordController extends Controller
 
     public function export(Request $request)
     {
-        $request->validate(['format' => 'nullable|in:medical,dch']);
+        $request->validate(['format' => 'nullable|in:medical,dch,dch_with_record']);
         // Keep the PHP time limit from interrupting a large disk-based export.
         set_time_limit(0);
         DB::connection()->disableQueryLog();
@@ -103,7 +103,10 @@ class MedicalRecordController extends Controller
         $canExportMedicalSheet = (bool) ($user?->isMedecin() || $user?->isAdmin());
         $sheets = [];
 
-        if ($format === 'dch') {
+        $withRecord = $format === 'dch_with_record';
+        abort_if($withRecord && !$canExportMedicalSheet, 403);
+
+        if ($format === 'dch' || $withRecord) {
             $employees = Employee::query()->select('employees.*')
                 ->selectSub(DB::table($medicalTable)->selectRaw('MAX(created_at)')
                     ->whereColumn('employee_id', 'employees.id'), 'last_visit_at')
@@ -122,17 +125,27 @@ class MedicalRecordController extends Controller
                         ->orWhere('matricule', 'like', "%{$search}%");
                 });
             }
+            if ($withRecord) {
+                $employees->with([
+                    'medicalVisits' => fn ($query) => $query->from("{$medicalTable} as medical_visits")
+                        ->select('medical_visits.*')->orderByDesc('created_at')->orderByDesc('id')->limit(1),
+                    'bloodTests' => fn ($query) => $query->orderByDesc('id')->limit(1),
+                ]);
+            }
+            $extraHeaders = $withRecord
+                ? array_merge(['ANCIENNETE (ANS)'], array_slice($this->medicalHeaders(), 10, 12), array_slice($this->medicalHeaders(), 23))
+                : [];
             $sheets[] = [
-                'title' => 'DCH',
+                'title' => $withRecord ? 'DCH avec fiche' : 'DCH',
                 'status_columns' => [9],
                 'centered_columns' => [0, 2, 3, 5, 9, 10],
                 'auto_row_height' => true,
                 'banded_rows' => true,
                 'date_columns' => [10 => 'd/m/Y'],
-                'headers' => ['MATRICULE', 'AGENT', 'AGE', 'SEXE', 'EMPLOI OCCUPE', 'DIRECTION',
+                'headers' => array_merge(['MATRICULE', 'AGENT', 'AGE', 'SEXE', 'EMPLOI OCCUPE', 'DIRECTION',
                     'DELEGATION REGIONALE', 'DELEGATION DEPARTEMENTALE / SERVICE', 'UNITE COMMUNALE',
-                    'VISITE MEDICALE', 'DATE VISITE', 'VISITE EFFECTUEE PAR'],
-                'rows' => $employees->lazyById(500)->map(fn ($employee) => [
+                    'VISITE MEDICALE', 'DATE VISITE', 'VISITE EFFECTUEE PAR'], $extraHeaders),
+                'rows' => $employees->lazyById(500)->map(fn ($employee) => array_merge([
                     $this->normalizeCsvValue($employee->matricule),
                     $this->employeeFullName($employee),
                     $this->normalizeCsvValue($employee->age),
@@ -145,7 +158,7 @@ class MedicalRecordController extends Controller
                     $employee->visit_count > 0 ? '✓' : '✗',
                     $this->formatDateValue($employee->last_visit_at),
                     $this->normalizeCsvValue($employee->visit_user_name),
-                ]),
+                ], $withRecord ? $this->dchMedicalData($employee) : [])),
             ];
         } else {
             $query = MedicalVisit::query()->from("{$medicalTable} as medical_visits")
@@ -177,11 +190,21 @@ class MedicalRecordController extends Controller
             'generated_at' => $generatedAt->toIso8601String(),
             'generated_by' => $user?->name ?: $user?->email ?: 'Utilisateur VMAP',
         ]);
-        $filename = ($format === 'dch' ? 'dch-' : 'fiches-medicales-').$generatedAt->format('Ymd-His').'.xlsx';
+        $filename = ($withRecord ? 'dch-avec-fiche-' : ($format === 'dch' ? 'dch-' : 'fiches-medicales-')).$generatedAt->format('Ymd-His').'.xlsx';
 
         return response()->download($path, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ])->deleteFileAfterSend(true);
+    }
+
+    private function dchMedicalData(Employee $employee): array
+    {
+        $visit = $employee->medicalVisits->first() ?? new MedicalVisit;
+        $visit->setRelation('employee', $employee);
+        $medicalRow = $this->medicalRow($visit);
+
+        // Keep DCH identification and visit date, then append clinical and lab data.
+        return array_merge([$this->seniorityFromMatricule($employee->matricule)], array_slice($medicalRow, 10, 12), array_slice($medicalRow, 23));
     }
 
     private function medicalHeaders(): array
@@ -368,6 +391,17 @@ class MedicalRecordController extends Controller
         } catch (\Throwable $exception) {
             return '';
         }
+    }
+
+    private function seniorityFromMatricule(?string $matricule): string
+    {
+        $parts = explode('-', $matricule ?? '');
+        $year = trim($parts[1] ?? '');
+        if (count($parts) < 3 || !preg_match('/^[0-9]{2}$/', $year)) {
+            return '';
+        }
+
+        return (string) (now()->year - (int) ('20'.$year));
     }
 
     private function employeeSeniority($dateEmbauche): string
