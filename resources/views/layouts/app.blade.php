@@ -118,6 +118,12 @@
                             <a class="text-white nav-link" href="{{ route('medical-visits.blood_test_form') }}">Biologie</a>
                         </li>
                     @endif
+                    @if (auth()->user()->isDoctor())
+                        <li class="nav-item">
+                            <a class="text-white nav-link {{ request()->routeIs('medical-visits.consulted', 'medical-visits.consulted.*') ? 'active' : '' }}"
+                                href="{{ route('medical-visits.consulted') }}">Liste consultée</a>
+                        </li>
+                    @endif
                     <!-- <li class="nav-item">
                     <a class="text-white nav-link" href="#">Historique</a>
                 </li> -->

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\BloodTest;
+use App\Models\Employee;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Models\MedicalVisit;
 use App\Models\MedicalVisitQhse;
 use App\Models\Resultat;
@@ -35,6 +38,52 @@ class MedicalVisitController extends Controller
 
         return view('medical_visits.index', [
             'recentVisits' => $recentVisits,
+        ]);
+    }
+
+    public function consulted(Request $request)
+    {
+        abort_unless($request->user()->isDoctor(), 403);
+
+        $search = $request->string('q')->trim()->value();
+        $table = Schema::hasTable('visitemedicale') ? 'visitemedicale' : 'medical_visits';
+        $visits = DB::table($table)
+            ->where('created_by_user_id', $request->user()->id)
+            ->select('employee_id')->selectRaw('MAX(created_at) as last_consultation_at')
+            ->groupBy('employee_id');
+        $employees = Employee::query()
+            ->joinSub($visits, 'consultations', fn ($join) => $join->on('employees.id', '=', 'consultations.employee_id'))
+            ->select('employees.*', 'consultations.last_consultation_at');
+
+        if ($search !== '') {
+            $employees->where(function ($query) use ($search) {
+                $query->where('employees.nom', 'like', "%{$search}%")
+                    ->orWhere('employees.prenom', 'like', "%{$search}%")
+                    ->orWhere('employees.matricule', 'like', "%{$search}%");
+            });
+        }
+
+        return view('medical_visits.consulted', [
+            'employees' => $employees->orderByDesc('last_consultation_at')->orderByDesc('employees.id')
+                ->paginate(15)->withQueryString(),
+            'search' => $search,
+        ]);
+    }
+
+    public function consultedDetail(Request $request, Employee $employee)
+    {
+        abort_unless($request->user()->isDoctor(), 403);
+
+        $table = Schema::hasTable('visitemedicale') ? 'visitemedicale' : 'medical_visits';
+        $visit = MedicalVisit::query()->from($table)
+            ->where('employee_id', $employee->id)
+            ->where('created_by_user_id', $request->user()->id)
+            ->orderByDesc('created_at')->orderByDesc('id')->firstOrFail();
+
+        return view('medical_visits.consulted_detail', [
+            'employee' => $employee,
+            'visit' => $visit,
+            'bloodTest' => $employee->bloodTests()->orderByDesc('id')->first(),
         ]);
     }
 

@@ -64,6 +64,10 @@ Route::middleware('auth')->group(function () {
     // Recherche employés (alias agents)
     Route::get('/employees/search', [UserController::class, 'search'])->name('employees.search');
 
+    Route::get('/medical-visits/consulted', [MedicalVisitController::class, 'consulted'])->name('medical-visits.consulted');
+
+    Route::get('/medical-visits/consulted/{employee}', [MedicalVisitController::class, 'consultedDetail'])->name('medical-visits.consulted.show');
+
     // Ajouter une visite médicale
     Route::post('/medical-visits', [MedicalVisitController::class, 'store'])->name('medical-visits.store');
     Route::get('/medical-visits/{medicalVisit}/pdf', [MedicalVisitController::class, 'pdf'])->name('medical-visits.pdf');
