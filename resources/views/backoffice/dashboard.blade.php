@@ -39,8 +39,16 @@
                 <div class="bo-card bo-kpi">
                     <div class="bo-muted">Employés</div>
                     <div class="fs-3 fw-semibold">{{ $stats['employees_count'] }}</div>
-                    <div class="mt-2 bo-muted">Visites effectuées / employés</div>
-                    <div class="fw-semibold">{{ $stats['total_visits'] }} / {{ $stats['employees_count'] }}</div>
+                    <div class="mt-2 d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <div class="bo-muted">Visites effectuées / employés</div>
+                            <div class="fw-semibold">{{ $stats['total_visits'] }} / {{ $stats['employees_count'] }}</div>
+                        </div>
+                        <div class="text-end" style="color: #356a45;">
+                            <div>Analyses labo enregistrées</div>
+                            <div class="fs-3 fw-semibold">{{ $stats['blood_tests_count'] }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         @endif

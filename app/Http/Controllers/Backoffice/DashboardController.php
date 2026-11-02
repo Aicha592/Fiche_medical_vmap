@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backoffice;
 
 use App\Http\Controllers\Controller;
+use App\Models\BloodTest;
 use App\Models\Employee;
 use App\Models\MedicalVisit;
 use App\Models\MedicalVisitQhse;
@@ -113,6 +114,7 @@ class DashboardController extends Controller
                 ->count(),
             'users_count' => User::count(),
             'employees_count' => $employeesCount,
+            'blood_tests_count' => BloodTest::count(),
 
             // logique index1 (coverage + indicateurs)
             'employees_with_visit' => $employeesWithVisit,
