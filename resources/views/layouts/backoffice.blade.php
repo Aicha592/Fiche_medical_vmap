@@ -200,6 +200,10 @@
                         href="{{ route('backoffice.users.index') }}">
                         Utilisateurs
                     </a>
+                    <a class="nav-link {{ request()->routeIs('log-viewer.*') ? 'active' : '' }}"
+                        href="{{ route('log-viewer.index') }}">
+                        Log Viewer
+                    </a>
                 @endif
                 <a class="nav-link {{ request()->routeIs('backoffice.employees.*') ? 'active' : '' }}"
                     href="{{ route('backoffice.employees.index') }}">
